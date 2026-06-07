@@ -193,12 +193,12 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Left side: Authentic Company Logo Display Container */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-6 xs:p-8 rounded-3xl border border-white/60 shadow-xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-radial from-[#001F3F]/2 to-transparent opacity-60 rounded-3xl pointer-events-none" />
-              <div className="relative w-full max-w-[240px] xs:max-w-[280px] md:max-w-[320px] aspect-square transition-transform duration-700 group-hover:scale-[1.03]">
+            <div className="lg:col-span-5 aspect-square flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-8 rounded-full border border-white/60 shadow-xl relative overflow-hidden group max-w-[400px] mx-auto w-full">
+              <div className="absolute inset-0 bg-radial from-[#001F3F]/2 to-transparent opacity-60 rounded-full pointer-events-none" />
+              <div className="relative w-full max-w-[200px] xs:max-w-[240px] md:max-w-[260px] aspect-square transition-transform duration-700 group-hover:scale-[1.03]">
                 <OriginalLogo showText={true} showGlobeBg={true} size="100%" />
               </div>
-              <p className="text-[10px] text-gray-400 font-mono tracking-wider uppercase mt-4">OFFICIAL BRAND SEAL & ACCREDITATION</p>
+              <p className="text-[10px] text-gray-400 font-mono tracking-wider uppercase mt-4 z-10">OFFICIAL BRAND SEAL</p>
             </div>
 
             {/* Right side: Editorial text copy and values details */}
