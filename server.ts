@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
-import { createServer as createViteServer } from "vite";
 import { google } from "googleapis";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
@@ -256,7 +255,7 @@ async function sendAdminNotification(data: {
 }
 
 // REST Backend Route: POST /api/enquiries
-app.post("/api/enquiries", async (req, res) => {
+app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
   try {
     const { name, email, phone, destination, degree } = req.body;
 
@@ -314,7 +313,7 @@ app.post("/api/enquiries", async (req, res) => {
 });
 
 // Serve admin check of active enquiries in private dev (basic dev helper route)
-app.get("/api/enquiries", (req, res) => {
+app.get(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, (req, res) => {
   try {
     if (fs.existsSync(ENQUIRIES_FILE)) {
       const fileContent = fs.readFileSync(ENQUIRIES_FILE, "utf-8");
@@ -330,6 +329,7 @@ app.get("/api/enquiries", (req, res) => {
 async function serveViteApp() {
   if (process.env.NODE_ENV !== "production") {
     console.log("Starting full-stack application in development mode...");
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
