@@ -345,4 +345,8 @@ async function serveViteApp() {
   });
 }
 
-serveViteApp();
+export default app;
+
+if (!process.env.VERCEL) {
+  serveViteApp();
+}
