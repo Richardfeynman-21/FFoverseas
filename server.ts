@@ -286,9 +286,13 @@ app.post("/api/enquiries", async (req, res) => {
       console.error("Failed to parse existing enquiries local JSON. Re-initializing...", parseErr);
     }
 
-    currentEnquiries.push(newEnquiry);
-    fs.writeFileSync(ENQUIRIES_FILE, JSON.stringify(currentEnquiries, null, 2), "utf-8");
-    console.log(`Saved student ${name} submission locally to database/enquiries.json.`);
+    try {
+      currentEnquiries.push(newEnquiry);
+      fs.writeFileSync(ENQUIRIES_FILE, JSON.stringify(currentEnquiries, null, 2), "utf-8");
+      console.log(`Saved student ${name} submission locally to database/enquiries.json.`);
+    } catch (writeErr) {
+      console.warn("Failed to save enquiry locally (expected on read-only filesystems like Vercel):", writeErr);
+    }
 
     // Run sheet and email async so we don't slow down client response, but track statuses
     const [sheetUpdated, notificationSent] = await Promise.all([
