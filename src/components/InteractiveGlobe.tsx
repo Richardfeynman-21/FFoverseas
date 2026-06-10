@@ -44,7 +44,7 @@ export default function InteractiveGlobe() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 0, 5.8);
+    camera.position.set(0, 0, 6.6);
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
@@ -478,7 +478,7 @@ export default function InteractiveGlobe() {
         className="absolute inset-0 w-full h-full pointer-events-none"
       />
 
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" id="globe-labels-overlay">
+      <div className="absolute inset-0 pointer-events-none overflow-visible" id="globe-labels-overlay">
         {CITIES.map((city, index) => (
           <div
             key={city.name}

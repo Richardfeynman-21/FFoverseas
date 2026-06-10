@@ -371,23 +371,30 @@ export default function App() {
 
             {/* Contact details */}
             <div className="lg:col-span-4 space-y-4">
-              <h4 className="text-xs font-mono font-bold tracking-widest text-white uppercase">SATELLITE DOWNLINKS</h4>
+              <h4 className="text-xs font-mono font-bold tracking-widest text-white uppercase">OFFICE COORDINATES</h4>
               <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
-                Reach our corporate admissions desk for immediate express shortlists or immigration profile validation.
+                Reach our admissions desk for immediate immigration profile validation, shortlists, or seminar requests.
               </p>
               
               <div className="space-y-2.5 text-xs text-slate-350 font-mono">
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4 text-[#FF0000]" />
-                  <span>+1 (800) ORBIT-FLY (359)</span>
+                  <a href="tel:+918374740505" className="hover:text-white transition-colors">+91 8374740505</a>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4 text-[#FF0000]" />
-                  <span>contact@flyflourishconsultants.com</span>
+                  <a href="mailto:admin@ffoverseas.in" className="hover:text-white transition-colors">admin@ffoverseas.in</a>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-[#FF0000]" />
-                  <span>Suite 450, Global Trade Circle, CA</span>
+                <div className="flex items-start space-x-2">
+                  <MapPin className="w-4 h-4 text-[#FF0000] shrink-0 mt-0.5" />
+                  <a 
+                    href="https://maps.app.goo.gl/FsZWwDxLYhFju7ou7" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-white transition-colors leading-relaxed"
+                  >
+                    Opposite to Miracle Hospitals, Om Vihar Colony, Alwal, Secunderabad, Telangana 500010
+                  </a>
                 </div>
               </div>
             </div>
