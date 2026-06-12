@@ -10,8 +10,23 @@
 
 /* Custom scrollbar and smooth scroll */
 html {
-  scroll-behavior: smooth;
   font-family: var(--font-sans);
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis-stopped {
+  overflow: hidden;
 }
 
 body {

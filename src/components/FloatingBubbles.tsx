@@ -208,10 +208,7 @@ export default function FloatingBubbles() {
       <div className="absolute bottom-1/4 right-1/12 w-64 h-64 rounded-full bg-gradient-to-tr from-red-500/5 to-pink-500/5 blur-2xl pointer-events-none" style={{ animationDelay: '2s' }} />
 
       <div className="text-center max-w-xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FF0000]/5 border border-[#FF0000]/15 rounded-full text-xs text-[#FF0000] font-mono mb-3">
-          <MessageCircleCode className="w-3.5 h-3.5 text-[#001F3F]" />
-          <span>GLOBAL ORBITS ACHIEVED</span>
-        </div>
+
         <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#001F3F]">
           Elite Success Chronicles
         </h2>

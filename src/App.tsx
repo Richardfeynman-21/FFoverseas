@@ -8,6 +8,7 @@ import ConsultationForm from './components/ConsultationForm';
 import OriginalLogo from './components/OriginalLogo';
 import LoadingScreen from './components/LoadingScreen';
 import { AnimatePresence, motion } from 'motion/react';
+import Lenis from 'lenis';
 
 import { 
   ArrowUpRight, 
@@ -26,11 +27,22 @@ import {
 } from 'lucide-react';
 
 const revealVariants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { 
+    opacity: 0, 
+    scale: 0.96, 
+    y: 35 
+  },
   visible: { 
     opacity: 1, 
+    scale: 1, 
     y: 0,
-    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] }
+    transition: { 
+      type: 'spring',
+      stiffness: 45,
+      damping: 15,
+      mass: 0.8,
+      duration: 0.95
+    }
   }
 };
 
@@ -47,6 +59,32 @@ export default function App() {
     }
     return () => {
       document.body.style.overflow = 'unset';
+    };
+  }, [isLoading]);
+
+  // Initialize Lenis smooth scrolling
+  useEffect(() => {
+    if (isLoading) return;
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutExpo
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+    });
+
+    let rafId = 0;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
     };
   }, [isLoading]);
 
@@ -90,9 +128,14 @@ export default function App() {
       <motion.section 
         className="relative pt-32 pb-20 overflow-hidden" 
         id="hero-landing"
-        initial={{ opacity: 0, y: 30 }}
-        animate={isLoading ? { opacity: 0, y: 30 } : { opacity: 1, y: 0 }}
-        transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+        initial={{ opacity: 0, y: 25, scale: 0.97 }}
+        animate={isLoading ? { opacity: 0, y: 25, scale: 0.97 } : { opacity: 1, y: 0, scale: 1 }}
+        transition={{ 
+          type: 'spring',
+          stiffness: 45,
+          damping: 15,
+          delay: 0.1
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
           
@@ -101,13 +144,7 @@ export default function App() {
             {/* Hero Editorial Headlines Panel (7 Columns) */}
             <div className="lg:col-span-7 space-y-8 text-left">
               <div>
-                {/* Micro badge header indicating world level */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/45 backdrop-blur-md border border-white/70 rounded-full text-xs text-[#001F3F] font-mono mb-5 shadow-xs">
-                  <Compass className="w-3.5 h-3.5 text-[#FF0000] animate-spin" style={{ animationDuration: '6s' }} />
-                  <span className="font-semibold text-slate-500">FLY & FLOURISH ADMISSIONS PORTALS</span>
-                  <span className="text-gray-300">|</span>
-                  <span className="text-[#FF0000] font-bold">2026 ORBIT</span>
-                </div>
+
 
                 {/* Massive space-grotesk paired heading */}
                 <h1 className="text-3.5xl sm:text-4.5xl md:text-6xl font-black text-[#001F3F] tracking-tighter leading-tight md:leading-none">
@@ -183,7 +220,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.12 }}
+        viewport={{ once: false, amount: 0.12 }}
       >
         {/* Decorative subtle ambient lights */}
         <div className="absolute top-1/4 left-1/10 w-72 h-72 rounded-full bg-[#001F3F]/5 blur-3xl pointer-events-none" />
@@ -261,7 +298,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={{ once: false, amount: 0.15 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <DestinationCarousel />
@@ -275,7 +312,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.12 }}
+        viewport={{ once: false, amount: 0.12 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <FlourishRoadmap />
@@ -289,7 +326,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={{ once: false, amount: 0.15 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <FloatingBubbles />
@@ -303,7 +340,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
+        viewport={{ once: false, amount: 0.1 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <ConsultationForm />

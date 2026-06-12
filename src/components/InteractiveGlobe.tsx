@@ -501,10 +501,7 @@ export default function InteractiveGlobe() {
         ))}
       </div>
 
-      <div className="absolute -bottom-2 flex items-center gap-1.5 px-3 py-1 bg-[#001F3F]/5 border border-white/10 rounded-full text-[9.5px] text-sky-200/80 font-mono scale-95 shadow-xs backdrop-blur-xs transition-opacity duration-300 pointer-events-none">
-        <Sparkles className="w-2.5 h-2.5 text-red-500 animate-pulse" />
-        <span>PHOTOREALISTIC GLOBE ・ DRAG TO ROTATE EARTH</span>
-      </div>
+
     </div>
   );
 }

@@ -58,10 +58,7 @@ export default function ConsultationForm() {
         {/* Left Info Panel */}
         <div className="lg:col-span-4 flex flex-col justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FF0000]/5 border border-[#FF0000]/15 rounded-full text-xs text-[#FF0000] font-mono mb-3 backdrop-blur-sm">
-              <PhoneCall className="w-3.5 h-3.5" />
-              <span>ORBIT DIRECT DEPLOYMENT</span>
-            </div>
+
 
             <h3 className="text-3xl md:text-4.5xl font-extrabold tracking-tight text-[#001F3F]">
               Configure Your Flight Path

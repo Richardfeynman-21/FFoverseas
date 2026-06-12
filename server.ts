@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import fs from "fs";
 import { google } from "googleapis";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
@@ -14,26 +13,6 @@ const PORT = 3000;
 
 // Ensure JSON parsing
 app.use(express.json());
-
-// Path to store local backups of enquiries (ensuring no data loss)
-const DATA_DIR = path.join(process.cwd(), "data");
-const ENQUIRIES_FILE = path.join(DATA_DIR, "enquiries.json");
-
-// Helper: Ensure directories/files are initialized
-function initLocalDb() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-    if (!fs.existsSync(ENQUIRIES_FILE)) {
-      fs.writeFileSync(ENQUIRIES_FILE, JSON.stringify([], null, 2));
-    }
-  } catch (err) {
-    console.error("Failed to initialize local JSON database:", err);
-  }
-}
-
-initLocalDb();
 
 // 1. Google Sheets Integration Function
 async function updateGoogleSheet(data: {
@@ -254,44 +233,57 @@ async function sendAdminNotification(data: {
   }
 }
 
+// Helper: basic string sanitization to prevent XSS
+function sanitizeString(str: string): string {
+  if (typeof str !== "string") return "";
+  return str
+    .trim()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .replace(/\//g, "&#x2F;");
+}
+
 // REST Backend Route: POST /api/enquiries
 app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
   try {
     const { name, email, phone, destination, degree } = req.body;
 
+    // Validate existence of parameters
     if (!name || !email || !phone) {
       return res.status(400).json({ error: "Missing required profiles parameters (name, email, or phone)." });
     }
 
+    // Basic type checking and length validation
+    if (typeof name !== "string" || name.trim().length === 0 || name.length > 100) {
+      return res.status(400).json({ error: "Invalid name parameter." });
+    }
+    if (typeof email !== "string" || email.length > 150 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Invalid email parameter." });
+    }
+    if (typeof phone !== "string" || phone.length > 30 || !/^[+\d\s().-]{5,25}$/.test(phone)) {
+      return res.status(400).json({ error: "Invalid phone number parameter." });
+    }
+
+    // Sanitize parameters to prevent XSS
+    const sanitizedName = sanitizeString(name);
+    const sanitizedEmail = sanitizeString(email);
+    const sanitizedPhone = sanitizeString(phone);
+    const sanitizedDestination = sanitizeString(destination || "usa").substring(0, 50);
+    const sanitizedDegree = sanitizeString(degree || "master").substring(0, 50);
+
     const timestamp = new Date().toISOString();
     const newEnquiry = {
       id: "enq_" + Math.random().toString(36).substring(2, 11),
-      name,
-      email,
-      phone,
-      destination: destination || "usa",
-      degree: degree || "master",
+      name: sanitizedName,
+      email: sanitizedEmail,
+      phone: sanitizedPhone,
+      destination: sanitizedDestination,
+      degree: sanitizedDegree,
       timestamp,
     };
-
-    // Save locally to database/enquiries.json (to guarantee we do not lose student data!)
-    let currentEnquiries: any[] = [];
-    try {
-      if (fs.existsSync(ENQUIRIES_FILE)) {
-        const fileContent = fs.readFileSync(ENQUIRIES_FILE, "utf-8");
-        currentEnquiries = JSON.parse(fileContent);
-      }
-    } catch (parseErr) {
-      console.error("Failed to parse existing enquiries local JSON. Re-initializing...", parseErr);
-    }
-
-    try {
-      currentEnquiries.push(newEnquiry);
-      fs.writeFileSync(ENQUIRIES_FILE, JSON.stringify(currentEnquiries, null, 2), "utf-8");
-      console.log(`Saved student ${name} submission locally to database/enquiries.json.`);
-    } catch (writeErr) {
-      console.warn("Failed to save enquiry locally (expected on read-only filesystems like Vercel):", writeErr);
-    }
 
     // Run sheet and email async so we don't slow down client response, but track statuses
     const [sheetUpdated, notificationSent] = await Promise.all([
@@ -309,19 +301,6 @@ app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
   } catch (err: any) {
     console.error("Critical error in POST /api/enquiries Route:", err);
     return res.status(500).json({ error: "Internal Server Error processing student coordinates." });
-  }
-});
-
-// Serve admin check of active enquiries in private dev (basic dev helper route)
-app.get(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, (req, res) => {
-  try {
-    if (fs.existsSync(ENQUIRIES_FILE)) {
-      const fileContent = fs.readFileSync(ENQUIRIES_FILE, "utf-8");
-      return res.status(200).json(JSON.parse(fileContent));
-    }
-    return res.status(200).json([]);
-  } catch (err) {
-    return res.status(550).json({ error: "Failed to query coordinates database." });
   }
 });
 

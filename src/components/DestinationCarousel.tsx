@@ -16,10 +16,7 @@ export default function DestinationCarousel() {
         {/* Left Side: Destination Selection Stack (5 Col) */}
         <div className="lg:col-span-4 flex flex-col justify-between space-y-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FF0000]/5 border border-[#FF0000]/25 rounded-full text-xs text-[#FF0000] font-mono mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF0000] animate-ping" />
-              <span>TRANS-ORBITAL NETWORKS</span>
-            </div>
+
             
             <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#001F3F]">
               Curated World-Tier Destinations
@@ -80,8 +77,6 @@ export default function DestinationCarousel() {
                       </h4>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-[10px] text-gray-400 font-mono tracking-wider">{dest.code}</span>
-                        <span className="w-1 h-1 rounded-full bg-slate-350" />
-                        <span className="text-[10px] text-[#FF0000] font-mono tracking-wider font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">EXCELLENCE ORBIT</span>
                       </div>
                     </div>
                   </div>
