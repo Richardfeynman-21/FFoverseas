@@ -9,6 +9,8 @@ import OriginalLogo from './components/OriginalLogo';
 import LoadingScreen from './components/LoadingScreen';
 import { AnimatePresence, motion } from 'motion/react';
 import Lenis from 'lenis';
+import PublicChatWidget from './components/chat/PublicChatWidget';
+
 
 import { 
   ArrowUpRight, 
@@ -101,6 +103,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-[#fdfdfd] text-[#001F3F] selection:bg-[#FF0000]/10 selection:text-[#001F3F] overflow-hidden" id="app-canvas">
+
       {/* Dynamic Brand Loading Overlay */}
       <AnimatePresence mode="wait">
         {isLoading && (
@@ -123,6 +126,7 @@ export default function App() {
 
       {/* Global Header Navigation */}
       <Navbar />
+      <PublicChatWidget />
 
       {/* 2. Hero Section */}
       <motion.section 

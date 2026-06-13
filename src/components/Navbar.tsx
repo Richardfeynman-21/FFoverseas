@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plane, Sparkles, Menu, X } from 'lucide-react';
+import { Plane, Sparkles, Menu, X, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Link } from 'react-router-dom';
 import OriginalLogo from './OriginalLogo';
 
 export default function Navbar() {
@@ -73,6 +74,16 @@ export default function Navbar() {
 
         {/* Right Action (Desktop) */}
         <div className="hidden md:flex items-center space-x-3">
+          <Link
+            to="/student/login"
+            style={{
+              transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+            className="px-4 py-2.5 border border-[#001F3F]/20 hover:border-[#FF0000]/30 hover:bg-[#FF0000]/5 text-[#001F3F] hover:text-[#FF0000] rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-97 cursor-pointer flex items-center gap-1.5"
+          >
+            <GraduationCap className="w-4 h-4" />
+            <span>Student Portal</span>
+          </Link>
           <a
             href="#consultation-hub"
             style={{
@@ -135,7 +146,14 @@ export default function Navbar() {
                 <span>Contact us</span>
                 <Sparkles className="w-4 h-4 text-[#FF0000] animate-pulse" />
               </a>
-              <div className="pt-2">
+              <div className="pt-2 flex flex-col gap-2">
+                <Link
+                  to="/student/login"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full text-center block px-5 py-3 border border-slate-200 text-slate-700 hover:text-white hover:bg-[#001F3F] hover:border-[#001F3F] rounded-xl text-sm font-bold uppercase tracking-wider transition-all"
+                >
+                  STUDENT PORTAL
+                </Link>
                 <a
                   href="#consultation-hub"
                   onClick={() => setIsOpen(false)}
