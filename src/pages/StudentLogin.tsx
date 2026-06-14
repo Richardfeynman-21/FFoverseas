@@ -150,22 +150,42 @@ export default function StudentLogin() {
 
     setIsLoading(true);
 
-    // Simulate network request
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const response = await fetch('/api/auth/student/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password.trim(),
+        }),
+      });
 
-    // Mock authentication
-    localStorage.setItem('ff_student_token', 'student_authenticated');
-    localStorage.setItem(
-      'ff_student',
-      JSON.stringify({
-        id: 'stu_' + Date.now(),
-        name: email.split('@')[0].replace(/[^a-zA-Z]/g, ' ').trim() || 'Student',
-        email: email.trim(),
-      })
-    );
+      const data = await response.json();
 
-    setIsLoading(false);
-    navigate('/student/dashboard');
+      if (!response.ok) {
+        throw new Error(data.detail || 'Incorrect email or password.');
+      }
+
+      localStorage.setItem('ff_student_token', data.tokens.access_token);
+      localStorage.setItem('ff_student_refresh_token', data.tokens.refresh_token);
+      localStorage.setItem(
+        'ff_student',
+        JSON.stringify({
+          id: data.student.id,
+          name: data.student.full_name,
+          email: data.student.email,
+          avatar_url: data.student.avatar_url,
+        })
+      );
+
+      navigate('/student/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -213,8 +233,8 @@ export default function StudentLogin() {
         {/* Top — Brand Identity */}
         <div className="relative z-10 space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-[#FF0000]" />
+            <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center p-1.5 shadow-sm">
+              <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
             </div>
             <div>
               <h2 className="text-white font-extrabold text-lg tracking-tight leading-none">
@@ -346,11 +366,10 @@ export default function StudentLogin() {
           initial="hidden"
           animate="visible"
         >
-          {/* Mobile brand header — visible only on small screens */}
           <motion.div className="lg:hidden mb-10" variants={staggerItem}>
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-[#001F3F] flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-[#FF0000]" />
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1.5 border border-slate-200 shadow-sm">
+                <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
               </div>
               <div>
                 <h2 className="text-[#001F3F] font-extrabold text-base tracking-tight leading-none">
@@ -365,10 +384,6 @@ export default function StudentLogin() {
 
           {/* Form heading */}
           <motion.div className="space-y-2 mb-8" variants={staggerItem}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#001F3F]/[0.04] border border-[#001F3F]/10 rounded-full text-[10px] text-[#001F3F] font-mono tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF0000] animate-pulse" />
-              SECURE ACCESS
-            </div>
             <h1 className="text-2xl sm:text-3xl font-black text-[#001F3F] tracking-tight">
               Welcome Back
             </h1>

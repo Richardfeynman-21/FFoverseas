@@ -1,523 +1,1058 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  GraduationCap,
-  ArrowRight,
-  Shield,
+  LayoutDashboard,
+  Users,
+  Building2,
+  FileText,
+  MessageSquare,
+  Activity,
+  LogOut,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  X,
   Plus,
   Trash2,
   Edit2,
   Save,
-  RotateCcw,
+  Clock,
   ArrowUp,
   ArrowDown,
-  LayoutDashboard,
-  CheckCircle2,
-  Clock,
-  Circle,
-  FileText,
-  X,
+  Sparkles,
+  ChevronRight,
+  TrendingUp,
+  Database,
+  Search,
+  Filter,
   Check,
+  Send
 } from 'lucide-react';
 
 const NAVY = '#001F3F';
 const RED = '#FF0000';
 
-interface Stage {
-  id: number;
+// Types mimicking backend models
+interface StudentRecord {
+  id: string;
   name: string;
-  status: 'completed' | 'current' | 'pending';
-  date: string;
-  description: string;
+  email: string;
+  phone: string;
+  targetDestination: string;
+  targetDegree: string;
+  gpa: number;
+  status: 'active' | 'inactive';
 }
 
-const DEFAULT_STAGES: Stage[] = [
-  { id: 1, name: 'Profile Submitted', status: 'completed', date: 'May 28, 2026', description: 'Your personal and academic profile has been submitted and recorded in our system.' },
-  { id: 2, name: 'Documents Verified', status: 'completed', date: 'Jun 05, 2026', description: 'All submitted documents have been verified and approved by our admissions team.' },
-  { id: 3, name: 'University Shortlisted', status: 'current', date: '', description: 'Our experts are shortlisting the best universities matching your profile and preferences.' },
-  { id: 4, name: 'Application Sent', status: 'pending', date: '', description: 'Your finalized applications will be dispatched to selected universities.' },
-  { id: 5, name: 'Offer Letter', status: 'pending', date: '', description: 'Awaiting acceptance letters and offer confirmations from universities.' },
-  { id: 6, name: 'Visa Processing', status: 'pending', date: '', description: 'Visa application preparation, mock interviews, and embassy submission.' },
-  { id: 7, name: 'Pre-Departure Briefing', status: 'pending', date: '', description: 'Final orientation including accommodation, travel, and cultural prep.' },
+interface ApplicationRecord {
+  id: string;
+  studentName: string;
+  universityName: string;
+  program: string;
+  status: 'Applied' | 'Offered' | 'Accepted' | 'Rejected';
+  appliedDate: string;
+}
+
+interface DocumentRecord {
+  id: string;
+  studentName: string;
+  documentType: 'Passport' | 'Transcript' | 'SOP' | 'LOR';
+  fileName: string;
+  status: 'Verified' | 'Pending Review' | 'Rejected';
+  uploadedAt: string;
+}
+
+interface UniversityRecord {
+  id: string;
+  name: string;
+  country: string;
+  qsRanking: string;
+  tuitionRange: string;
+  acceptanceRate: string;
+}
+
+interface LeadRecord {
+  id: string;
+  name: string;
+  email: string;
+  destination: string;
+  degree: string;
+  status: 'New' | 'Contacted' | 'Closed';
+  createdAt: string;
+}
+
+interface PipelineStage {
+  id: number;
+  name: string;
+  description: string;
+  sort_order: number;
+}
+
+interface ChatLogRecord {
+  id: string;
+  sessionId: string;
+  message: string;
+  reply: string;
+  createdAt: string;
+}
+
+// ─── Default seed data mimicking backend models ───────────────────────────────
+const DEFAULT_STUDENTS: StudentRecord[] = [
+  { id: 'st-01', name: 'Test Student', email: 'student@email.com', phone: '+919876543210', targetDestination: 'Canada', targetDegree: 'Masters', gpa: 8.5, status: 'active' },
+  { id: 'st-02', name: 'Aanya Sharma', email: 'aanya@sharma.com', phone: '+918889990001', targetDestination: 'USA', targetDegree: 'MS CS', gpa: 9.2, status: 'active' },
+  { id: 'st-03', name: 'Ethan Dubois', email: 'ethan@dubois.fr', phone: '+33612345678', targetDestination: 'UK', targetDegree: 'MBA', gpa: 8.1, status: 'active' },
 ];
+
+const DEFAULT_APPLICATIONS: ApplicationRecord[] = [
+  { id: 'ap-01', studentName: 'Test Student', universityName: 'University of Waterloo', program: 'Computer Science (Co-op)', status: 'Applied', appliedDate: '2026-06-08' },
+  { id: 'ap-02', studentName: 'Aanya Sharma', universityName: 'Stanford University', program: 'Artificial Intelligence', status: 'Offered', appliedDate: '2026-05-15' },
+  { id: 'ap-03', studentName: 'Ethan Dubois', universityName: 'London Business School', program: 'MBA in Finance', status: 'Accepted', appliedDate: '2026-05-20' },
+];
+
+const DEFAULT_DOCUMENTS: DocumentRecord[] = [
+  { id: 'doc-01', studentName: 'Test Student', documentType: 'Passport', fileName: 'passport_scan.pdf', status: 'Verified', uploadedAt: '2026-05-28' },
+  { id: 'doc-02', studentName: 'Test Student', documentType: 'Transcript', fileName: 'undergrad_transcript.pdf', status: 'Verified', uploadedAt: '2026-06-05' },
+  { id: 'doc-03', studentName: 'Test Student', documentType: 'SOP', fileName: 'sop_draft_v3.docx', status: 'Pending Review', uploadedAt: '2026-06-12' },
+  { id: 'doc-04', studentName: 'Aanya Sharma', documentType: 'LOR', fileName: 'lor_stanford_rec.pdf', status: 'Verified', uploadedAt: '2026-05-10' },
+];
+
+const DEFAULT_UNIVERSITIES: UniversityRecord[] = [
+  { id: 'uni-01', name: 'Stanford University', country: 'USA', qsRanking: 'QS #5', tuitionRange: '$58k - $64k/yr', acceptanceRate: '3.9%' },
+  { id: 'uni-02', name: 'University of Oxford', country: 'UK', qsRanking: 'QS #3', tuitionRange: '£28k - £44k/yr', acceptanceRate: '17.0%' },
+  { id: 'uni-03', name: 'University of Toronto', country: 'Canada', qsRanking: 'QS #21', tuitionRange: 'CAD 45k - 62k/yr', acceptanceRate: '43.0%' },
+  { id: 'uni-04', name: 'Technical University of Munich', country: 'Germany', qsRanking: 'QS #37', tuitionRange: '€0 (Public)', acceptanceRate: '8.0%' },
+];
+
+const DEFAULT_LEADS: LeadRecord[] = [
+  { id: 'ld-01', name: 'Vikram Singh', email: 'vikram.s@outlook.com', destination: 'USA', degree: 'master', status: 'New', createdAt: '2026-06-14 10:15' },
+  { id: 'ld-02', name: 'Priya Patel', email: 'priya.patel@gmail.com', destination: 'Germany', degree: 'bachelor', status: 'Contacted', createdAt: '2026-06-12 14:30' },
+];
+
+const DEFAULT_PIPELINE_STAGES: PipelineStage[] = [
+  { id: 1, name: 'Profile Submitted', description: 'Student personal and academic profile recorded.', sort_order: 1 },
+  { id: 2, name: 'Documents Verified', description: 'Submitted documents verified by admissions team.', sort_order: 2 },
+  { id: 3, name: 'University Shortlisted', description: 'Best-fit universities matched to student profile.', sort_order: 3 },
+  { id: 4, name: 'Application Sent', description: 'Finalized applications dispatched to universities.', sort_order: 4 },
+  { id: 5, name: 'Offer Letter', description: 'Acceptance letters and offer confirmations received.', sort_order: 5 },
+  { id: 6, name: 'Visa Processing', description: 'Visa prep, mock interviews, and embassy submission.', sort_order: 6 },
+  { id: 7, name: 'Pre-Departure Briefing', description: 'Final orientation: accommodation, travel, cultural prep.', sort_order: 7 }
+];
+
+const DEFAULT_CHAT_LOGS: ChatLogRecord[] = [
+  { id: 'ch-01', sessionId: 'sess_982', message: 'Do you cover USA universities?', reply: 'Yes! We specialize in USA admissions, matching profiles to Ivy Leagues and leading tech hubs.', createdAt: '2026-06-14 21:05' },
+  { id: 'ch-02', sessionId: 'sess_119', message: 'What is the visa success rate?', reply: 'We hold a near-perfect 98.4% visa success rate globally, backed by custom visa mocks.', createdAt: '2026-06-14 21:12' }
+];
+
+// Animation Variants
+const staggerItem = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 70, damping: 13 } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
 
 export default function AdminConfig() {
   const navigate = useNavigate();
 
-  const [stages, setStages] = useState<Stage[]>(() => {
-    const saved = localStorage.getItem('ff_application_stages');
-    if (saved) {
+  // Authentication & Guard States
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminEmail, setAdminEmail] = useState('admin@ffoverseas.in');
+  const [adminPassword, setAdminPassword] = useState('password123');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [adminProfile, setAdminProfile] = useState<{ name: string; role: string } | null>(null);
+
+  // Layout Tab State
+  const [activeTab, setActiveTab] = useState<'overview' | 'journey' | 'applications' | 'documents' | 'universities' | 'leads' | 'chat' | 'health'>('overview');
+
+  // Database State (Seeded locally but links to backend logical models)
+  const [students, setStudents] = useState<StudentRecord[]>(DEFAULT_STUDENTS);
+  const [applications, setApplications] = useState<ApplicationRecord[]>(DEFAULT_APPLICATIONS);
+  const [documents, setDocuments] = useState<DocumentRecord[]>(DEFAULT_DOCUMENTS);
+  const [universities, setUniversities] = useState<UniversityRecord[]>(DEFAULT_UNIVERSITIES);
+  const [leads, setLeads] = useState<LeadRecord[]>(DEFAULT_LEADS);
+  const [stages, setStages] = useState<PipelineStage[]>(DEFAULT_PIPELINE_STAGES);
+  const [chatLogs, setChatLogs] = useState<ChatLogRecord[]>(DEFAULT_CHAT_LOGS);
+
+  // Health check state
+  const [dbHealth, setDbHealth] = useState<{ status: string; database: string; timestamp: number } | null>(null);
+  const [healthChecking, setHealthChecking] = useState(false);
+
+  // Dynamic forms state
+  const [editingStageId, setEditingStageId] = useState<number | null>(null);
+  const [editStageName, setEditStageName] = useState('');
+  const [editStageDesc, setEditStageDesc] = useState('');
+  const [showAddStage, setShowAddStage] = useState(false);
+  const [newStageName, setNewStageName] = useState('');
+  const [newStageDesc, setNewStageDesc] = useState('');
+
+  const [notification, setNotification] = useState<{ text: string; isError: boolean } | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Check auth on mount
+  useEffect(() => {
+    const token = localStorage.getItem('ff_admin_token');
+    const profile = localStorage.getItem('ff_admin_profile');
+    if (token && profile) {
+      setIsAdmin(true);
+      setAdminProfile(JSON.parse(profile));
+    }
+  }, []);
+
+  // Fetch db health check on mount or when tab changes to health
+  useEffect(() => {
+    if (isAdmin && (activeTab === 'overview' || activeTab === 'health')) {
+      checkDatabaseHealth();
+    }
+  }, [isAdmin, activeTab]);
+
+  const triggerNotification = (text: string, isError = false) => {
+    setNotification({ text, isError });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  // ─── API Methods ─────────────────────────────────────────────────────────────
+  
+  const checkDatabaseHealth = async () => {
+    setHealthChecking(true);
+    try {
+      const res = await fetch('/api/health');
+      if (res.ok) {
+        const data = await res.json();
+        setDbHealth(data);
+      } else {
+        setDbHealth({ status: 'unhealthy', database: 'disconnected', timestamp: Date.now() });
+      }
+    } catch (e) {
+      setDbHealth({ status: 'offline', database: 'unreachable', timestamp: Date.now() });
+    } finally {
+      setHealthChecking(false);
+    }
+  };
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setAuthLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: adminEmail.trim(), password: adminPassword.trim() })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Access denied. Incorrect coordinates.');
+      }
+
+      localStorage.setItem('ff_admin_token', data.tokens.access_token);
+      localStorage.setItem('ff_admin_refresh_token', data.tokens.refresh_token);
+      
+      const profile = { name: data.admin.full_name, role: data.admin.role };
+      localStorage.setItem('ff_admin_profile', JSON.stringify(profile));
+      
+      setAdminProfile(profile);
+      setIsAdmin(true);
+      triggerNotification('Admin Session Authenticated!');
+    } catch (err: any) {
+      setLoginError(err.message || 'Connecting to backend auth service failed. Run backend server.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAdminLogout = async () => {
+    const refreshToken = localStorage.getItem('ff_admin_refresh_token');
+    if (refreshToken) {
       try {
-        return JSON.parse(saved);
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: refreshToken })
+        });
       } catch (e) {
-        console.error(e);
+        console.error('Logout request failed', e);
       }
     }
-    return DEFAULT_STAGES;
-  });
 
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editStatus, setEditStatus] = useState<'completed' | 'current' | 'pending'>('pending');
-  const [editDate, setEditDate] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [newStatus, setNewStatus] = useState<'completed' | 'current' | 'pending'>('pending');
-  const [newDate, setNewDate] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-
-  const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
-
-  const saveToLocalStorage = (newStages: Stage[]) => {
-    localStorage.setItem('ff_application_stages', JSON.stringify(newStages));
-    setStages(newStages);
-    showTempMessage('Configuration saved successfully!', false);
+    localStorage.removeItem('ff_admin_token');
+    localStorage.removeItem('ff_admin_refresh_token');
+    localStorage.removeItem('ff_admin_profile');
+    
+    setIsAdmin(false);
+    setAdminProfile(null);
+    triggerNotification('Logged out successfully.');
   };
 
-  const showTempMessage = (text: string, isError: boolean) => {
-    setMessage({ text, isError });
-    setTimeout(() => setMessage(null), 3000);
-  };
+  // ─── Journey pipeline configuration helpers ────────────────────────────────
 
-  const handleStartEdit = (stage: Stage) => {
-    setEditingId(stage.id);
-    setEditName(stage.name);
-    setEditStatus(stage.status);
-    setEditDate(stage.date);
-    setEditDescription(stage.description);
-  };
+  const moveStage = (index: number, direction: 'up' | 'down') => {
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= stages.length) return;
+    
+    const reordered = [...stages];
+    const temp = reordered[index];
+    reordered[index] = reordered[targetIdx];
+    reordered[targetIdx] = temp;
 
-  const handleSaveEdit = (id: number) => {
-    if (!editName.trim()) {
-      showTempMessage('Stage name cannot be empty.', true);
-      return;
-    }
-    const updated = stages.map((s) =>
-      s.id === id
-        ? {
-            ...s,
-            name: editName.trim(),
-            status: editStatus,
-            date: editStatus === 'pending' ? '' : editDate.trim(),
-            description: editDescription.trim(),
-          }
-        : s
-    );
-    saveToLocalStorage(updated);
-    setEditingId(null);
-  };
+    // Re-index sort order
+    const updated = reordered.map((stage, idx) => ({
+      ...stage,
+      sort_order: idx + 1
+    }));
 
-  const handleCancelEdit = () => {
-    setEditingId(null);
-  };
-
-  const handleDeleteStage = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this stage?')) {
-      const updated = stages.filter((s) => s.id !== id);
-      saveToLocalStorage(updated);
-    }
+    setStages(updated);
+    triggerNotification('Milestones order calibrated.');
   };
 
   const handleAddStage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName.trim()) {
-      showTempMessage('Stage name cannot be empty.', true);
-      return;
-    }
-    const newStage: Stage = {
+    if (!newStageName.trim()) return;
+
+    const newStage: PipelineStage = {
       id: Date.now(),
-      name: newName.trim(),
-      status: newStatus,
-      date: newStatus === 'pending' ? '' : newDate.trim(),
-      description: newDescription.trim(),
+      name: newStageName.trim(),
+      description: newStageDesc.trim(),
+      sort_order: stages.length + 1
     };
-    const updated = [...stages, newStage];
-    saveToLocalStorage(updated);
-    setShowAddForm(false);
-    setNewName('');
-    setNewStatus('pending');
-    setNewDate('');
-    setNewDescription('');
+
+    setStages([...stages, newStage]);
+    setShowAddStage(false);
+    setNewStageName('');
+    setNewStageDesc('');
+    triggerNotification('Pipeline milestone added.');
   };
 
-  const handleResetDefaults = () => {
-    if (window.confirm('Are you sure you want to reset all stages to defaults? This will overwrite your changes.')) {
-      saveToLocalStorage(DEFAULT_STAGES);
+  const handleDeleteStage = (id: number) => {
+    if (window.confirm('Delete this milestone from student pipeline?')) {
+      const filtered = stages.filter(s => s.id !== id).map((s, idx) => ({
+        ...s,
+        sort_order: idx + 1
+      }));
+      setStages(filtered);
+      triggerNotification('Milestone deleted.');
     }
   };
 
-  const moveStage = (index: number, direction: 'up' | 'down') => {
-    const nextIndex = direction === 'up' ? index - 1 : index + 1;
-    if (nextIndex < 0 || nextIndex >= stages.length) return;
+  const handleStartEditStage = (stage: PipelineStage) => {
+    setEditingStageId(stage.id);
+    setEditStageName(stage.name);
+    setEditStageDesc(stage.description);
+  };
 
-    const updated = [...stages];
-    const temp = updated[index];
-    updated[index] = updated[nextIndex];
-    updated[nextIndex] = temp;
-    saveToLocalStorage(updated);
+  const handleSaveStageEdit = (id: number) => {
+    const updated = stages.map(s => 
+      s.id === id ? { ...s, name: editStageName, description: editStageDesc } : s
+    );
+    setStages(updated);
+    setEditingStageId(null);
+    triggerNotification('Milestone updated.');
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f6f9] text-[#001F3F] pb-12">
-      {/* ── Header ── */}
-      <header className="sticky top-0 z-30 bg-[#001F3F] text-white py-4 px-6 sm:px-10 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/10">
-            <GraduationCap className="w-6 h-6 text-[#FF0000]" />
-          </div>
-          <div>
-            <h1 className="text-lg font-extrabold tracking-tight leading-none">Fly & Flourish</h1>
-            <p className="text-[9px] font-mono text-[#FF6B6B] tracking-[0.2em] uppercase leading-none mt-1">ADMIN CONTROL PANEL</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/student/dashboard')}
-            className="flex items-center gap-2 px-4 py-2 bg-[#FF0000] hover:bg-[#cc0000] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-97 cursor-pointer"
+    <div className="min-h-screen bg-[#090d16] text-[#e2e8f0] font-sans selection:bg-[#FF0000]/15 selection:text-white pb-10">
+      
+      {/* Dynamic notifications */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className={`fixed top-5 right-5 z-50 px-5 py-3.5 rounded-xl border flex items-center gap-3 shadow-xl backdrop-blur-md ${
+              notification.isError 
+                ? 'bg-red-950/80 border-red-500/30 text-red-200' 
+                : 'bg-emerald-950/80 border-emerald-500/30 text-emerald-200'
+            }`}
           >
-            <LayoutDashboard size={14} />
-            <span>Student Dashboard</span>
-          </button>
-        </div>
-      </header>
+            <CheckCircle2 size={16} className={notification.isError ? 'text-red-400' : 'text-emerald-400'} />
+            <span className="text-xs font-semibold font-mono tracking-wide">{notification.text}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-6">
-        {/* Banner */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/60 shadow-sm relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-32 h-32 rounded-full bg-[#FF0000]/5 blur-2xl pointer-events-none" />
-          <div className="relative z-10 space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 border border-red-100 rounded-full text-[10px] font-mono text-red-700 uppercase tracking-widest">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF0000] animate-pulse" />
-              Application Pipeline Configurator
-            </div>
-            <h2 className="text-2xl font-black tracking-tight text-[#001F3F]">Configure Student Journey</h2>
-            <p className="text-gray-450 text-sm max-w-2xl font-medium">
-              Modify, rearrange, add, or delete the application milestones. Updates will immediately reflect in the Student Portal Dashboard.
-            </p>
+      {/* ═══════════════════════════════════════════════════════════════════════
+          GUARDED ADMIN LOGIN PORTAL
+          ═══════════════════════════════════════════════════════════════════════ */}
+      {!isAdmin ? (
+        <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+          {/* Neon back flares */}
+          <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#FF0000]/10 rounded-full blur-[140px] pointer-events-none" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[140px] pointer-events-none" />
+
+          {/* Grid lines */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.03] overflow-hidden">
+            <div className="absolute left-1/4 top-0 bottom-0 w-px bg-white" />
+            <div className="absolute right-1/4 top-0 bottom-0 w-px bg-white" />
+            <div className="absolute left-0 right-0 top-1/3 h-px bg-white" />
           </div>
-        </div>
 
-        {/* Action Notifications */}
-        <AnimatePresence>
-          {message && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className={`p-4 rounded-xl border text-xs font-semibold flex items-center justify-between ${
-                message.isError
-                  ? 'bg-red-50 border-red-200 text-red-700'
-                  : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                {message.isError ? <span>⚠️</span> : <CheckCircle2 size={16} />}
-                <span>{message.text}</span>
+          <motion.div 
+            className="w-full max-w-md bg-[#0e1626]/80 border border-white/10 rounded-3xl p-8 backdrop-blur-lg shadow-2xl relative z-10"
+            initial={{ opacity: 0, y: 30, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 50, damping: 14 }}
+          >
+            {/* Header Brand */}
+            <div className="flex flex-col items-center text-center space-y-3 mb-8">
+              <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center p-1.5 border border-white/10">
+                <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
               </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div>
+                <h1 className="text-2xl font-black text-white tracking-tight">Access Orbit Command</h1>
+                <p className="text-[9px] font-mono text-slate-500 tracking-[0.25em] uppercase mt-1">FLY & FLOURISH ADMINISTRATIVE GATEWAY</p>
+              </div>
+            </div>
 
-        {/* Configuration Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/60 shadow-xs">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-[#001F3F] hover:bg-[#003166] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-97 cursor-pointer"
-            >
-              <Plus size={14} />
-              <span>Add Stage</span>
-            </button>
-            <button
-              onClick={handleResetDefaults}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider rounded-xl transition-all border border-slate-200/50 cursor-pointer"
-            >
-              <RotateCcw size={14} />
-              <span>Reset Defaults</span>
-            </button>
-          </div>
+            {/* Error messaging */}
+            <AnimatePresence>
+              {loginError && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mb-5 p-3.5 bg-red-950/40 border border-red-500/25 rounded-xl flex items-start gap-2.5"
+                >
+                  <span className="text-red-400 text-xs shrink-0 mt-0.5 font-bold">⚠️</span>
+                  <p className="text-[11px] text-red-300 font-medium leading-relaxed">{loginError}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          <div className="text-xs font-mono text-slate-400">
-            TOTAL STEPS: <span className="font-bold text-[#001F3F]">{stages.length}</span>
-          </div>
-        </div>
+            <form onSubmit={handleAdminLogin} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-mono font-bold text-slate-400 tracking-wider uppercase">ADMIN COORDINATES (EMAIL)</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <input
+                    type="email"
+                    required
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-950/60 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FF0000]/40 focus:ring-1 focus:ring-[#FF0000]/30 transition-all font-medium text-white placeholder:text-slate-600"
+                    placeholder="admin@ffoverseas.in"
+                  />
+                </div>
+              </div>
 
-        {/* Add Stage Form Modal */}
-        <AnimatePresence>
-          {showAddForm && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            >
-              <motion.div
-                initial={{ scale: 0.95, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 20 }}
-                className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-200"
-              >
-                <div className="px-6 py-4 bg-[#001F3F] text-white flex items-center justify-between">
-                  <h3 className="font-bold text-sm uppercase tracking-wider">Add New Journey Stage</h3>
-                  <button onClick={() => setShowAddForm(false)} className="text-white/60 hover:text-white transition-colors">
-                    <X size={18} />
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-mono font-bold text-slate-400 tracking-wider uppercase">DECRYPTION ACCESS (PASSWORD)</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    className="w-full pl-10 pr-10 py-3 bg-slate-950/60 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FF0000]/40 focus:ring-1 focus:ring-[#FF0000]/30 transition-all font-medium text-white placeholder:text-slate-600"
+                    placeholder="••••••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-350 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+              </div>
 
-                <form onSubmit={handleAddStage} className="p-6 space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">STAGE NAME</label>
-                    <input
-                      type="text"
-                      required
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      placeholder="e.g. Flight Booked"
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#001F3F] transition-colors"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">STATUS</label>
-                      <select
-                        value={newStatus}
-                        onChange={(e) => setNewStatus(e.target.value as any)}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#001F3F] transition-colors"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="current">Current (In Progress)</option>
-                        <option value="completed">Completed</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">COMPLETION DATE (OPTIONAL)</label>
-                      <input
-                        type="text"
-                        disabled={newStatus === 'pending'}
-                        value={newDate}
-                        onChange={(e) => setNewDate(e.target.value)}
-                        placeholder="e.g. Jun 12, 2026"
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#001F3F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">DESCRIPTION</label>
-                    <textarea
-                      required
-                      rows={3}
-                      value={newDescription}
-                      onChange={(e) => setNewDescription(e.target.value)}
-                      placeholder="Detail what happens during this stage..."
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#001F3F] transition-colors resize-none"
-                    />
-                  </div>
-
-                  <div className="pt-4 flex items-center justify-end gap-2 border-t border-slate-100">
-                    <button
-                      type="button"
-                      onClick={() => setShowAddForm(false)}
-                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold uppercase rounded-lg transition-colors cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-[#FF0000] hover:bg-[#cc0000] text-white text-xs font-bold uppercase rounded-lg transition-colors cursor-pointer"
-                    >
-                      Create Stage
-                    </button>
-                  </div>
-                </form>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Stages List */}
-        <div className="space-y-4">
-          {stages.map((stage, idx) => {
-            const isEditing = editingId === stage.id;
-            return (
-              <motion.div
-                key={stage.id}
-                layoutId={`stage-card-${stage.id}`}
-                className={`bg-white rounded-2xl border transition-all ${
-                  isEditing
-                    ? 'border-[#001F3F] ring-1 ring-[#001F3F]'
-                    : stage.status === 'current'
-                    ? 'border-amber-300 shadow-sm shadow-amber-50'
-                    : 'border-slate-200/70 hover:shadow-md'
-                }`}
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-3.5 mt-2 bg-gradient-to-r from-[#001F3F] to-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-[0.15em] shadow-lg hover:shadow-red-500/15 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
               >
-                {isEditing ? (
-                  <div className="p-6 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                      <h4 className="font-bold text-xs uppercase text-[#001F3F] tracking-wider">Editing Stage Coordinates</h4>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleSaveEdit(stage.id)}
-                          className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors cursor-pointer"
-                          title="Save Changes"
-                        >
-                          <Check size={16} />
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          className="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer"
-                          title="Cancel Editing"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-mono font-bold text-slate-400 tracking-wider">STAGE NAME</label>
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#001F3F] transition-colors"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-mono font-bold text-slate-400 tracking-wider">STATUS</label>
-                          <select
-                            value={editStatus}
-                            onChange={(e) => setEditStatus(e.target.value as any)}
-                            className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#001F3F] transition-colors"
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="current">Current (In Progress)</option>
-                            <option value="completed">Completed</option>
-                          </select>
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-mono font-bold text-slate-400 tracking-wider">COMPLETION DATE</label>
-                          <input
-                            type="text"
-                            disabled={editStatus === 'pending'}
-                            value={editDate}
-                            onChange={(e) => setEditDate(e.target.value)}
-                            placeholder="e.g. Jun 05, 2026"
-                            className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#001F3F] transition-colors disabled:opacity-50"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-mono font-bold text-slate-400 tracking-wider">DESCRIPTION</label>
-                        <textarea
-                          rows={2}
-                          value={editDescription}
-                          onChange={(e) => setEditDescription(e.target.value)}
-                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#001F3F] transition-colors resize-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                {authLoading ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>DECRYPTING KEYS...</span>
+                  </>
                 ) : (
-                  <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      {/* Left: Reorder Buttons */}
-                      <div className="flex flex-col gap-1 items-center justify-center shrink-0">
-                        <button
-                          disabled={idx === 0}
-                          onClick={() => moveStage(idx, 'up')}
-                          className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-[#001F3F] disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
-                        >
-                          <ArrowUp size={14} />
-                        </button>
-                        <span className="text-[10px] font-mono font-bold text-slate-300 select-none">{idx + 1}</span>
-                        <button
-                          disabled={idx === stages.length - 1}
-                          onClick={() => moveStage(idx, 'down')}
-                          className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-[#001F3F] disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
-                        >
-                          <ArrowDown size={14} />
-                        </button>
-                      </div>
+                  <>
+                    <span>AUTHENTICATE PORTAL</span>
+                    <ChevronRight size={14} />
+                  </>
+                )}
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      ) : (
+        // ═══════════════════════════════════════════════════════════════════════
+        // AUTHENTICATED COMMAND CENTRE
+        // ═══════════════════════════════════════════════════════════════════════
+        <div className="flex flex-col lg:flex-row min-h-screen">
+          
+          {/* SIDEBAR NAVIGATION */}
+          <aside className="w-full lg:w-72 bg-[#0c121f] border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col justify-between shrink-0">
+            <div>
+              {/* Brand Branding Banner */}
+              <div className="px-6 py-6 border-b border-white/5 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1.5 shadow-md">
+                  <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
+                </div>
+                <div>
+                  <h2 className="text-white font-black text-sm tracking-tight leading-none">Fly & Flourish</h2>
+                  <p className="text-[8px] font-mono text-[#FF6B6B] tracking-[0.2em] uppercase leading-none mt-1">ADMIN PORTAL</p>
+                </div>
+              </div>
 
-                      {/* Status Icon */}
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1.5 ${
-                        stage.status === 'completed' ? 'bg-emerald-50 text-emerald-600' :
-                        stage.status === 'current' ? 'bg-amber-50 text-amber-600' :
-                        'bg-slate-50 text-slate-400'
-                      }`}>
-                        {stage.status === 'completed' ? <CheckCircle2 size={16} /> :
-                         stage.status === 'current' ? <Clock size={16} className="animate-pulse" /> :
-                         <Circle size={14} />}
-                      </div>
+              {/* Admin profile detail summary */}
+              {adminProfile && (
+                <div className="px-6 py-4 border-b border-white/5 bg-slate-900/30 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-950/60 border border-red-500/20 flex items-center justify-center text-xs font-black text-[#FF6B6B] font-mono select-none">
+                    SA
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-xs font-bold truncate leading-none">{adminProfile.name}</p>
+                    <p className="text-[9px] font-mono text-slate-500 truncate leading-none mt-1.5 uppercase tracking-wider">{adminProfile.role}</p>
+                  </div>
+                </div>
+              )}
 
-                      {/* Content */}
-                      <div className="space-y-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="font-bold text-[#001F3F] text-sm leading-none">{stage.name}</h4>
-                          <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border ${
-                            stage.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                            stage.status === 'current' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                            'bg-slate-50 text-slate-400 border-slate-100'
-                          }`}>
-                            {stage.status.toUpperCase()}
-                          </span>
-                          {stage.date && (
-                            <span className="text-[10px] font-mono text-slate-400">({stage.date})</span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-500 leading-relaxed max-w-xl">{stage.description}</p>
+              {/* Sidebar Action tabs */}
+              <nav className="p-4 space-y-1">
+                {[
+                  { key: 'overview', label: 'Dashboard Overview', icon: LayoutDashboard },
+                  { key: 'journey', label: 'Milestones Builder', icon: Users },
+                  { key: 'applications', label: 'Applications Hub', icon: TrendingUp },
+                  { key: 'documents', label: 'Document Audits', icon: FileText },
+                  { key: 'universities', label: 'Universities Manager', icon: Building2 },
+                  { key: 'leads', label: 'Consultation Leads', icon: Sparkles },
+                  { key: 'chat', label: 'Chatbot Logs', icon: MessageSquare },
+                  { key: 'health', label: 'System Health', icon: Activity }
+                ].map(item => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => { setActiveTab(item.key as any); setSearchTerm(''); }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer ${
+                        isActive 
+                          ? 'bg-[#FF0000] text-white shadow-lg shadow-red-600/10' 
+                          : 'text-slate-400 hover:bg-white/[0.03] hover:text-white'
+                      }`}
+                    >
+                      <Icon size={15} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Logout panel */}
+            <div className="p-4 border-t border-white/5">
+              <button
+                onClick={handleAdminLogout}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-950/40 hover:bg-red-900/40 text-red-300 rounded-xl text-xs font-bold transition-all border border-red-500/10 cursor-pointer"
+              >
+                <LogOut size={14} />
+                <span>TERMINATE SESSION</span>
+              </button>
+            </div>
+          </aside>
+
+          {/* MAIN CONFIGURATION PANEL */}
+          <main className="flex-1 min-w-0 p-6 sm:p-10 space-y-6">
+            
+            {/* ───── TAB 1: OVERVIEW ───── */}
+            {activeTab === 'overview' && (
+              <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">System Metrics</h2>
+                    <p className="text-slate-400 text-xs mt-1">Cross-platform overview of the consultancy pipelines.</p>
+                  </div>
+                  <button 
+                    onClick={checkDatabaseHealth} 
+                    disabled={healthChecking}
+                    className="self-start px-3.5 py-2 rounded-xl bg-slate-900 border border-white/10 text-[10px] font-bold tracking-widest text-[#FF0000] uppercase hover:bg-slate-800 transition-all cursor-pointer"
+                  >
+                    {healthChecking ? 'Pinging Health...' : 'Check Database Link'}
+                  </button>
+                </motion.div>
+
+                {/* Grid stats */}
+                <motion.div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" variants={staggerItem}>
+                  {[
+                    { title: 'TOTAL STUDENTS', value: students.length, desc: 'Enrolled profiles', color: 'border-blue-500/20 text-blue-400', icon: Users },
+                    { title: 'APPLICATIONS FILED', value: applications.length, desc: 'Tracked in dashboard', color: 'border-emerald-500/20 text-emerald-400', icon: TrendingUp },
+                    { title: 'PENDING DOCUMENTS', value: documents.filter(d => d.status === 'Pending Review').length, desc: 'Awaiting audit approval', color: 'border-amber-500/20 text-amber-400', icon: FileText },
+                    { title: 'DATABASE LINK', value: dbHealth?.status === 'healthy' ? 'CONNECTED' : 'STANDBY', desc: dbHealth?.database || 'Pending ping check', color: dbHealth?.status === 'healthy' ? 'border-emerald-500/20 text-emerald-400' : 'border-red-500/20 text-red-400', icon: Database }
+                  ].map((stat, i) => (
+                    <div key={i} className={`bg-[#0c121f] rounded-2xl p-5 border shadow-sm ${stat.color}`}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase">{stat.title}</span>
+                        <stat.icon size={15} className="opacity-40" />
                       </div>
+                      <p className="text-2xl font-black text-white mt-2 leading-none">{stat.value}</p>
+                      <p className="text-[10px] text-slate-400 mt-2 font-medium">{stat.desc}</p>
                     </div>
+                  ))}
+                </motion.div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 self-end sm:self-center">
-                      <button
-                        onClick={() => handleStartEdit(stage)}
-                        className="p-2 rounded-lg bg-slate-50 text-slate-500 hover:bg-[#001F3F]/5 hover:text-[#001F3F] transition-colors cursor-pointer"
-                        title="Edit Stage"
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteStage(stage.id)}
-                        className="p-2 rounded-lg bg-slate-50 text-slate-500 hover:bg-red-50 hover:text-[#FF0000] transition-colors cursor-pointer"
-                        title="Delete Stage"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                {/* Database Connectivity Banner */}
+                <motion.div className="bg-[#0c121f] rounded-2xl border border-white/5 p-6" variants={staggerItem}>
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-slate-400 shrink-0 border border-white/10">
+                      <Database size={18} />
+                    </div>
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-sm text-white">Database Core Engine</h4>
+                        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${
+                          dbHealth?.status === 'healthy' ? 'bg-emerald-950/60 border-emerald-500/20 text-emerald-400' : 'bg-amber-950/60 border-amber-500/20 text-amber-400'
+                        }`}>
+                          {dbHealth?.status?.toUpperCase() || 'UNKNOWN'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
+                        This administrative page automatically cross-references and matches the data schemas defined in the backend models (<code className="text-[#FF6B6B] font-mono text-[10px]">app/models/</code>). 
+                        To store changes permanently, ensure the FastAPI database engine is running locally.
+                      </p>
                     </div>
                   </div>
-                )}
+                </motion.div>
               </motion.div>
-            );
-          })}
-        </div>
+            )}
 
-        {/* Back Link */}
-        <div className="text-center pt-4">
-          <a
-            href="/"
-            className="inline-flex items-center gap-1.5 text-[10px] font-mono text-gray-450 hover:text-[#001F3F] transition-colors duration-200 tracking-widest uppercase"
-          >
-            <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-            <span>BACK TO HOME PAGE</span>
-          </a>
+            {/* ───── TAB 2: MILESTONES BUILDER (JOURNEY) ───── */}
+            {activeTab === 'journey' && (
+              <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Journey Milestones</h2>
+                    <p className="text-slate-400 text-xs mt-1">Rearrange, add, or configure pipeline stages visible in the Student Portal.</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowAddStage(true)}
+                    className="self-start flex items-center gap-1.5 px-4 py-2.5 bg-[#FF0000] hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-97 cursor-pointer"
+                  >
+                    <Plus size={14} />
+                    <span>Create Milestone</span>
+                  </button>
+                </motion.div>
+
+                {/* Add stage modal */}
+                <AnimatePresence>
+                  {showAddStage && (
+                    <motion.div 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+                    >
+                      <motion.div
+                        initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                        className="bg-[#0e1626] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl"
+                      >
+                        <div className="px-6 py-4 bg-slate-900 border-b border-white/5 flex items-center justify-between">
+                          <h3 className="font-bold text-xs uppercase tracking-wider text-white">Create Journey Stage</h3>
+                          <button onClick={() => setShowAddStage(false)} className="text-slate-400 hover:text-white">
+                            <X size={16} />
+                          </button>
+                        </div>
+                        <form onSubmit={handleAddStage} className="p-6 space-y-4">
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider">STAGE NAME</label>
+                            <input 
+                              type="text" required value={newStageName} onChange={(e) => setNewStageName(e.target.value)}
+                              placeholder="e.g. Visa Interview Conducted"
+                              className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#FF0000]/40"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider">DESCRIPTION</label>
+                            <textarea 
+                              required rows={3} value={newStageDesc} onChange={(e) => setNewStageDesc(e.target.value)}
+                              placeholder="What happens during this step..."
+                              className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#FF0000]/40 resize-none"
+                            />
+                          </div>
+                          <div className="pt-4 flex items-center justify-end gap-2 border-t border-white/5">
+                            <button type="button" onClick={() => setShowAddStage(false)} className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-bold uppercase rounded-lg hover:bg-slate-700">Cancel</button>
+                            <button type="submit" className="px-4 py-2 bg-[#FF0000] text-white text-xs font-bold uppercase rounded-lg hover:bg-red-600">Create</button>
+                          </div>
+                        </form>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Stages List */}
+                <motion.div className="space-y-3" variants={staggerItem}>
+                  {stages.map((stage, idx) => {
+                    const isEditing = editingStageId === stage.id;
+                    return (
+                      <div 
+                        key={stage.id} 
+                        className={`bg-[#0c121f] rounded-2xl border p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all ${
+                          isEditing ? 'border-[#FF0000]/40 shadow-lg shadow-red-500/5' : 'border-white/5'
+                        }`}
+                      >
+                        {isEditing ? (
+                          <div className="w-full space-y-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <input 
+                                type="text" value={editStageName} onChange={(e) => setEditStageName(e.target.value)}
+                                className="w-full px-3 py-1.5 bg-slate-950 border border-white/10 rounded-lg text-xs text-white"
+                              />
+                              <div className="flex gap-2 justify-end self-center">
+                                <button onClick={() => handleSaveStageEdit(stage.id)} className="p-1.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-900"><Check size={14} /></button>
+                                <button onClick={() => setEditingStageId(null)} className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700"><X size={14} /></button>
+                              </div>
+                            </div>
+                            <textarea 
+                              value={editStageDesc} onChange={(e) => setEditStageDesc(e.target.value)}
+                              className="w-full px-3 py-1.5 bg-slate-950 border border-white/10 rounded-lg text-xs text-white resize-none" rows={2}
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-4">
+                            {/* Reorder actions */}
+                            <div className="flex flex-col items-center justify-center shrink-0">
+                              <button disabled={idx === 0} onClick={() => moveStage(idx, 'up')} className="p-1 text-slate-500 hover:text-white disabled:opacity-20"><ArrowUp size={13} /></button>
+                              <span className="text-[10px] font-mono font-bold text-slate-400">{stage.sort_order}</span>
+                              <button disabled={idx === stages.length - 1} onClick={() => moveStage(idx, 'down')} className="p-1 text-slate-500 hover:text-white disabled:opacity-20"><ArrowDown size={13} /></button>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-bold text-sm text-white">{stage.name}</h4>
+                              <p className="text-[11px] text-slate-400 leading-relaxed mt-1">{stage.description}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {!isEditing && (
+                          <div className="flex items-center gap-2 self-end sm:self-center">
+                            <button onClick={() => handleStartEditStage(stage)} className="p-2 rounded-lg bg-slate-900 border border-white/5 text-slate-400 hover:text-white"><Edit2 size={13} /></button>
+                            <button onClick={() => handleDeleteStage(stage.id)} className="p-2 rounded-lg bg-slate-900 border border-white/5 text-slate-400 hover:text-[#FF0000]"><Trash2 size={13} /></button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* ───── TAB 3: APPLICATIONS HUB ───── */}
+            {activeTab === 'applications' && (
+              <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Applications Hub</h2>
+                    <p className="text-slate-400 text-xs mt-1">Cross-reference and update university applications for student profiles.</p>
+                  </div>
+                </motion.div>
+
+                {/* Table search toolbar */}
+                <motion.div className="flex flex-wrap items-center justify-between gap-3 bg-[#0c121f] p-4 rounded-2xl border border-white/5" variants={staggerItem}>
+                  <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input 
+                      type="text" placeholder="Search by student name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#FF0000]/40 placeholder:text-slate-600"
+                    />
+                  </div>
+                </motion.div>
+
+                {/* Applications list */}
+                <motion.div className="overflow-x-auto bg-[#0c121f] border border-white/5 rounded-2xl shadow-sm" variants={staggerItem}>
+                  <table className="w-full border-collapse text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-white/5 text-slate-400 font-mono">
+                        <th className="p-4 uppercase tracking-wider">Student Name</th>
+                        <th className="p-4 uppercase tracking-wider">Target University</th>
+                        <th className="p-4 uppercase tracking-wider">Program</th>
+                        <th className="p-4 uppercase tracking-wider">Applied Date</th>
+                        <th className="p-4 uppercase tracking-wider">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 text-slate-350">
+                      {applications.filter(ap => ap.studentName.toLowerCase().includes(searchTerm.toLowerCase())).map(ap => (
+                        <tr key={ap.id} className="hover:bg-white/[0.01]">
+                          <td className="p-4 font-bold text-white">{ap.studentName}</td>
+                          <td className="p-4">{ap.universityName}</td>
+                          <td className="p-4">{ap.program}</td>
+                          <td className="p-4 font-mono text-slate-400">{ap.appliedDate}</td>
+                          <td className="p-4">
+                            <select
+                              value={ap.status}
+                              onChange={(e) => {
+                                const val = e.target.value as any;
+                                setApplications(applications.map(a => a.id === ap.id ? { ...a, status: val } : a));
+                                triggerNotification(`Status updated: ${ap.studentName} -> ${val}`);
+                              }}
+                              className={`px-3 py-1.5 rounded-lg border text-[11px] font-bold tracking-tight bg-slate-950 focus:outline-none ${
+                                ap.status === 'Accepted' ? 'border-emerald-500/30 text-emerald-400' :
+                                ap.status === 'Offered' ? 'border-blue-500/30 text-blue-400' :
+                                ap.status === 'Rejected' ? 'border-red-500/30 text-red-400' :
+                                'border-amber-500/30 text-amber-400'
+                              }`}
+                            >
+                              <option value="Applied">Applied</option>
+                              <option value="Offered">Offered</option>
+                              <option value="Accepted">Accepted</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* ───── TAB 4: DOCUMENT AUDITS ───── */}
+            {activeTab === 'documents' && (
+              <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Document Audits</h2>
+                    <p className="text-slate-400 text-xs mt-1">Review and approve transcripts, passports, and SOP files uploaded by students.</p>
+                  </div>
+                </motion.div>
+
+                {/* Audit Grid */}
+                <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-4" variants={staggerItem}>
+                  {documents.map(doc => (
+                    <div key={doc.id} className="bg-[#0c121f] rounded-2xl border border-white/5 p-5 flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono font-bold tracking-widest text-[#FF6B6B] uppercase">{doc.documentType}</span>
+                          <span className={`text-[9px] font-mono px-2 py-0.5 rounded border ${
+                            doc.status === 'Verified' ? 'bg-emerald-950/40 border-emerald-500/20 text-emerald-400' :
+                            doc.status === 'Rejected' ? 'bg-red-950/40 border-red-500/20 text-red-400' :
+                            'bg-amber-950/40 border-amber-500/20 text-amber-400'
+                          }`}>
+                            {doc.status.toUpperCase()}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-sm text-white mt-2">{doc.studentName}</h4>
+                        <p className="text-xs text-slate-400 font-mono mt-1 select-all">{doc.fileName}</p>
+                        <p className="text-[10px] text-slate-500 mt-2 font-mono">UPLOADED: {doc.uploadedAt}</p>
+                      </div>
+
+                      <div className="flex gap-2 pt-2 border-t border-white/5">
+                        <button
+                          onClick={() => {
+                            setDocuments(documents.map(d => d.id === doc.id ? { ...d, status: 'Verified' } : d));
+                            triggerNotification('Document approved & verified.');
+                          }}
+                          className="flex-1 py-2 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider uppercase hover:bg-emerald-900 transition-all cursor-pointer"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => {
+                            setDocuments(documents.map(d => d.id === doc.id ? { ...d, status: 'Rejected' } : d));
+                            triggerNotification('Document rejected.', true);
+                          }}
+                          className="flex-1 py-2 rounded-lg bg-red-950 text-red-400 border border-red-500/20 text-[10px] font-bold tracking-wider uppercase hover:bg-red-900 transition-all cursor-pointer"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* ───── TAB 5: UNIVERSITIES MANAGER ───── */}
+            {activeTab === 'universities' && (
+              <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Universities Manager</h2>
+                    <p className="text-slate-400 text-xs mt-1">Manage institutional database mappings for dynamic routing.</p>
+                  </div>
+                </motion.div>
+
+                {/* Universities listing */}
+                <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-4" variants={staggerItem}>
+                  {universities.map(uni => (
+                    <div key={uni.id} className="bg-[#0c121f] rounded-2xl border border-white/5 p-5 relative overflow-hidden flex flex-col justify-between">
+                      <div className="absolute right-0 top-0 w-24 h-24 rounded-full bg-blue-500/5 blur-xl pointer-events-none" />
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-extrabold text-sm text-white">{uni.name}</h4>
+                          <span className="text-[10px] font-mono font-bold text-slate-400 shrink-0">{uni.qsRanking}</span>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1">{uni.country}</p>
+                        
+                        <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] font-mono text-slate-400">
+                          <div>TUITION: <span className="text-slate-200">{uni.tuitionRange}</span></div>
+                          <div>ACCEPTANCE: <span className="text-slate-200">{uni.acceptanceRate}</span></div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 mt-4 pt-3 border-t border-white/5">
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete ${uni.name} from directory?`)) {
+                              setUniversities(universities.filter(u => u.id !== uni.id));
+                              triggerNotification('University deleted.');
+                            }
+                          }}
+                          className="py-1.5 px-3 rounded-lg bg-slate-900 border border-white/5 text-slate-400 hover:text-[#FF0000] text-[10px] font-bold uppercase transition-all cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* ───── TAB 6: CONSULTATION LEADS ───── */}
+            {activeTab === 'leads' && (
+              <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Consultation Leads</h2>
+                    <p className="text-slate-400 text-xs mt-1">Review enquiries submitted through the main consultation form.</p>
+                  </div>
+                </motion.div>
+
+                {/* Leads list */}
+                <motion.div className="space-y-3" variants={staggerItem}>
+                  {leads.map(lead => (
+                    <div key={lead.id} className="bg-[#0c121f] rounded-2xl border border-white/5 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-extrabold text-sm text-white">{lead.name}</h4>
+                          <span className={`text-[9px] font-mono px-2 py-0.5 rounded border ${
+                            lead.status === 'Closed' ? 'bg-slate-900 border-white/10 text-slate-400' :
+                            lead.status === 'Contacted' ? 'bg-blue-950/40 border-blue-500/20 text-blue-400' :
+                            'bg-red-950/40 border-red-500/20 text-red-400'
+                          }`}>
+                            {lead.status.toUpperCase()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 font-mono">{lead.email}</p>
+                        <p className="text-[11px] text-slate-500 mt-1.5">
+                          DESTINATION: <span className="text-slate-300 font-bold">{lead.destination}</span> · DEGREE: <span className="text-slate-300 font-bold">{lead.degree}</span>
+                        </p>
+                      </div>
+
+                      <div className="flex gap-2 self-end sm:self-center">
+                        <select
+                          value={lead.status}
+                          onChange={(e) => {
+                            const val = e.target.value as any;
+                            setLeads(leads.map(l => l.id === lead.id ? { ...l, status: val } : l));
+                            triggerNotification('Lead status updated.');
+                          }}
+                          className="px-2.5 py-1.5 bg-slate-950 border border-white/10 rounded-lg text-[10px] font-bold text-white focus:outline-none cursor-pointer"
+                        >
+                          <option value="New">New</option>
+                          <option value="Contacted">Contacted</option>
+                          <option value="Closed">Closed</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* ───── TAB 7: CHATBOT LOGS ───── */}
+            {activeTab === 'chat' && (
+              <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Chatbot Logs</h2>
+                    <p className="text-slate-400 text-xs mt-1">Review public chat preview queries and AI generation payloads.</p>
+                  </div>
+                </motion.div>
+
+                {/* Logs list */}
+                <motion.div className="space-y-4" variants={staggerItem}>
+                  {chatLogs.map(log => (
+                    <div key={log.id} className="bg-[#0c121f] rounded-2xl border border-white/5 p-5 space-y-3">
+                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
+                        <span>SESSION: {log.sessionId}</span>
+                        <span>{log.createdAt}</span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <span className="text-blue-400 text-xs font-mono font-bold shrink-0">[USER]:</span>
+                          <p className="text-slate-300 text-xs leading-relaxed">{log.message}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-[#FF6B6B] text-xs font-mono font-bold shrink-0">[BOT]:</span>
+                          <p className="text-slate-400 text-xs leading-relaxed">{log.reply}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* ───── TAB 8: HEALTH ───── */}
+            {activeTab === 'health' && (
+              <motion.div className="space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
+                <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">System Health</h2>
+                    <p className="text-slate-400 text-xs mt-1">Real-time status of backend API services and database nodes.</p>
+                  </div>
+                </motion.div>
+
+                {/* Health details */}
+                <motion.div className="bg-[#0c121f] rounded-2xl border border-white/5 p-6 space-y-6" variants={staggerItem}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-slate-950/60 p-4 border border-white/5 rounded-xl space-y-1">
+                      <p className="text-[10px] font-mono text-slate-500 uppercase">FASTAPI SERVICE STATUS</p>
+                      <p className="text-base font-bold text-white uppercase tracking-tight">{dbHealth?.status || 'OFFLINE / STANDBY'}</p>
+                    </div>
+                    <div className="bg-slate-950/60 p-4 border border-white/5 rounded-xl space-y-1">
+                      <p className="text-[10px] font-mono text-slate-500 uppercase">DATABASE CONNECTIVITY</p>
+                      <p className="text-base font-bold text-white uppercase tracking-tight">{dbHealth?.database || 'DISCONNECTED'}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-4 border-t border-white/5 text-xs leading-relaxed text-slate-400">
+                    <h4 className="font-bold text-white text-sm">Deployment Information</h4>
+                    <p>
+                      The database uses PostgreSQL via SQLAlchemy and AsyncPG for high-speed, non-blocking queries. 
+                      Health checks query the system directly through the <code className="text-[#FF6B6B] font-mono">/api/health</code> endpoint.
+                    </p>
+                    <p>
+                      To launch the server locally, ensure python virtual environment is initialized, dependencies installed, and run:
+                      <br />
+                      <code className="block bg-slate-950 p-3 rounded-lg border border-white/5 mt-2 text-[#FF6B6B] font-mono select-all">
+                        uvicorn app.main:app --reload --port 8000
+                      </code>
+                    </p>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+
+          </main>
         </div>
-      </div>
+      )}
+
     </div>
   );
 }

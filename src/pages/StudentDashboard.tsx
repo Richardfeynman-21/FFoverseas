@@ -9,7 +9,6 @@ import {
   Globe, Shield, Sparkles, Building2, Filter, Star,
   CheckSquare, Square, ChevronDown, ChevronUp, Bot, Settings
 } from 'lucide-react';
-import OriginalLogo from '../components/OriginalLogo';
 import { Flag } from '../components/Flag';
 
 const NAVY = '#001F3F';
@@ -156,8 +155,23 @@ export default function StudentDashboard() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isBotTyping]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const refreshToken = localStorage.getItem('ff_student_refresh_token');
+    if (refreshToken) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+      } catch (err) {
+        console.error('Failed to call backend logout:', err);
+      }
+    }
     localStorage.removeItem('ff_student_token');
+    localStorage.removeItem('ff_student_refresh_token');
     localStorage.removeItem('ff_student');
     navigate('/student/login');
   };
@@ -210,8 +224,8 @@ export default function StudentDashboard() {
         <div>
           <div className="px-6 pt-7 pb-5 border-b border-white/8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FF0000, #cc1e1e)' }}>
-                <Plane size={18} color="#fff" style={{ transform: 'rotate(-30deg)' }} />
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1 border border-white/10 shadow-sm shrink-0">
+                <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
               </div>
               <div>
                 <p className="text-white font-extrabold text-sm tracking-tight leading-tight">Fly & Flourish</p>
@@ -284,9 +298,14 @@ export default function StudentDashboard() {
             <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-slate-100 cursor-pointer">
               <Menu size={20} color={NAVY} />
             </button>
-            <div>
-              <h1 className="text-[15px] font-bold text-[#001F3F] capitalize">{activeTab === 'dashboard' ? 'Dashboard' : activeTab === 'universities' ? 'Universities' : activeTab === 'progress' ? 'My Progress' : 'Chat Support'}</h1>
-              <p className="text-[10px] font-mono text-slate-400 tracking-wider uppercase">STUDENT COMMAND CENTER</p>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center p-0.5 border border-slate-200 shadow-sm shrink-0">
+                <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
+              </div>
+              <div>
+                <h1 className="text-[15px] font-bold text-[#001F3F] capitalize">{activeTab === 'dashboard' ? 'Dashboard' : activeTab === 'universities' ? 'Universities' : activeTab === 'progress' ? 'My Progress' : 'Chat Support'}</h1>
+                <p className="text-[10px] font-mono text-slate-400 tracking-wider uppercase">STUDENT COMMAND CENTER</p>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -310,15 +329,20 @@ export default function StudentDashboard() {
                 <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8" style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #003166 100%)` }}>
                   <div className="absolute right-0 top-0 w-64 h-64 rounded-full blur-3xl" style={{ background: 'rgba(255,0,0,0.08)' }} />
                   <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full blur-3xl" style={{ background: 'rgba(100,150,255,0.06)' }} />
-                  <div className="relative z-10">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-[10px] font-mono text-white/70 tracking-wider mb-3">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      WELCOME BACK
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-[10px] font-mono text-white/70 tracking-wider mb-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        WELCOME BACK
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                        Hello, <span style={{ color: '#FF6B6B' }}>{student.name.split(' ')[0]}</span> 👋
+                      </h2>
+                      <p className="text-slate-300 text-sm mt-2 max-w-lg">Your academic flight path is taking shape. Here's your latest progress and upcoming milestones.</p>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                      Hello, <span style={{ color: '#FF6B6B' }}>{student.name.split(' ')[0]}</span> 👋
-                    </h2>
-                    <p className="text-slate-300 text-sm mt-2 max-w-lg">Your academic flight path is taking shape. Here's your latest progress and upcoming milestones.</p>
+                    <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center p-2 self-start md:self-auto shadow-inner shrink-0">
+                      <img src="/logo.svg" className="w-full h-full object-contain brightness-0 invert" alt="Fly & Flourish Logo" />
+                    </div>
                   </div>
                 </div>
 
@@ -597,7 +621,7 @@ export default function StudentDashboard() {
                 {/* Chat Header */}
                 <div className="px-5 py-4 flex items-center gap-3 border-b border-slate-100" style={{ background: `linear-gradient(135deg, ${NAVY}, #003166)` }}>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white p-1" style={{ border: '1px solid rgba(255,255,255,0.2)' }}>
-                    <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+                    <img src="/logo.svg" className="w-full h-full object-contain" alt="F&F Logo" />
                   </div>
                   <div>
                     <p className="text-white font-bold text-sm">F&F Support Assistant</p>
@@ -615,7 +639,7 @@ export default function StudentDashboard() {
                     >
                       {msg.isBot && (
                         <div className="w-7 h-7 rounded-lg shrink-0 mt-0.5 flex items-center justify-center bg-white p-0.5 border border-slate-100 shadow-sm">
-                          <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+                          <img src="/logo.svg" className="w-full h-full object-contain" alt="F&F Logo" />
                         </div>
                       )}
                       <div>
@@ -637,7 +661,7 @@ export default function StudentDashboard() {
                   {isBotTyping && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5">
                       <div className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center bg-white p-0.5 border border-slate-100 shadow-sm">
-                        <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+                        <img src="/logo.svg" className="w-full h-full object-contain" alt="F&F Logo" />
                       </div>
                       <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
                         {[0, 1, 2].map(d => (

@@ -3,6 +3,7 @@ import path from "path";
 import { google } from "googleapis";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { createProxyMiddleware, fixRequestBody } from "http-proxy-middleware";
 
 // Load environment variables
 dotenv.config();
@@ -303,6 +304,30 @@ app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error processing student coordinates." });
   }
 });
+
+// Proxy other /api calls to FastAPI backend on port 8000
+const BACKEND_TARGET = process.env.BACKEND_API_URL || "http://127.0.0.1:8000";
+app.use(
+  createProxyMiddleware({
+    target: BACKEND_TARGET,
+    changeOrigin: true,
+    pathFilter: "/api",
+    on: {
+      proxyReq: fixRequestBody,
+      error: (err, req, res: any) => {
+        console.error("Proxy error occurred:", err);
+        res.writeHead(502, {
+          "Content-Type": "application/json",
+        });
+        res.end(JSON.stringify({ 
+          error: "Bad Gateway", 
+          message: "Failed to connect to the backend API service.", 
+          detail: err.message 
+        }));
+      }
+    },
+  })
+);
 
 // Setup Vite Development and Production Middleware
 async function serveViteApp() {
