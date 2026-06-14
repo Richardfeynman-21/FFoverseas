@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { DESTINATIONS } from '../data';
 import { Destination } from '../types';
 import { ChevronRight, Globe, University, Calendar, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
+import { Flag } from './Flag';
 
 export default function DestinationCarousel() {
   const [selectedDestId, setSelectedDestId] = useState<string>(DESTINATIONS[0].id);
@@ -56,7 +57,7 @@ export default function DestinationCarousel() {
                   )}
 
                   <div className="flex items-center space-x-4 relative z-10">
-                    <motion.span 
+                    <motion.span
                       animate={{ 
                         y: isHovered ? -3 : 0, 
                         scale: isHovered ? 1.15 : 1,
@@ -67,9 +68,9 @@ export default function DestinationCarousel() {
                         scale: { type: 'spring', stiffness: 300, damping: 10 },
                         rotate: { type: 'tween', ease: 'easeInOut', duration: 0.5 }
                       }}
-                      className="text-3xl filter drop-shadow-sm select-none inline-block origin-bottom"
+                      className="filter drop-shadow-sm select-none inline-block origin-bottom pt-0.5"
                     >
-                      {dest.flag}
+                      <Flag country={dest.flag} className="w-8 h-5.5 rounded-[2px]" />
                     </motion.span>
                     <div>
                       <h4 className={`font-semibold transition-colors duration-300 tracking-tight ${isSelected ? 'text-[#001F3F] text-lg' : 'text-gray-600 group-hover:text-[#001F3F]'}`}>
@@ -122,7 +123,7 @@ export default function DestinationCarousel() {
               <div>
                 <div className="flex items-start justify-between flex-wrap gap-4">
                   <div className="flex items-center space-x-3">
-                    <span className="text-4xl md:text-5xl select-none drop-shadow-md">{selectedDest.flag}</span>
+                    <Flag country={selectedDest.flag} className="w-14 h-9.5 md:w-16 md:h-11 shadow-md rounded-sm" />
                     <div>
                       <span className="text-xs font-mono text-[#FF0000] uppercase tracking-wider font-semibold">GLOBAL SANCTUARY CODES</span>
                       <h2 className="text-2xl md:text-3.5xl font-extrabold text-[#001F3F] tracking-tight">{selectedDest.name}</h2>

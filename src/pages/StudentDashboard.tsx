@@ -10,6 +10,7 @@ import {
   CheckSquare, Square, ChevronDown, ChevronUp, Bot, Settings
 } from 'lucide-react';
 import OriginalLogo from '../components/OriginalLogo';
+import { Flag } from '../components/Flag';
 
 const NAVY = '#001F3F';
 const RED = '#FF0000';
@@ -38,23 +39,23 @@ interface University {
 }
 
 const UNIVERSITIES: University[] = [
-  { name: 'Massachusetts Institute of Technology', country: 'USA', flag: '🇺🇸', ranking: 'QS #1', tuition: '$55,000 - $61,000/yr', scholarship: 'Up to $30,000/yr', programs: ['Computer Science', 'Engineering', 'Data Science'], acceptanceRate: '3.9%' },
-  { name: 'Stanford University', country: 'USA', flag: '🇺🇸', ranking: 'QS #5', tuition: '$56,000 - $62,000/yr', scholarship: 'Up to $28,000/yr', programs: ['AI & Machine Learning', 'Business', 'Bioengineering'], acceptanceRate: '3.7%' },
-  { name: 'Harvard University', country: 'USA', flag: '🇺🇸', ranking: 'QS #4', tuition: '$52,000 - $57,000/yr', scholarship: 'Up to $35,000/yr', programs: ['Law', 'Medicine', 'Economics'], acceptanceRate: '3.2%' },
-  { name: 'UC Berkeley', country: 'USA', flag: '🇺🇸', ranking: 'QS #10', tuition: '$44,000 - $48,000/yr', scholarship: 'Up to $20,000/yr', programs: ['EECS', 'Business Analytics', 'Environmental Science'], acceptanceRate: '11.6%' },
-  { name: 'Columbia University', country: 'USA', flag: '🇺🇸', ranking: 'QS #23', tuition: '$63,000 - $68,000/yr', scholarship: 'Up to $25,000/yr', programs: ['Journalism', 'Finance', 'International Relations'], acceptanceRate: '3.9%' },
-  { name: 'University of Oxford', country: 'UK', flag: '🇬🇧', ranking: 'QS #3', tuition: '£28,000 - £44,000/yr', scholarship: 'Up to £18,000/yr', programs: ['PPE', 'Computer Science', 'Medicine'], acceptanceRate: '15.3%' },
-  { name: 'University of Cambridge', country: 'UK', flag: '🇬🇧', ranking: 'QS #2', tuition: '£25,000 - £40,000/yr', scholarship: 'Up to £16,000/yr', programs: ['Natural Sciences', 'Engineering', 'Mathematics'], acceptanceRate: '18.0%' },
-  { name: 'Imperial College London', country: 'UK', flag: '🇬🇧', ranking: 'QS #6', tuition: '£30,000 - £45,000/yr', scholarship: 'Up to £12,000/yr', programs: ['Biomedical Engineering', 'Computing', 'Physics'], acceptanceRate: '14.3%' },
-  { name: 'UCL', country: 'UK', flag: '🇬🇧', ranking: 'QS #9', tuition: '£22,000 - £38,000/yr', scholarship: 'Up to £10,000/yr', programs: ['Architecture', 'Neuroscience', 'Education'], acceptanceRate: '28.0%' },
-  { name: 'LSE', country: 'UK', flag: '🇬🇧', ranking: 'QS #45', tuition: '£24,000 - £35,000/yr', scholarship: 'Up to £15,000/yr', programs: ['Economics', 'Political Science', 'Social Policy'], acceptanceRate: '8.9%' },
-  { name: 'University of Toronto', country: 'Canada', flag: '🇨🇦', ranking: 'QS #21', tuition: 'CAD $45,000 - $62,000/yr', scholarship: 'Up to CAD $20,000/yr', programs: ['Computer Science', 'Engineering', 'Life Sciences'], acceptanceRate: '43.0%' },
-  { name: 'UBC', country: 'Canada', flag: '🇨🇦', ranking: 'QS #34', tuition: 'CAD $40,000 - $55,000/yr', scholarship: 'Up to CAD $16,000/yr', programs: ['Forestry', 'Commerce', 'Kinesiology'], acceptanceRate: '46.0%' },
-  { name: 'McGill University', country: 'Canada', flag: '🇨🇦', ranking: 'QS #30', tuition: 'CAD $25,000 - $50,000/yr', scholarship: 'Up to CAD $12,000/yr', programs: ['Medicine', 'Music', 'Neuroscience'], acceptanceRate: '41.0%' },
-  { name: 'University of Melbourne', country: 'Australia', flag: '🇦🇺', ranking: 'QS #13', tuition: 'AUD $35,000 - $50,000/yr', scholarship: 'Up to AUD $15,000/yr', programs: ['Biomedicine', 'Design', 'Commerce'], acceptanceRate: '52.0%' },
-  { name: 'University of Sydney', country: 'Australia', flag: '🇦🇺', ranking: 'QS #18', tuition: 'AUD $38,000 - $52,000/yr', scholarship: 'Up to AUD $18,000/yr', programs: ['Law', 'Arts', 'Engineering'], acceptanceRate: '48.0%' },
-  { name: 'Technical University of Munich', country: 'Germany', flag: '🇩🇪', ranking: 'QS #37', tuition: '€250 semester fee', scholarship: 'DAAD up to €15,000/yr', programs: ['Mechanical Engineering', 'Informatics', 'Physics'], acceptanceRate: '8.0%' },
-  { name: 'LMU Munich', country: 'Germany', flag: '🇩🇪', ranking: 'QS #54', tuition: '€250 semester fee', scholarship: 'DAAD up to €12,000/yr', programs: ['Biology', 'Philosophy', 'Law'], acceptanceRate: '12.0%' },
+  { name: 'Massachusetts Institute of Technology', country: 'USA', flag: 'US', ranking: 'QS #1', tuition: '$55,000 - $61,000/yr', scholarship: 'Up to $30,000/yr', programs: ['Computer Science', 'Engineering', 'Data Science'], acceptanceRate: '3.9%' },
+  { name: 'Stanford University', country: 'USA', flag: 'US', ranking: 'QS #5', tuition: '$56,000 - $62,000/yr', scholarship: 'Up to $28,000/yr', programs: ['AI & Machine Learning', 'Business', 'Bioengineering'], acceptanceRate: '3.7%' },
+  { name: 'Harvard University', country: 'USA', flag: 'US', ranking: 'QS #4', tuition: '$52,000 - $57,000/yr', scholarship: 'Up to $35,000/yr', programs: ['Law', 'Medicine', 'Economics'], acceptanceRate: '3.2%' },
+  { name: 'UC Berkeley', country: 'USA', flag: 'US', ranking: 'QS #10', tuition: '$44,000 - $48,000/yr', scholarship: 'Up to $20,000/yr', programs: ['EECS', 'Business Analytics', 'Environmental Science'], acceptanceRate: '11.6%' },
+  { name: 'Columbia University', country: 'USA', flag: 'US', ranking: 'QS #23', tuition: '$63,000 - $68,000/yr', scholarship: 'Up to $25,000/yr', programs: ['Journalism', 'Finance', 'International Relations'], acceptanceRate: '3.9%' },
+  { name: 'University of Oxford', country: 'UK', flag: 'GB', ranking: 'QS #3', tuition: '£28,000 - £44,000/yr', scholarship: 'Up to £18,000/yr', programs: ['PPE', 'Computer Science', 'Medicine'], acceptanceRate: '15.3%' },
+  { name: 'University of Cambridge', country: 'UK', flag: 'GB', ranking: 'QS #2', tuition: '£25,000 - £40,000/yr', scholarship: 'Up to £16,000/yr', programs: ['Natural Sciences', 'Engineering', 'Mathematics'], acceptanceRate: '18.0%' },
+  { name: 'Imperial College London', country: 'UK', flag: 'GB', ranking: 'QS #6', tuition: '£30,000 - £45,000/yr', scholarship: 'Up to £12,000/yr', programs: ['Biomedical Engineering', 'Computing', 'Physics'], acceptanceRate: '14.3%' },
+  { name: 'UCL', country: 'UK', flag: 'GB', ranking: 'QS #9', tuition: '£22,000 - £38,000/yr', scholarship: 'Up to £10,000/yr', programs: ['Architecture', 'Neuroscience', 'Education'], acceptanceRate: '28.0%' },
+  { name: 'LSE', country: 'UK', flag: 'GB', ranking: 'QS #45', tuition: '£24,000 - £35,000/yr', scholarship: 'Up to £15,000/yr', programs: ['Economics', 'Political Science', 'Social Policy'], acceptanceRate: '8.9%' },
+  { name: 'University of Toronto', country: 'Canada', flag: 'CA', ranking: 'QS #21', tuition: 'CAD $45,000 - $62,000/yr', scholarship: 'Up to CAD $20,000/yr', programs: ['Computer Science', 'Engineering', 'Life Sciences'], acceptanceRate: '43.0%' },
+  { name: 'UBC', country: 'Canada', flag: 'CA', ranking: 'QS #34', tuition: 'CAD $40,000 - $55,000/yr', scholarship: 'Up to CAD $16,000/yr', programs: ['Forestry', 'Commerce', 'Kinesiology'], acceptanceRate: '46.0%' },
+  { name: 'McGill University', country: 'Canada', flag: 'CA', ranking: 'QS #30', tuition: 'CAD $25,000 - $50,000/yr', scholarship: 'Up to CAD $12,000/yr', programs: ['Medicine', 'Music', 'Neuroscience'], acceptanceRate: '41.0%' },
+  { name: 'University of Melbourne', country: 'Australia', flag: 'AU', ranking: 'QS #13', tuition: 'AUD $35,000 - $50,000/yr', scholarship: 'Up to AUD $15,000/yr', programs: ['Biomedicine', 'Design', 'Commerce'], acceptanceRate: '52.0%' },
+  { name: 'University of Sydney', country: 'Australia', flag: 'AU', ranking: 'QS #18', tuition: 'AUD $38,000 - $52,000/yr', scholarship: 'Up to AUD $18,000/yr', programs: ['Law', 'Arts', 'Engineering'], acceptanceRate: '48.0%' },
+  { name: 'Technical University of Munich', country: 'Germany', flag: 'DE', ranking: 'QS #37', tuition: '€250 semester fee', scholarship: 'DAAD up to €15,000/yr', programs: ['Mechanical Engineering', 'Informatics', 'Physics'], acceptanceRate: '8.0%' },
+  { name: 'LMU Munich', country: 'Germany', flag: 'DE', ranking: 'QS #54', tuition: '€250 semester fee', scholarship: 'DAAD up to €12,000/yr', programs: ['Biology', 'Philosophy', 'Law'], acceptanceRate: '12.0%' },
 ];
 
 // ── Document checklist ──
@@ -445,7 +446,7 @@ export default function StudentDashboard() {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-[#001F3F] text-sm leading-tight group-hover:text-[#FF0000] transition-colors">{uni.name}</h3>
                           <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-base">{uni.flag}</span>
+                            <Flag country={uni.flag} className="w-5 h-3.5 rounded-[2px]" />
                             <span className="text-[11px] text-slate-400 font-medium">{uni.country}</span>
                           </div>
                         </div>

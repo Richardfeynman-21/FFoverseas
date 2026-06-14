@@ -32,6 +32,7 @@ export default function InteractiveGlobe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [hovered, setHovered] = useState(false);
+  const isVisibleRef = useRef(true);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -306,6 +307,12 @@ export default function InteractiveGlobe() {
 
     let animateId = 0;
     const tick = () => {
+      // Skip rendering when globe is not visible — saves GPU/CPU during scrolling
+      if (!isVisibleRef.current) {
+        animateId = requestAnimationFrame(tick);
+        return;
+      }
+
       if (!isDragging) {
         targetRotationY += 0.0006;
       }
@@ -412,9 +419,17 @@ export default function InteractiveGlobe() {
     });
     resizeObserver.observe(container);
 
+    // Pause animation when globe is off-screen
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0.05 }
+    );
+    visibilityObserver.observe(container);
+
     return () => {
       cancelAnimationFrame(animateId);
       resizeObserver.unobserve(container);
+      visibilityObserver.disconnect();
       container.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);

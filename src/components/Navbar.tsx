@@ -9,10 +9,21 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
+    let lastScrolled = false;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const isScrolled = window.scrollY > 20;
+        if (isScrolled !== lastScrolled) {
+          lastScrolled = isScrolled;
+          setScrolled(isScrolled);
+        }
+        ticking = false;
+      });
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

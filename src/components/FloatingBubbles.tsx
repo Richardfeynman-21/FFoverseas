@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TESTIMONIALS } from '../data';
 import { Quote, Star, MessageCircleCode, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Flag } from './Flag';
 
 // ─── Physics constants ────────────────────────────────────────────────────────
-const BUBBLE_RADIUS = 72;          // px — half the visual diameter
 const RESTITUTION   = 0.82;        // bounciness on collision (0–1)
 const DAMPING       = 0.9995;      // velocity decay per frame
 const MAX_SPEED     = 2.2;         // px / frame cap
@@ -19,28 +19,22 @@ interface BubblePhysics {
   vy: number;
 }
 
-function flagFor(destination: string) {
-  const map: Record<string, string> = {
-    USA: '🇺🇸', UK: '🇬🇧', Canada: '🇨🇦', Germany: '🇩🇪',
-    Australia: '🇦🇺', France: '🇫🇷', Netherlands: '🇳🇱', Ireland: '🇮🇪',
-  };
-  return map[destination] ?? '🌍';
-}
 
 export default function FloatingBubbles() {
   const [activeIndex, setActiveIndex]   = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  // Render positions — updated every RAF frame
-  const [positions, setPositions]       = useState<{ x: number; y: number }[]>([]);
   // Dynamic scale of bubbles
   const [bubbleRadius, setBubbleRadius] = useState(72);
 
   const containerRef  = useRef<HTMLDivElement>(null);
+  // Direct DOM refs for each bubble — bypasses React re-renders entirely
+  const bubbleElRefs  = useRef<(HTMLDivElement | null)[]>([]);
   const physicsRef    = useRef<BubblePhysics[]>([]);        // mutable physics state
   const mouseRef      = useRef({ x: -9999, y: -9999 });
   const mouseOverRef  = useRef(false);
   const rafRef        = useRef<number>(0);
   const sizeRef       = useRef({ w: 0, h: 0 });
+  const isVisibleRef  = useRef(false);
 
   // ── Initialise bubble positions so they don't overlap ──────────────────────
   const initPhysics = useCallback(() => {
@@ -62,23 +56,33 @@ export default function FloatingBubbles() {
     for (let i = 0; i < n; i++) {
       const col = i % cols;
       const row = Math.floor(i / cols);
-      // Centre of each grid cell, clamped inside walls
       const x = Math.max(r, Math.min(w - r,
         (col + 0.5) * (w / cols)));
       const y = Math.max(r, Math.min(h - r,
         (row + 0.5) * (h / rows)));
-      // Random angle, consistent initial speed
       const angle = Math.random() * Math.PI * 2;
       const speed = MIN_SPEED + Math.random() * 0.8;
       states.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed });
     }
 
     physicsRef.current = states;
-    setPositions(states.map(b => ({ x: b.x, y: b.y })));
+    // Apply initial positions directly to DOM
+    states.forEach((b, i) => {
+      const el = bubbleElRefs.current[i];
+      if (el) {
+        el.style.transform = `translate3d(${b.x - r}px, ${b.y - r}px, 0)`;
+      }
+    });
   }, []);
 
-  // ── RAF physics loop ───────────────────────────────────────────────────────
+  // ── RAF physics loop — writes directly to DOM, NO React setState ──────────
   const tick = useCallback(() => {
+    // Only run physics when the section is visible on screen
+    if (!isVisibleRef.current) {
+      rafRef.current = requestAnimationFrame(tick);
+      return;
+    }
+
     const { w, h } = sizeRef.current;
     if (!w || !h) { rafRef.current = requestAnimationFrame(tick); return; }
 
@@ -86,7 +90,7 @@ export default function FloatingBubbles() {
     const n  = bs.length;
     const m  = mouseRef.current;
     const r  = w < 480 ? 54 : w < 768 ? 64 : 72;
-    const D  = r * 2; // min centre-to-centre distance
+    const D  = r * 2;
 
     // 1. Mouse repulsion
     if (mouseOverRef.current) {
@@ -113,7 +117,6 @@ export default function FloatingBubbles() {
         const dy = b.y - a.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < D && dist > 0) {
-          // Push apart so they never overlap
           const overlap = (D - dist) / 2;
           const nx = dx / dist;
           const ny = dy / dist;
@@ -122,12 +125,10 @@ export default function FloatingBubbles() {
           b.x += nx * overlap;
           b.y += ny * overlap;
 
-          // Relative velocity along collision normal
           const dvx = a.vx - b.vx;
           const dvy = a.vy - b.vy;
           const dot  = dvx * nx + dvy * ny;
 
-          // Only resolve if approaching (dot > 0)
           if (dot > 0) {
             const impulse = dot * RESTITUTION;
             a.vx -= impulse * nx;
@@ -143,17 +144,14 @@ export default function FloatingBubbles() {
     for (let i = 0; i < n; i++) {
       const b = bs[i];
 
-      // Damp
       b.vx *= DAMPING;
       b.vy *= DAMPING;
 
-      // Clamp max
       const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
       if (speed > MAX_SPEED) {
         b.vx = (b.vx / speed) * MAX_SPEED;
         b.vy = (b.vy / speed) * MAX_SPEED;
       }
-      // Floor min so bubbles never freeze
       if (speed > 0 && speed < MIN_SPEED) {
         b.vx = (b.vx / speed) * MIN_SPEED;
         b.vy = (b.vy / speed) * MIN_SPEED;
@@ -162,15 +160,20 @@ export default function FloatingBubbles() {
       b.x += b.vx;
       b.y += b.vy;
 
-      // Wall collisions
       if (b.x < r)      { b.x = r;      b.vx =  Math.abs(b.vx); }
       if (b.x > w - r)  { b.x = w - r;  b.vx = -Math.abs(b.vx); }
       if (b.y < r)      { b.y = r;       b.vy =  Math.abs(b.vy); }
       if (b.y > h - r)  { b.y = h - r;  b.vy = -Math.abs(b.vy); }
     }
 
-    // Flush to React state (shallow copy for referential change)
-    setPositions(bs.map(b => ({ x: b.x, y: b.y })));
+    // 4. Write positions directly to DOM — zero React overhead
+    for (let i = 0; i < n; i++) {
+      const el = bubbleElRefs.current[i];
+      if (el) {
+        el.style.transform = `translate3d(${bs[i].x - r}px, ${bs[i].y - r}px, 0)`;
+      }
+    }
+
     rafRef.current = requestAnimationFrame(tick);
   }, []);
 
@@ -188,6 +191,18 @@ export default function FloatingBubbles() {
     return () => ro.disconnect();
   }, [initPhysics]);
 
+  // ── Pause physics when off-screen (IntersectionObserver) ──────────────────
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0.05 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   // ── Mouse handlers (pixel coords relative to container) ───────────────────
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -203,9 +218,9 @@ export default function FloatingBubbles() {
 
   return (
     <div className="w-full relative py-8 px-4 md:px-0" id="success-stories">
-      {/* Decorative ambient blobs */}
-      <div className="absolute top-1/4 left-1/12 w-48 h-48 rounded-full bg-gradient-to-tr from-sky-500/5 to-indigo-500/5 blur-xl animate-pulse pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/12 w-64 h-64 rounded-full bg-gradient-to-tr from-red-500/5 to-pink-500/5 blur-2xl pointer-events-none" style={{ animationDelay: '2s' }} />
+      {/* Decorative ambient blobs — removed animate-pulse for perf */}
+      <div className="absolute top-1/4 left-1/12 w-48 h-48 rounded-full bg-gradient-to-tr from-sky-500/5 to-indigo-500/5 blur-xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/12 w-64 h-64 rounded-full bg-gradient-to-tr from-red-500/5 to-pink-500/5 blur-2xl pointer-events-none" />
 
       <div className="text-center max-w-xl mx-auto mb-10">
 
@@ -222,7 +237,7 @@ export default function FloatingBubbles() {
         {/* ── Bubble physics field ── */}
         <div
           ref={containerRef}
-          className="lg:col-span-7 relative h-[420px] overflow-hidden bg-white/10 backdrop-blur-md rounded-3xl border border-white/40 shadow-inner"
+          className="lg:col-span-7 relative h-[420px] overflow-hidden bg-white/10 rounded-3xl border border-white/40 shadow-inner"
           onMouseMove={handleMouseMove}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -230,32 +245,27 @@ export default function FloatingBubbles() {
           {/* Dot grid */}
           <div className="absolute inset-0 bg-[radial-gradient(#001F3F_1px,transparent_1px)] [background-size:16px_16px] opacity-10 pointer-events-none" />
 
-          {positions.map((pos, idx) => {
-            const t = TESTIMONIALS[idx];
+          {TESTIMONIALS.map((t, idx) => {
             const isActive  = idx === activeIndex;
             const isHovered = idx === hoveredIndex;
 
             return (
               <div
                 key={t.id}
-                className="absolute"
+                ref={(el) => { bubbleElRefs.current[idx] = el; }}
+                className="absolute top-0 left-0"
                 style={{
-                  // Centre the bubble on its physics position
-                  left: pos.x - bubbleRadius,
-                  top:  pos.y - bubbleRadius,
                   width:  bubbleRadius * 2,
                   height: bubbleRadius * 2,
-                  // Skip motion/react transform here — we drive position directly
-                  // to avoid fighting the RAF loop
+                  willChange: 'transform',
                   zIndex: isActive ? 30 : isHovered ? 20 : 10,
-                  transition: 'box-shadow 0.3s, background 0.3s',
                 }}
               >
                 <div
                   onClick={() => setActiveIndex(idx)}
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
-                  className={`w-full h-full rounded-full flex flex-col items-center justify-center cursor-pointer select-none border backdrop-blur-md text-center relative transition-all duration-300 ${
+                  className={`w-full h-full rounded-full flex flex-col items-center justify-center cursor-pointer select-none border text-center relative transition-colors transition-shadow duration-300 ${
                     isActive
                       ? 'bg-white/60 border-[#FF0000]/40 scale-105'
                       : isHovered
@@ -271,13 +281,13 @@ export default function FloatingBubbles() {
                   {/* Inner dashed ring */}
                   <div className="absolute inset-2 rounded-full border border-dashed border-[#001F3F]/8 opacity-40 pointer-events-none" />
 
-                  <span className="text-2xl drop-shadow-sm">{flagFor(t.destination)}</span>
+                  <Flag country={t.destination} className="w-8 h-5.5 rounded-[2px]" />
                   <h4 className="font-bold text-[#001F3F] text-xs mt-1.5 px-3 truncate w-full text-center">{t.name}</h4>
                   <p className="text-[10px] text-gray-400 font-mono font-medium px-3 truncate w-full text-center">{t.university}</p>
 
                   {isActive && (
                     <span className="absolute bottom-4 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF0000] opacity-75" />
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-[#FF0000] opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF0000]" />
                     </span>
                   )}
@@ -288,14 +298,14 @@ export default function FloatingBubbles() {
 
           <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-[10px] font-mono text-gray-400 pointer-events-none">
             <span>LIVE PHYSICS SIMULATION</span>
-            <span className="text-[#FF0000] animate-pulse">● HOVER TO REPEL</span>
+            <span className="text-[#FF0000]">● HOVER TO REPEL</span>
           </div>
         </div>
 
         {/* ── Testimonial detail panel ── */}
         <div className="lg:col-span-5">
           <div
-            className="rounded-3xl bg-white/35 backdrop-blur-xl border border-white/60 shadow-xl p-6 md:p-8 overflow-hidden flex flex-col justify-between"
+            className="rounded-3xl bg-white/35 border border-white/60 shadow-xl p-6 md:p-8 overflow-hidden flex flex-col justify-between"
             style={{ boxShadow: '0 20px 50px rgba(0,31,63,0.06), inset 0 2px 10px rgba(255,255,255,0.95)' }}
           >
             <div>

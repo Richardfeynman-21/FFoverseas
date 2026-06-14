@@ -51,7 +51,7 @@ export default function ConsultationForm() {
 
   return (
     <div className="w-full relative py-8 px-4 md:px-0" id="consultation-hub">
-      <div className="absolute inset-0 rounded-3.5xl bg-gradient-to-tr from-sky-300/10 via-red-200/5 to-purple-400/5 blur-3xl pointer-events-none -z-10 animate-[pulse_10s_infinite]" />
+      <div className="absolute inset-0 rounded-3.5xl bg-gradient-to-tr from-sky-300/10 via-red-200/5 to-purple-400/5 blur-3xl pointer-events-none -z-10" />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
 

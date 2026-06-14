@@ -49,7 +49,7 @@ const revealVariants = {
 };
 
 export default function App() {
-  const [worldTime, setWorldTime] = useState('');
+  const worldTimeRef = React.useRef<HTMLSpanElement>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Prevent scroll during loading
@@ -69,11 +69,13 @@ export default function App() {
     if (isLoading) return;
 
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 0.9,
+      lerp: 0.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutExpo
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
+      touchMultiplier: 1.5,
     });
 
     let rafId = 0;
@@ -90,11 +92,14 @@ export default function App() {
     };
   }, [isLoading]);
 
-  // Update dynamic World Grid Clock
+  // Update dynamic World Grid Clock — direct DOM write avoids re-rendering the entire App every second
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      setWorldTime(now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC');
+      const timeStr = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+      if (worldTimeRef.current) {
+        worldTimeRef.current.textContent = timeStr;
+      }
     };
     updateTime();
     const interval = setInterval(updateTime, 1000);
@@ -224,7 +229,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: false, amount: 0.12 }}
+        viewport={{ once: true, amount: 0.12 }}
       >
         {/* Decorative subtle ambient lights */}
         <div className="absolute top-1/4 left-1/10 w-72 h-72 rounded-full bg-[#001F3F]/5 blur-3xl pointer-events-none" />
@@ -302,7 +307,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: false, amount: 0.15 }}
+        viewport={{ once: true, amount: 0.15 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <DestinationCarousel />
@@ -316,7 +321,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: false, amount: 0.12 }}
+        viewport={{ once: true, amount: 0.12 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <FlourishRoadmap />
@@ -330,7 +335,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: false, amount: 0.15 }}
+        viewport={{ once: true, amount: 0.15 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <FloatingBubbles />
@@ -344,7 +349,7 @@ export default function App() {
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: false, amount: 0.1 }}
+        viewport={{ once: true, amount: 0.1 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <ConsultationForm />
@@ -379,7 +384,7 @@ export default function App() {
  
               <div className="flex items-center gap-2.5 text-xs text-slate-350">
                 <Clock className="w-4 h-4 text-[#FF0000]" />
-                <span className="font-mono text-[11px] tracking-wide uppercase">GRID CLOCK: {worldTime}</span>
+                <span className="font-mono text-[11px] tracking-wide uppercase">GRID CLOCK: <span ref={worldTimeRef} /></span>
               </div>
             </div>
  
