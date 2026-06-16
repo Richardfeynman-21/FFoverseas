@@ -26,6 +26,22 @@ export default function ConsultationForm() {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
+
+    const nameRegex = /^[A-Za-z][A-Za-z\s'-]{1,49}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!nameRegex.test(formData.name.trim())) {
+      setErrorMsg('Please enter a valid name.');
+      setLoading(false);
+      return;
+    }
+
+    if (!emailRegex.test(formData.email.trim())) {
+      setErrorMsg('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/enquiries', {
         method: 'POST',
@@ -125,6 +141,8 @@ export default function ConsultationForm() {
                           value={formData.name}
                           onChange={handleInputChange}
                           placeholder="e.g. Priyan Roy"
+                          pattern="^[A-Za-z][A-Za-z\\s'-]{1,49}$"
+                          title="Please enter a valid name"
                           className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
                         />
                       </div>
@@ -142,6 +160,8 @@ export default function ConsultationForm() {
                           value={formData.email}
                           onChange={handleInputChange}
                           placeholder="e.g. roy.priyan@gmail.com"
+                          pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                          title="Please enter a valid email address."
                           className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
                         />
                       </div>
@@ -159,6 +179,8 @@ export default function ConsultationForm() {
                           value={formData.phone}
                           onChange={handleInputChange}
                           placeholder="e.g. +91 98765 43210"
+                          pattern="^(?:\+91|0)?[6-9]\d{9}$"
+                          title="please enter valid phone number"
                           className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
                         />
                       </div>
