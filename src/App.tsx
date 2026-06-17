@@ -46,7 +46,7 @@ const revealVariants = {
       duration: 0.95
     }
   }
-};
+} as const;
 
 export default function App() {
   const worldTimeRef = React.useRef<HTMLSpanElement>(null);

@@ -1,0 +1,830 @@
+@charset "UTF-8";
+/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
+/* Document
+   ========================================================================== */
+/**
+ * 1. Correct the line height in all browsers.
+ * 2. Prevent adjustments of font size after orientation changes in iOS.
+ */
+html {
+  line-height: 1.15; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+
+/* Sections
+   ========================================================================== */
+/**
+ * Remove the margin in all browsers.
+ */
+body {
+  margin: 0;
+}
+
+/**
+ * Render the `main` element consistently in IE.
+ */
+main {
+  display: block;
+}
+
+/**
+ * Correct the font size and margin on `h1` elements within `section` and
+ * `article` contexts in Chrome, Firefox, and Safari.
+ */
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+/* Grouping content
+   ========================================================================== */
+/**
+ * 1. Add the correct box sizing in Firefox.
+ * 2. Show the overflow in Edge and IE.
+ */
+hr {
+  box-sizing: content-box; /* 1 */
+  height: 0; /* 1 */
+  overflow: visible; /* 2 */
+}
+
+/**
+ * 1. Correct the inheritance and scaling of font size in all browsers.
+ * 2. Correct the odd `em` font sizing in all browsers.
+ */
+pre {
+  font-family: monospace, monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+
+/* Text-level semantics
+   ========================================================================== */
+/**
+ * Remove the gray background on active links in IE 10.
+ */
+a {
+  background-color: transparent;
+}
+
+/**
+ * 1. Remove the bottom border in Chrome 57-
+ * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
+ */
+abbr[title] {
+  border-bottom: none; /* 1 */
+  text-decoration: underline; /* 2 */
+  -webkit-text-decoration: underline dotted;
+          text-decoration: underline dotted; /* 2 */
+}
+
+/**
+ * Add the correct font weight in Chrome, Edge, and Safari.
+ */
+b,
+strong {
+  font-weight: bolder;
+}
+
+/**
+ * 1. Correct the inheritance and scaling of font size in all browsers.
+ * 2. Correct the odd `em` font sizing in all browsers.
+ */
+code,
+kbd,
+samp {
+  font-family: monospace, monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+
+/**
+ * Add the correct font size in all browsers.
+ */
+small {
+  font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` elements from affecting the line height in
+ * all browsers.
+ */
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/* Embedded content
+   ========================================================================== */
+/**
+ * Remove the border on images inside links in IE 10.
+ */
+img {
+  border-style: none;
+}
+
+/* Forms
+   ========================================================================== */
+/**
+ * 1. Change the font styles in all browsers.
+ * 2. Remove the margin in Firefox and Safari.
+ */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit; /* 1 */
+  font-size: 100%; /* 1 */
+  line-height: 1.15; /* 1 */
+  margin: 0; /* 2 */
+}
+
+/**
+ * Show the overflow in IE.
+ * 1. Show the overflow in Edge.
+ */
+button,
+input { /* 1 */
+  overflow: visible;
+}
+
+/**
+ * Remove the inheritance of text transform in Edge, Firefox, and IE.
+ * 1. Remove the inheritance of text transform in Firefox.
+ */
+button,
+select { /* 1 */
+  text-transform: none;
+}
+
+/**
+ * Correct the inability to style clickable types in iOS and Safari.
+ */
+button,
+[type=button],
+[type=reset],
+[type=submit] {
+  -webkit-appearance: button;
+}
+
+/**
+ * Remove the inner border and padding in Firefox.
+ */
+button::-moz-focus-inner,
+[type=button]::-moz-focus-inner,
+[type=reset]::-moz-focus-inner,
+[type=submit]::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+/**
+ * Restore the focus styles unset by the previous rule.
+ */
+button:-moz-focusring,
+[type=button]:-moz-focusring,
+[type=reset]:-moz-focusring,
+[type=submit]:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+/**
+ * Correct the padding in Firefox.
+ */
+fieldset {
+  padding: 0.35em 0.75em 0.625em;
+}
+
+/**
+ * 1. Correct the text wrapping in Edge and IE.
+ * 2. Correct the color inheritance from `fieldset` elements in IE.
+ * 3. Remove the padding so developers are not caught out when they zero out
+ *    `fieldset` elements in all browsers.
+ */
+legend {
+  box-sizing: border-box; /* 1 */
+  color: inherit; /* 2 */
+  display: table; /* 1 */
+  max-width: 100%; /* 1 */
+  padding: 0; /* 3 */
+  white-space: normal; /* 1 */
+}
+
+/**
+ * Add the correct vertical alignment in Chrome, Firefox, and Opera.
+ */
+progress {
+  vertical-align: baseline;
+}
+
+/**
+ * Remove the default vertical scrollbar in IE 10+.
+ */
+textarea {
+  overflow: auto;
+}
+
+/**
+ * 1. Add the correct box sizing in IE 10.
+ * 2. Remove the padding in IE 10.
+ */
+[type=checkbox],
+[type=radio] {
+  box-sizing: border-box; /* 1 */
+  padding: 0; /* 2 */
+}
+
+/**
+ * Correct the cursor style of increment and decrement buttons in Chrome.
+ */
+[type=number]::-webkit-inner-spin-button,
+[type=number]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/**
+ * 1. Correct the odd appearance in Chrome and Safari.
+ * 2. Correct the outline style in Safari.
+ */
+[type=search] {
+  -webkit-appearance: textfield; /* 1 */
+  outline-offset: -2px; /* 2 */
+}
+
+/**
+ * Remove the inner padding in Chrome and Safari on macOS.
+ */
+[type=search]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+/**
+ * 1. Correct the inability to style clickable types in iOS and Safari.
+ * 2. Change font properties to `inherit` in Safari.
+ */
+::-webkit-file-upload-button {
+  -webkit-appearance: button; /* 1 */
+  font: inherit; /* 2 */
+}
+
+/* Interactive
+   ========================================================================== */
+/*
+ * Add the correct display in Edge, IE 10+, and Firefox.
+ */
+details {
+  display: block;
+}
+
+/*
+ * Add the correct display in all browsers.
+ */
+summary {
+  display: list-item;
+}
+
+/* Misc
+   ========================================================================== */
+/**
+ * Add the correct display in IE 10+.
+ */
+template {
+  display: none;
+}
+
+/**
+ * Add the correct display in IE 10.
+ */
+[hidden] {
+  display: none;
+}
+
+.lil-gui {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: 1;
+  font-weight: normal;
+  font-style: normal;
+  text-align: left;
+  color: var(--text-color);
+  -moz-user-select: none;
+       user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  --background-color: #1f1f1f;
+  --text-color: #ebebeb;
+  --title-background-color: #111111;
+  --title-text-color: #ebebeb;
+  --widget-color: #424242;
+  --hover-color: #4f4f4f;
+  --focus-color: #595959;
+  --number-color: #2cc9ff;
+  --string-color: #a2db3c;
+  --font-size: 11px;
+  --input-font-size: 11px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-family-mono: Menlo, Monaco, Consolas, "Droid Sans Mono", monospace;
+  --padding: 4px;
+  --spacing: 4px;
+  --widget-height: 20px;
+  --title-height: calc(var(--widget-height) + var(--spacing) * 1.25);
+  --name-width: 45%;
+  --slider-knob-width: 2px;
+  --slider-input-width: 27%;
+  --color-input-width: 27%;
+  --slider-input-min-width: 45px;
+  --color-input-min-width: 45px;
+  --folder-indent: 7px;
+  --widget-padding: 0 0 0 3px;
+  --widget-border-radius: 2px;
+  --checkbox-size: calc(0.75 * var(--widget-height));
+  --scrollbar-width: 5px;
+}
+
+.lil-gui, .lil-gui * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.lil-gui.lil-root {
+  width: var(--width, 245px);
+  display: flex;
+  flex-direction: column;
+  background: var(--background-color);
+}
+
+.lil-gui.lil-root > .lil-title {
+  background: var(--title-background-color);
+  color: var(--title-text-color);
+}
+
+.lil-gui.lil-root > .lil-children {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.lil-gui.lil-root > .lil-children::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+  background: var(--background-color);
+}
+
+.lil-gui.lil-root > .lil-children::-webkit-scrollbar-thumb {
+  border-radius: var(--scrollbar-width);
+  background: var(--focus-color);
+}
+
+@media (pointer: coarse) {
+  .lil-gui.lil-allow-touch-styles, .lil-gui.lil-allow-touch-styles .lil-gui {
+    --widget-height: 28px;
+    --padding: 6px;
+    --spacing: 6px;
+    --font-size: 13px;
+    --input-font-size: 16px;
+    --folder-indent: 10px;
+    --scrollbar-width: 7px;
+    --slider-input-min-width: 50px;
+    --color-input-min-width: 65px;
+  }
+}
+.lil-gui.lil-force-touch-styles, .lil-gui.lil-force-touch-styles .lil-gui {
+  --widget-height: 28px;
+  --padding: 6px;
+  --spacing: 6px;
+  --font-size: 13px;
+  --input-font-size: 16px;
+  --folder-indent: 10px;
+  --scrollbar-width: 7px;
+  --slider-input-min-width: 50px;
+  --color-input-min-width: 65px;
+}
+
+.lil-gui.lil-auto-place, .lil-gui.autoPlace {
+  max-height: 100%;
+  position: fixed;
+  top: 0;
+  right: 15px;
+  z-index: 1001;
+}
+
+.lil-controller {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--padding);
+  margin: var(--spacing) 0;
+}
+
+.lil-controller.lil-disabled {
+  opacity: 0.5;
+}
+
+.lil-controller.lil-disabled, .lil-controller.lil-disabled * {
+  pointer-events: none !important;
+}
+
+.lil-controller > .lil-name {
+  min-width: var(--name-width);
+  flex-shrink: 0;
+  white-space: pre;
+  padding-right: var(--spacing);
+  line-height: var(--widget-height);
+}
+
+.lil-controller .lil-widget {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--widget-height);
+}
+
+.lil-controller.lil-string input {
+  color: var(--string-color);
+}
+
+.lil-controller.lil-boolean {
+  cursor: pointer;
+}
+
+.lil-controller.lil-color .lil-display {
+  width: 100%;
+  height: var(--widget-height);
+  border-radius: var(--widget-border-radius);
+  position: relative;
+}
+
+@media (hover: hover) {
+  .lil-controller.lil-color .lil-display:hover:before {
+    content: " ";
+    display: block;
+    position: absolute;
+    border-radius: var(--widget-border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+.lil-controller.lil-color input[type=color] {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.lil-controller.lil-color input[type=text] {
+  margin-left: var(--spacing);
+  font-family: var(--font-family-mono);
+  min-width: var(--color-input-min-width);
+  width: var(--color-input-width);
+  flex-shrink: 0;
+}
+
+.lil-controller.lil-option select {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  max-width: 100%;
+}
+
+.lil-controller.lil-option .lil-display {
+  position: relative;
+  pointer-events: none;
+  border-radius: var(--widget-border-radius);
+  height: var(--widget-height);
+  line-height: var(--widget-height);
+  max-width: 100%;
+  overflow: hidden;
+  word-break: break-all;
+  padding-left: 0.55em;
+  padding-right: 1.75em;
+  background: var(--widget-color);
+}
+
+@media (hover: hover) {
+  .lil-controller.lil-option .lil-display.lil-focus {
+    background: var(--focus-color);
+  }
+}
+.lil-controller.lil-option .lil-display.lil-active {
+  background: var(--focus-color);
+}
+
+.lil-controller.lil-option .lil-display:after {
+  font-family: "lil-gui";
+  content: "↕";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  padding-right: 0.375em;
+}
+
+.lil-controller.lil-option .lil-widget,
+.lil-controller.lil-option select {
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .lil-controller.lil-option .lil-widget:hover .lil-display {
+    background: var(--hover-color);
+  }
+}
+.lil-controller.lil-number input {
+  color: var(--number-color);
+}
+
+.lil-controller.lil-number.lil-has-slider input {
+  margin-left: var(--spacing);
+  width: var(--slider-input-width);
+  min-width: var(--slider-input-min-width);
+  flex-shrink: 0;
+}
+
+.lil-controller.lil-number .lil-slider {
+  width: 100%;
+  height: var(--widget-height);
+  background: var(--widget-color);
+  border-radius: var(--widget-border-radius);
+  padding-right: var(--slider-knob-width);
+  overflow: hidden;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+
+@media (hover: hover) {
+  .lil-controller.lil-number .lil-slider:hover {
+    background: var(--hover-color);
+  }
+}
+.lil-controller.lil-number .lil-slider.lil-active {
+  background: var(--focus-color);
+}
+
+.lil-controller.lil-number .lil-slider.lil-active .lil-fill {
+  opacity: 0.95;
+}
+
+.lil-controller.lil-number .lil-fill {
+  height: 100%;
+  border-right: var(--slider-knob-width) solid var(--number-color);
+  box-sizing: content-box;
+}
+
+.lil-dragging .lil-gui {
+  --hover-color: var(--widget-color);
+}
+
+.lil-dragging * {
+  cursor: ew-resize !important;
+}
+
+.lil-dragging.lil-vertical * {
+  cursor: ns-resize !important;
+}
+
+.lil-gui .lil-title {
+  height: var(--title-height);
+  font-weight: 600;
+  padding: 0 var(--padding);
+  width: 100%;
+  text-align: left;
+  background: none;
+  -webkit-text-decoration-skip: objects;
+          text-decoration-skip: objects;
+}
+
+.lil-gui .lil-title:before {
+  font-family: "lil-gui";
+  content: "▾";
+  padding-right: 2px;
+  display: inline-block;
+}
+
+.lil-gui .lil-title:active {
+  background: var(--title-background-color);
+  opacity: 0.75;
+}
+
+@media (hover: hover) {
+  body:not(.lil-dragging) .lil-gui .lil-title:hover {
+    background: var(--title-background-color);
+    opacity: 0.85;
+  }
+  .lil-gui .lil-title:focus {
+    -webkit-text-decoration: underline var(--focus-color);
+            text-decoration: underline var(--focus-color);
+  }
+}
+.lil-gui.lil-root > .lil-title:focus {
+  text-decoration: none !important;
+}
+
+.lil-gui.lil-closed > .lil-title:before {
+  content: "▸";
+}
+
+.lil-gui.lil-closed > .lil-children {
+  transform: translateY(-7px);
+  opacity: 0;
+}
+
+.lil-gui.lil-closed:not(.lil-transition) > .lil-children {
+  display: none;
+}
+
+.lil-gui.lil-transition > .lil-children {
+  transition-duration: 300ms;
+  transition-property: height, opacity, transform;
+  transition-timing-function: cubic-bezier(0.2, 0.6, 0.35, 1);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lil-gui .lil-children:empty:before {
+  content: "Empty";
+  padding: 0 var(--padding);
+  margin: var(--spacing) 0;
+  display: block;
+  height: var(--widget-height);
+  font-style: italic;
+  line-height: var(--widget-height);
+  opacity: 0.5;
+}
+
+.lil-gui.lil-root > .lil-children > .lil-gui > .lil-title {
+  border: 0 solid var(--widget-color);
+  border-width: 1px 0;
+  transition: border-color 300ms;
+}
+
+.lil-gui.lil-root > .lil-children > .lil-gui.lil-closed > .lil-title {
+  border-bottom-color: transparent;
+}
+
+.lil-gui + .lil-controller {
+  border-top: 1px solid var(--widget-color);
+  margin-top: 0;
+  padding-top: var(--spacing);
+}
+
+.lil-gui .lil-gui .lil-gui > .lil-title {
+  border: none;
+}
+
+.lil-gui .lil-gui .lil-gui > .lil-children {
+  border: none;
+  margin-left: var(--folder-indent);
+  border-left: 2px solid var(--widget-color);
+}
+
+.lil-gui .lil-gui .lil-controller {
+  border: none;
+}
+
+.lil-gui label, .lil-gui input, .lil-gui button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lil-gui input {
+  border: 0;
+  outline: none;
+  font-family: var(--font-family);
+  font-size: var(--input-font-size);
+  border-radius: var(--widget-border-radius);
+  height: var(--widget-height);
+  background: var(--widget-color);
+  color: var(--text-color);
+  width: 100%;
+}
+
+@media (hover: hover) {
+  .lil-gui input:hover {
+    background: var(--hover-color);
+  }
+  .lil-gui input:active {
+    background: var(--focus-color);
+  }
+}
+.lil-gui input:disabled {
+  opacity: 1;
+}
+
+.lil-gui input[type=text],
+.lil-gui input[type=number] {
+  padding: var(--widget-padding);
+  -moz-appearance: textfield;
+}
+
+.lil-gui input[type=text]:focus,
+.lil-gui input[type=number]:focus {
+  background: var(--focus-color);
+}
+
+.lil-gui input[type=checkbox] {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border-radius: var(--widget-border-radius);
+  text-align: center;
+  cursor: pointer;
+}
+
+.lil-gui input[type=checkbox]:checked:before {
+  font-family: "lil-gui";
+  content: "✓";
+  font-size: var(--checkbox-size);
+  line-height: var(--checkbox-size);
+}
+
+@media (hover: hover) {
+  .lil-gui input[type=checkbox]:focus {
+    box-shadow: inset 0 0 0 1px var(--focus-color);
+  }
+}
+.lil-gui button {
+  outline: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  color: var(--text-color);
+  width: 100%;
+  border: none;
+}
+
+.lil-gui .lil-controller button {
+  height: var(--widget-height);
+  text-transform: none;
+  background: var(--widget-color);
+  border-radius: var(--widget-border-radius);
+}
+
+@media (hover: hover) {
+  .lil-gui .lil-controller button:hover {
+    background: var(--hover-color);
+  }
+  .lil-gui .lil-controller button:focus {
+    box-shadow: inset 0 0 0 1px var(--focus-color);
+  }
+}
+.lil-gui .lil-controller button:active {
+  background: var(--focus-color);
+}
+
+@font-face {
+  font-family: "lil-gui";
+  src: url("data:application/font-woff2;charset=utf-8;base64,d09GMgABAAAAAALkAAsAAAAABtQAAAKVAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHFQGYACDMgqBBIEbATYCJAMUCwwABCAFhAoHgQQbHAbIDiUFEYVARAAAYQTVWNmz9MxhEgodq49wYRUFKE8GWNiUBxI2LBRaVnc51U83Gmhs0Q7JXWMiz5eteLwrKwuxHO8VFxUX9UpZBs6pa5ABRwHA+t3UxUnH20EvVknRerzQgX6xC/GH6ZUvTcAjAv122dF28OTqCXrPuyaDER30YBA1xnkVutDDo4oCi71Ca7rrV9xS8dZHbPHefsuwIyCpmT7j+MnjAH5X3984UZoFFuJ0yiZ4XEJFxjagEBeqs+e1iyK8Xf/nOuwF+vVK0ur765+vf7txotUi0m3N0m/84RGSrBCNrh8Ee5GjODjF4gnWP+dJrH/Lk9k4oT6d+gr6g/wssA2j64JJGP6cmx554vUZnpZfn6ZfX2bMwPPrlANsB86/DiHjhl0OP+c87+gaJo/gY084s3HoYL/ZkWHTRfBXvvoHnnkHvngKun4KBE/ede7tvq3/vQOxDXB1/fdNz6XbPdcr0Vhpojj9dG+owuSKFsslCi1tgEjirjXdwMiov2EioadxmqTHUCIwo8NgQaeIasAi0fTYSPTbSmwbMOFduyh9wvBrESGY0MtgRjtgQR8Q1bRPohn2UoCRZf9wyYANMXFeJTysqAe0I4mrherOekFdKMrYvJjLvOIUM9SuwYB5DVZUwwVjJJOaUnZCmcEkIZZrKqNvRGRMvmFZsmhP4VMKCSXBhSqUBxgMS7h0cZvEd71AWkEhGWaeMFcNnpqyJkyXgYL7PQ1MoSq0wDAkRtJIijkZSmqYTiSImfLiSWXIZwhRh3Rug2X0kk1Dgj+Iu43u5p98ghopcpSo0Uyc8SnjlYX59WUeaMoDqmVD2TOWD9a4pCRAzf2ECgwGcrHjPOWY9bNxq/OL3I/QjwEAAAA=") format("woff2");
+}
+:root {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f1fa;
+  color: #141419;
+  overscroll-behavior: none;
+  overflow: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.scene {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.scene > canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lil-gui {
+  --width: 240px;
+}/*# sourceMappingURL=style.css.map */

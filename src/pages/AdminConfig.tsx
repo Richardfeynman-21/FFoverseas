@@ -150,7 +150,7 @@ const DEFAULT_CHAT_LOGS: ChatLogRecord[] = [
 const staggerItem = {
   hidden: { opacity: 0, y: 15 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 70, damping: 13 } }
-};
+} as const;
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -158,7 +158,7 @@ const staggerContainer = {
     opacity: 1,
     transition: { staggerChildren: 0.05 }
   }
-};
+} as const;
 
 export default function AdminConfig() {
   const navigate = useNavigate();
