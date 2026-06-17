@@ -25,7 +25,7 @@ const pageVariants = {
     opacity: 1,
     transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
   },
-};
+} as const;
 
 const panelVariants = {
   hidden: { opacity: 0, x: -60 },
@@ -40,7 +40,7 @@ const panelVariants = {
       delay: 0.15,
     },
   },
-};
+} as const;
 
 const formContainerVariants = {
   hidden: { opacity: 0, x: 40 },
@@ -55,7 +55,7 @@ const formContainerVariants = {
       delay: 0.25,
     },
   },
-};
+} as const;
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -66,7 +66,7 @@ const staggerContainer = {
       delayChildren: 0.4,
     },
   },
-};
+} as const;
 
 const staggerItem = {
   hidden: { opacity: 0, y: 20 },
@@ -79,7 +79,7 @@ const staggerItem = {
       damping: 14,
     },
   },
-};
+} as const;
 
 const floatAnimation = {
   y: [0, -14, 0],

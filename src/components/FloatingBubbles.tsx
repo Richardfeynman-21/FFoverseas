@@ -285,7 +285,7 @@ export default function FloatingBubbles() {
                   <h4 className="font-bold text-[#001F3F] text-xs mt-1.5 px-3 truncate w-full text-center">{t.name}</h4>
                   <p className="text-[10px] text-gray-400 font-mono font-medium px-3 truncate w-full text-center">{t.university}</p>
 
-                  {isActive && (
+                  {isActive && ( 
                     <span className="absolute bottom-4 flex h-2 w-2">
                       <span className="absolute inline-flex h-full w-full rounded-full bg-[#FF0000] opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF0000]" />
@@ -295,12 +295,9 @@ export default function FloatingBubbles() {
               </div>
             );
           })}
-
-          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-[10px] font-mono text-gray-400 pointer-events-none">
-            <span>LIVE PHYSICS SIMULATION</span>
-            <span className="text-[#FF0000]">● HOVER TO REPEL</span>
-          </div>
         </div>
+
+        
 
         {/* ── Testimonial detail panel ── */}
         <div className="lg:col-span-5">

@@ -125,19 +125,19 @@ export default function DestinationCarousel() {
                   <div className="flex items-center space-x-3">
                     <Flag country={selectedDest.flag} className="w-14 h-9.5 md:w-16 md:h-11 shadow-md rounded-sm" />
                     <div>
-                      <span className="text-xs font-mono text-[#FF0000] uppercase tracking-wider font-semibold">GLOBAL SANCTUARY CODES</span>
+                      <span className="text-xs font-mono text-[#FF0000] uppercase tracking-wider font-semibold"></span>
                       <h2 className="text-2xl md:text-3.5xl font-extrabold text-[#001F3F] tracking-tight">{selectedDest.name}</h2>
                     </div>
                   </div>
-
-                  <div className="bg-[#001F3F]/5 hover:bg-[#001F3F]/8 border border-[#001F3F]/10 px-4 py-2 rounded-2xl flex items-center gap-2 backdrop-blur-sm">
-                    <ShieldCheck className="w-4 h-4 text-[#FF0000]" />
-                    <div className="text-left">
-                      <p className="text-[9px] text-gray-400 font-mono leading-none">VISA INDEX</p>
-                      <p className="text-xs font-bold text-[#001F3F] font-mono">{selectedDest.visaSuccessRate}</p>
-                    </div>
-                  </div>
-                </div>
+ 
+                   <div className="bg-[#001F3F]/5 hover:bg-[#001F3F]/8 border border-[#001F3F]/10 px-4 py-2 rounded-2xl flex items-center gap-2 backdrop-blur-sm">
+                     <ShieldCheck className="w-4 h-4 text-[#FF0000]" />
+                     <div className="text-left">
+                       <p className="text-[9px] text-gray-400 font-mono leading-none">VISA INDEX</p>
+                       <p className="text-xs font-bold text-[#001F3F] font-mono">{selectedDest.visaSuccessRate}</p>
+                     </div>
+                   </div>
+                 </div>
 
                 <p className="text-[#FF0000] font-medium text-sm md:text-base mt-4 italic font-sans">
                   "{selectedDest.tagline}"

@@ -1,0 +1,5 @@
+1.the list of universities should be imported from the database (instead of keeping hundreds or thousands of universities hardcoded
+2.the document checklist details should also be imported from the database live instead of doing them hardcoded 
+3.lets add a profile tab in the student dashboard
+4.lets keep all the emojs of the flags on a seperate file and link it to admin dashboard page where i the admin can add new countries which they serve which then automatically runs a background code to import the flags from flag.com or something and save the emoji of the the flag in that file 
+5.

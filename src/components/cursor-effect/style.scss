@@ -1,0 +1,22 @@
+@use '../../../node_modules/lil-gui/dist/lil-gui.css';
+
+.scene {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  > canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// GUI
+.lil-gui {
+  --width: 240px;
+}
+
+
