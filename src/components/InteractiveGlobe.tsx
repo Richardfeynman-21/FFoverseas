@@ -27,12 +27,28 @@ function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector
   );
 }
 
-export default function InteractiveGlobe() {
+export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?: (destId: string) => void } = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [hovered, setHovered] = useState(false);
   const isVisibleRef = useRef(true);
+
+  const handleCityClick = (city: typeof CITIES[number]) => {
+    if (!onSelectCountry) return;
+    const mapping: Record<string, string> = {
+      'USA': 'usa',
+      'GBR': 'uk',
+      'CAN': 'canada',
+      'AUS': 'australia',
+      'DEU': 'germany'
+    };
+    const destId = mapping[city.code || ''] || mapping[city.name] || '';
+    if (destId) {
+      onSelectCountry(destId);
+    }
+  };
+
 
   useEffect(() => {
     const container = containerRef.current;
@@ -280,6 +296,9 @@ export default function InteractiveGlobe() {
     let previousPoint = { x: 0, y: 0 };
 
     const onPointerDown = (e: PointerEvent) => {
+      if (e.target && (e.target as HTMLElement).closest('#globe-labels-overlay')) {
+        return;
+      }
       e.preventDefault();
       isDragging = true;
       previousPoint = { x: e.clientX, y: e.clientY };
@@ -494,26 +513,44 @@ export default function InteractiveGlobe() {
       />
 
       <div className="absolute inset-0 pointer-events-none overflow-visible" id="globe-labels-overlay">
-        {CITIES.map((city, index) => (
-          <div
-            key={city.name}
-            ref={(el) => { labelRefs.current[index] = el; }}
-            className="absolute top-0 left-0 transition-opacity duration-150 select-none hidden"
-            style={{ transform: 'translate(-50%, -100%)' }}
-          >
-            <div className={`flex flex-col items-center gap-0.5 bg-[#020d1c]/92 border ${city.isHub ? 'border-[#ffd700]/70' : 'border-[#ef4444]/60'} rounded-lg px-2.5 py-1 shadow-[0_4px_16px_rgba(0,0,0,0.6)] backdrop-blur-md`}>
-              <div className="flex items-center gap-1.5">
-                {city.isHub ? (
-                  <span className="text-[#ffd700] text-[9.5px] font-bold">★ hub</span>
-                ) : (
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#ff3b3b] animate-pulse" />
-                )}
-                <span className="text-white text-[10px] font-semibold tracking-tight whitespace-nowrap">{city.name}</span>
+        {CITIES.map((city, index) => {
+          const isClickable = !city.isHub && ['USA', 'GBR', 'CAN', 'AUS', 'DEU'].includes(city.code || '');
+          return (
+            <div
+              key={city.name}
+              ref={(el) => { labelRefs.current[index] = el; }}
+              className={`absolute top-0 left-0 transition-opacity duration-150 select-none hidden pointer-events-auto group ${
+                isClickable ? 'cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-200' : ''
+              }`}
+              style={{ transform: 'translate(-50%, -100%)' }}
+              onClick={() => {
+                if (isClickable) {
+                  handleCityClick(city);
+                }
+              }}
+            >
+              <div className={`flex flex-col items-center gap-0.5 bg-[#020d1c]/92 border ${
+                city.isHub 
+                  ? 'border-[#ffd700]/70' 
+                  : isClickable 
+                    ? 'border-[#ef4444]/60 hover:border-[#ff3535] hover:bg-[#03152e]/98 hover:shadow-[0_0_15px_rgba(239,68,68,0.35)] transition-all duration-300' 
+                    : 'border-[#ef4444]/45'
+              } rounded-lg px-2.5 py-1 shadow-[0_4px_16px_rgba(0,0,0,0.6)] backdrop-blur-md`}>
+                <div className="flex items-center gap-1.5">
+                  {city.isHub ? (
+                    <span className="text-[#ffd700] text-[9.5px] font-bold">★ hub</span>
+                  ) : (
+                    <div className={`w-1.5 h-1.5 rounded-full ${isClickable ? 'bg-[#ff3b3b]' : 'bg-gray-400'} animate-pulse`} />
+                  )}
+                  <span className="text-white text-[10px] font-semibold tracking-tight whitespace-nowrap">{city.name}</span>
+                </div>
               </div>
+              <div className={`w-0 h-0 border-l-[4.5px] border-l-transparent border-r-[4.5px] border-r-transparent border-t-[5.5px] ${
+                isClickable ? 'border-t-[#020d1c] group-hover:border-t-[#03152e] transition-colors duration-300' : 'border-t-[#020d1c]'
+              } mx-auto filter drop-shadow-[0_1.5px_1px_rgba(0,0,0,0.65)]`} />
             </div>
-            <div className="w-0 h-0 border-l-[4.5px] border-l-transparent border-r-[4.5px] border-r-transparent border-t-[5.5px] border-t-[#020d1c] mx-auto filter drop-shadow-[0_1.5px_1px_rgba(0,0,0,0.65)]" />
-          </div>
-        ))}
+          );
+        })}
       </div>
 
 

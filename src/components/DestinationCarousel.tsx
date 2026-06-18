@@ -5,11 +5,27 @@ import { Destination } from '../types';
 import { ChevronRight, Globe, University, Calendar, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
 import { Flag } from './Flag';
 
-export default function DestinationCarousel() {
-  const [selectedDestId, setSelectedDestId] = useState<string>(DESTINATIONS[0].id);
+interface DestinationCarouselProps {
+  selectedDestId?: string;
+  onSelectDest?: (id: string) => void;
+}
+
+export default function DestinationCarousel({ selectedDestId: controlledDestId, onSelectDest }: DestinationCarouselProps = {}) {
+  const [localSelectedDestId, setLocalSelectedDestId] = useState<string>(DESTINATIONS[0].id);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
+  const selectedDestId = controlledDestId !== undefined ? controlledDestId : localSelectedDestId;
+
+  const setSelectedDestId = (id: string) => {
+    if (onSelectDest) {
+      onSelectDest(id);
+    } else {
+      setLocalSelectedDestId(id);
+    }
+  };
+
   const selectedDest = DESTINATIONS.find(d => d.id === selectedDestId) || DESTINATIONS[0];
+
 
   return (
     <div className="w-full relative py-8 px-4 md:px-0" id="global-destinations">

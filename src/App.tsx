@@ -25,7 +25,8 @@ import {
   Phone,
   Mail,
   Clock,
-  Navigation
+  Navigation,
+  Plane
 } from 'lucide-react';
 
 const revealVariants = {
@@ -50,7 +51,22 @@ const revealVariants = {
 
 export default function App() {
   const worldTimeRef = React.useRef<HTMLSpanElement>(null);
+  const lenisRef = React.useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDestId, setSelectedDestId] = useState<string>('usa');
+
+  const handleSelectCountry = (destId: string) => {
+    setSelectedDestId(destId);
+    const target = document.getElementById('showcase-destinations');
+    if (target) {
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(target, { offset: -20 });
+      } else {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
 
   // Prevent scroll during loading
   useEffect(() => {
@@ -77,6 +93,7 @@ export default function App() {
       smoothWheel: true,
       touchMultiplier: 1.5,
     });
+    lenisRef.current = lenis;
 
     let rafId = 0;
     const raf = (time: number) => {
@@ -89,6 +106,7 @@ export default function App() {
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      lenisRef.current = null;
     };
   }, [isLoading]);
 
@@ -213,7 +231,7 @@ export default function App() {
               <div className="absolute top-[40%] left-[60%] -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-blue-500/3 blur-3xl" />
 
               <div className="relative z-10">
-                <InteractiveGlobe />
+                <InteractiveGlobe onSelectCountry={handleSelectCountry} />
               </div>
             </div>
 
@@ -251,7 +269,7 @@ export default function App() {
             <div className="lg:col-span-7 space-y-6">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#001F3F]/5 border border-[#001F3F]/15 rounded-full text-xs text-[#001F3F] font-mono shadow-xs backdrop-blur-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF0000] animate-ping" />
+                  <Plane className="w-3.5 h-3.5 text-[#FF0000]" style={{ transform: 'rotate(-30deg)' }} />
                   <span>WHO WE ARE</span>
                 </div>
                 
@@ -310,7 +328,7 @@ export default function App() {
         viewport={{ once: true, amount: 0.15 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <DestinationCarousel />
+          <DestinationCarousel selectedDestId={selectedDestId} onSelectDest={setSelectedDestId} />
         </div>
       </motion.section>
 

@@ -86,7 +86,7 @@ const floatAnimation = {
   transition: {
     duration: 5,
     repeat: Infinity,
-    ease: 'easeInOut',
+    ease: 'easeInOut' as const,
   },
 };
 
@@ -96,7 +96,7 @@ const floatAnimationSlow = {
   transition: {
     duration: 7,
     repeat: Infinity,
-    ease: 'easeInOut',
+    ease: 'easeInOut' as const,
   },
 };
 
@@ -107,9 +107,10 @@ const planeAnimation = {
   transition: {
     duration: 4,
     repeat: Infinity,
-    ease: 'easeInOut',
+    ease: 'easeInOut' as const,
   },
 };
+
 
 // ─── Stats Data ─────────────────────────────────────────────────────────────────
 
