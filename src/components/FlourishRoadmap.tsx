@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ROADMAP_STEPS } from '../data';
 import { RoadmapStep } from '../types';
-import { HelpCircle, CheckSquare, Sparkles, Milestone, ArrowRight, ClipboardCheck, PlaneTakeoff, GraduationCap, Compass } from 'lucide-react';
+import { HelpCircle, CheckSquare, Sparkles, Milestone, ArrowRight, ClipboardCheck, PlaneTakeoff, GraduationCap, Compass, FileText, Award, BadgeDollarSign, ShieldCheck } from 'lucide-react';
 
 export default function FlourishRoadmap() {
   const [activeStepId, setActiveStepId] = useState<number>(1);
@@ -10,11 +10,29 @@ export default function FlourishRoadmap() {
 
   const getStepIcon = (id: number) => {
     switch (id) {
-      case 1: return <GraduationCap className="w-5 h-5 text-white" />;
-      case 2: return <ClipboardCheck className="w-5 h-5 text-white" />;
-      case 3: return <Compass className="w-5 h-5 text-white" />;
-      case 4: return <PlaneTakeoff className="w-5 h-5 text-white" />;
-      default: return <Milestone className="w-5 h-5 text-white" />;
+      case 1:
+        return <GraduationCap className="w-5 h-5 text-white" />;
+  
+      case 2:
+        return <ClipboardCheck className="w-5 h-5 text-white" />;
+  
+      case 3:
+        return <FileText className="w-5 h-5 text-white" />;
+  
+      case 4:
+        return <Award className="w-5 h-5 text-white" />;
+  
+      case 5:
+        return <BadgeDollarSign className="w-5 h-5 text-white" />;
+  
+      case 6:
+        return <ShieldCheck className="w-5 h-5 text-white" />;
+  
+      case 7:
+        return <PlaneTakeoff className="w-5 h-5 text-white" />;
+  
+      default:
+        return <Milestone className="w-5 h-5 text-white" />;
     }
   };
 
@@ -45,10 +63,12 @@ export default function FlourishRoadmap() {
           {/* Vertical Connecting Light-Trail Vector Line Graphic */}
           <div className="absolute left-10 md:left-13 top-12 bottom-12 w-1.5 bg-[#001F3F]/5 rounded-full overflow-hidden pointer-events-none">
             {/* Animated glowing neon trail representing flight paths */}
-            <div 
-              className="w-full bg-gradient-to-b from-[#001F3F] via-[#FF0000] to-[#FF0000] rounded-full transition-all duration-700 ease-out"
+            <div
+              className="absolute top-0 left-0 w-full rounded-full transition-all duration-700 ease-out"
               style={{
-                height: `${(activeStepId / ROADMAP_STEPS.length) * 100}%`
+                height: `${(activeStepId / ROADMAP_STEPS.length) * 100}%`,
+                background:
+                  'linear-gradient(to bottom, #001F3F 0%, #001F3F 30%, #d91212 100%)'
               }}
             />
             {/* Supersonic flying light particle */}
