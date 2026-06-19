@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react';
 
 // Target cities with actual geographic coordinates
 const CITIES = [
-  { name: 'Hyderabad', lng: 78.48, lat: 17.38, isHub: true },
+  { name: 'Fly & Flourish', lng: 78.48, lat: 17.38, isHub: true },
   { name: 'United States', lng: -74.0, lat: 40.7, code: 'USA' },
   { name: 'United Kingdom', lng: -0.1, lat: 51.5, code: 'GBR' },
   { name: 'Canada', lng: -79.4, lat: 43.7, code: 'CAN' },
