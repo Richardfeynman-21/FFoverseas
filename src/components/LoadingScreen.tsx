@@ -187,31 +187,16 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 />
               </mask>
 
-              {/* 2. Base F monogram subtractive clip path (creates gaps where the swoosh passes behind) */}
-              <clipPath id="base-f-clip">
-                <path
-                  clipRule="evenodd"
-                  d="M0 0h600v600H0z M246 335H177V288H246V335Z M266 348H246V276H266V348Z M365 323H308V295H365V323Z M402 348H365V283H402V348Z"
-                />
-              </clipPath>
-
-              {/* 3. Overlapping patches subtractive clip path (creates gaps for interlocking layers) */}
-              <clipPath id="patches-clip">
-                <path
-                  clipRule="evenodd"
-                  d="M0 0h600v600H0z M219 282h10v17H219V282Z M356 299H353V290H356V299Z"
-                />
-              </clipPath>
             </defs>
 
             {/* A. Base Monogram Logo (F1 & F2) - Static Dim Layer */}
-            <g id="brand-emblem-dim" clipPath="url(#base-f-clip)">
+            <g id="brand-emblem-dim">
               <path d={logoPaths.f1} fill="rgba(255, 255, 255, 0.15)" />
               <path d={logoPaths.f2} fill="rgba(255, 255, 255, 0.15)" />
             </g>
 
             {/* B. Overlapping Interlocking Patches - Static Dim Layer */}
-            <g id="brand-emblem-patches-dim" clipPath="url(#patches-clip)">
+            <g id="brand-emblem-patches-dim">
               <path d="M219 298L171 288H219V298Z" fill="rgba(255, 255, 255, 0.15)" stroke="rgba(255, 255, 255, 0.15)" strokeWidth={0.5} />
               <path d="M353 299L316 296H353V299Z" fill="rgba(255, 255, 255, 0.15)" />
               <path d="M353 291L316 296H353V291Z" fill="rgba(255, 255, 255, 0.15)" />
@@ -233,47 +218,43 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
               />
             </g>
 
-            {/* D. Glowing Monogram Logo - Double-masked/clipped to keep cuts 100% clean and free of bleed/gradient artifacts */}
-            <g clipPath="url(#base-f-clip)">
-              <g mask="url(#glow-sweep-mask)">
-                <motion.g id="brand-emblem-glow" style={{ opacity: tMotion }}>
-                  <path
-                    d={logoPaths.f1}
-                    fill="#FFFFFF"
-                    filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
-                  />
-                  <path
-                    d={logoPaths.f2}
-                    fill="#FFFFFF"
-                    filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
-                  />
-                </motion.g>
-              </g>
+            {/* D. Glowing Monogram Logo - Double-masked to keep cuts 100% clean and free of bleed/gradient artifacts */}
+            <g mask="url(#glow-sweep-mask)">
+              <motion.g id="brand-emblem-glow" style={{ opacity: tMotion }}>
+                <path
+                  d={logoPaths.f1}
+                  fill="#FFFFFF"
+                  filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
+                />
+                <path
+                  d={logoPaths.f2}
+                  fill="#FFFFFF"
+                  filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
+                />
+              </motion.g>
             </g>
 
-            {/* E. Glowing Overlapping Patches (Triangles only) - Double-masked/clipped to keep interlocking splits clean */}
-            <g clipPath="url(#patches-clip)">
-              <g mask="url(#glow-sweep-mask)">
-                <motion.g id="brand-emblem-patches-glow" style={{ opacity: tMotion }}>
-                  <path
-                    d="M219 298L171 288H219V298Z"
-                    fill="#FFFFFF"
-                    stroke="#FFFFFF"
-                    strokeWidth={0.5}
-                    filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
-                  />
-                  <path
-                    d="M353 299L316 296H353V299Z"
-                    fill="#FFFFFF"
-                    filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
-                  />
-                  <path
-                    d="M353 291L316 296H353V291Z"
-                    fill="#FFFFFF"
-                    filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
-                  />
-                </motion.g>
-              </g>
+            {/* E. Glowing Overlapping Patches (Triangles only) - Double-masked to keep interlocking splits clean */}
+            <g mask="url(#glow-sweep-mask)">
+              <motion.g id="brand-emblem-patches-glow" style={{ opacity: tMotion }}>
+                <path
+                  d="M219 298L171 288H219V298Z"
+                  fill="#FFFFFF"
+                  stroke="#FFFFFF"
+                  strokeWidth={0.5}
+                  filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
+                />
+                <path
+                  d="M353 299L316 296H353V299Z"
+                  fill="#FFFFFF"
+                  filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
+                />
+                <path
+                  d="M353 291L316 296H353V291Z"
+                  fill="#FFFFFF"
+                  filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
+                />
+              </motion.g>
             </g>
 
             {/* D. Jet Plane Silhouette (Flies along the curve) */}
