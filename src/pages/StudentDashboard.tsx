@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, GraduationCap, BarChart3, MessageCircle,
   LogOut, Menu, X, ChevronRight, Search, ExternalLink,

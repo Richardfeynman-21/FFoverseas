@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ROADMAP_STEPS } from '../data';
 import { RoadmapStep } from '../types';
 import { HelpCircle, CheckSquare, Sparkles, Milestone, ArrowRight, ClipboardCheck, PlaneTakeoff, GraduationCap, Compass } from 'lucide-react';

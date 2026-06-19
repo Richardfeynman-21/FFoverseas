@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, ChevronRight, User, Mail, Phone, Globe, BookOpen, ShieldAlert, CheckCircle, PhoneCall } from 'lucide-react';
 import { DESTINATIONS } from '../data';
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Globe, Plane } from 'lucide-react';
 import ChatBubble from './ChatBubble';
 import AuthPromptCard from './AuthPromptCard';

@@ -7,7 +7,7 @@ import FloatingBubbles from './components/FloatingBubbles';
 import ConsultationForm from './components/ConsultationForm';
 import OriginalLogo from './components/OriginalLogo';
 import LoadingScreen from './components/LoadingScreen';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 import Lenis from 'lenis';
 import PublicChatWidget from './components/chat/PublicChatWidget';
 
@@ -28,7 +28,7 @@ import {
   Navigation
 } from 'lucide-react';
 
-const revealVariants = {
+const revealVariants : Variants ={
   hidden: { 
     opacity: 0, 
     scale: 0.96, 
@@ -207,12 +207,13 @@ export default function App() {
             </div>
 
             {/* Hero Interactive 3D Sculpture Wrap (5 Columns) */}
-            <div className="lg:col-span-5 flex items-center justify-center relative min-h-[380px]">
+            <div className="lg:col-span-5 flex items-center justify-center relative min-h-[380px] w-full">
               {/* Outer decorative light leaks representing futuristic WebGL aura */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#FF0000]/4 blur-3xl" />
               <div className="absolute top-[40%] left-[60%] -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-blue-500/3 blur-3xl" />
 
-              <div className="relative z-10">
+              {/* FIX: Added strict width, max-width, and aspect-square to this parent wrapper */}
+              <div className="relative z-10 w-full max-w-[600px] aspect-square shrink-0">
                 <InteractiveGlobe />
               </div>
             </div>

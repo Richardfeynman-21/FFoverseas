@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DESTINATIONS } from '../data';
 import { Destination } from '../types';
 import { ChevronRight, Globe, University, Calendar, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';

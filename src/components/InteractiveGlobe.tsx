@@ -1,30 +1,42 @@
-import React, { useRef, useState, useEffect } from 'react';
-import * as THREE from 'three';
-import { Sparkles } from 'lucide-react';
+import { useRef, useState, useEffect } from "react";
+import * as THREE from "three";
 
-// Target cities with actual geographic coordinates
 const CITIES = [
-  { name: 'Hyderabad', lng: 78.48, lat: 17.38, isHub: true },
-  { name: 'United States', lng: -74.0, lat: 40.7, code: 'USA' },
-  { name: 'United Kingdom', lng: -0.1, lat: 51.5, code: 'GBR' },
-  { name: 'Canada', lng: -79.4, lat: 43.7, code: 'CAN' },
-  { name: 'Australia', lng: 151.2, lat: -33.9, code: 'AUS' },
-  { name: 'Germany', lng: 8.7, lat: 50.1, code: 'DEU' },
-  { name: 'New Delhi', lng: 77.2, lat: 28.6, code: 'DEL' },
-  { name: 'Ireland', lng: -6.26, lat: 53.35, code: 'IRL' }
+  { name: "Hyderabad", lng: 78.48, lat: 17.38, isHub: true },
+  { name: "United States", lng: -98.5, lat: 39.8, code: "USA" },
+  { name: "United Kingdom", lng: -1.5, lat: 52.5, code: "GBR" },
+  { name: "Canada", lng: -106.3, lat: 56.1, code: "CAN" },
+  { name: "Australia", lng: 133.7, lat: -25.2, code: "AUS" },
+  { name: "Germany", lng: 10.4, lat: 51.1, code: "DEU" },
+  { name: "New Delhi", lng: 77.2, lat: 28.6, code: "DEL" },
+  { name: "Ireland", lng: -8.2, lat: 53.4, code: "IRL" },
 ];
 
-// FIX 1: Changed (lng + 180) → (lng + 90) to compensate for earthMesh.rotation.y = -Math.PI / 2.
-// The earth texture is rotated -90° on the mesh, so all pin/arc coordinates must
-// shift their longitude reference by +90° to stay aligned with the visual texture.
 function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
-  const theta = (lng + 90) * (Math.PI / 180); // was (lng + 180) — that's the fix
+  const theta = (lng + 180) * (Math.PI / 180);
   return new THREE.Vector3(
     -(radius * Math.sin(phi) * Math.cos(theta)),
     radius * Math.cos(phi),
     radius * Math.sin(phi) * Math.sin(theta)
   );
+}
+
+function makeDotTexture(): THREE.Texture {
+  const size = 64;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  grad.addColorStop(0, "rgba(255,255,255,1)");
+  grad.addColorStop(0.4, "rgba(255,255,255,0.95)");
+  grad.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
 }
 
 export default function InteractiveGlobe() {
@@ -39,68 +51,56 @@ export default function InteractiveGlobe() {
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    const rect = container.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
+    let width = container.clientWidth || 500;
+    let height = container.clientHeight || 500;
+
+    // Wave palette: globe breathes between navy and red
+    const COLOR_NAVY = new THREE.Color(0x00008b);
+    const COLOR_RED = new THREE.Color(0xff0000);
+    // Reused scratch colors so we never allocate inside the animation loop
+    const globeColor = new THREE.Color(); // current globe color (navy <-> red)
+    const oppColor = new THREE.Color();   // exact opposite (red <-> navy)
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 0, 6.6);
+    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
+    camera.position.set(0, 0, 7.5);
+
+    const gl = canvas.getContext("webgl2", { antialias: true }) || canvas.getContext("webgl", { antialias: true });
+    if (!gl) return;
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
+      context: gl as WebGLRenderingContext,
       antialias: true,
       alpha: true,
-      powerPreference: 'high-performance',
+      powerPreference: "high-performance",
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
-    scene.add(ambientLight);
-
-    const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    sunLight.position.set(5, 3, 5);
-    scene.add(sunLight);
-
-    const backLight = new THREE.DirectionalLight(0x3366ff, 0.3);
-    backLight.position.set(-5, -3, -5);
-    scene.add(backLight);
-
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
-    const earthRadius = 2.1;
-    const textureLoader = new THREE.TextureLoader();
-    const baseUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/';
+    const earthRadius = 2.0;
 
-    const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 64);
-    const earthMat = new THREE.MeshPhongMaterial({
-      map: textureLoader.load(baseUrl + 'earth_atmos_2048.jpg'),
-      specularMap: textureLoader.load(baseUrl + 'earth_specular_2048.jpg'),
-      normalMap: textureLoader.load(baseUrl + 'earth_normal_2048.jpg'),
-      specular: new THREE.Color(0x333333),
-      shininess: 25,
-    });
-    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
-    earthMesh.rotation.y = -Math.PI / 2; // texture alignment offset
-    globeGroup.add(earthMesh);
+    // Initial colors (these get overwritten every frame by the wave)
+    const COL_DOT = new THREE.Color(0x00008b);
+    const COL_ATMO = new THREE.Color(0x00008b);
+    const COL_ARC = new THREE.Color(0xff0000);
+    const COL_HUB = new THREE.Color(0xff0000);
 
-    const cloudGeo = new THREE.SphereGeometry(earthRadius * 1.01, 64, 64);
-    const cloudMat = new THREE.MeshLambertMaterial({
-      map: textureLoader.load(baseUrl + 'earth_clouds_1024.png'),
-      transparent: true,
-      opacity: 0.6,
-      blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-    });
-    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
-    cloudMesh.rotation.y = -Math.PI / 2;
-    globeGroup.add(cloudMesh);
+    // Solid inner core background to hide dots wrapping behind the sphere
+    const coreGeo = new THREE.SphereGeometry(earthRadius * 0.99, 64, 64);
+    const coreMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
+    globeGroup.add(new THREE.Mesh(coreGeo, coreMat));
 
-    const atmosphereGeo = new THREE.SphereGeometry(earthRadius * 1.03, 64, 64);
+    // Transparent wireframe depth structure
+    
+
+    // Atmosphere Fresnel glow (matches the current globe color)
+    const atmosphereGeo = new THREE.SphereGeometry(earthRadius * 1.12, 64, 64);
     const atmosphereMat = new THREE.ShaderMaterial({
+      uniforms: { uColor: { value: COL_ATMO.clone() } },
       vertexShader: `
         varying vec3 vNormal;
         void main() {
@@ -109,34 +109,81 @@ export default function InteractiveGlobe() {
         }
       `,
       fragmentShader: `
+        uniform vec3 uColor;
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 4.0);
-          gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity * 1.5;
+          float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+          gl_FragColor = vec4(uColor, clamp(intensity, 0.0, 0.5));
         }
       `,
-      blending: THREE.AdditiveBlending,
       side: THREE.BackSide,
       transparent: true,
       depthWrite: false,
     });
-    const atmosphereMesh = new THREE.Mesh(atmosphereGeo, atmosphereMat);
-    scene.add(atmosphereMesh);
+    globeGroup.add(new THREE.Mesh(atmosphereGeo, atmosphereMat));
 
-    // FIX 2: Flight animation sync.
-    // Previously the shader used fract(uTime * 0.35) for the comet head position, while
-    // the jet mesh used a separate flight.progress variable — these drifted apart.
-    // Now both use the same uProgress uniform (0→1), set directly from flight.progress
-    // each frame, so the cone and the comet head always coincide on the curve.
-    const flights: {
-      curve: THREE.CatmullRomCurve3;
-      jetMesh: THREE.Mesh;
-      lineMesh: THREE.Mesh;
-      material: THREE.ShaderMaterial;
-      progress: number;
-      speed: number;
-    }[] = [];
+    // ---- Image-based land mask (accurate continents) ----
+const geo = new THREE.BufferGeometry();
+const dotTexture = makeDotTexture();
+const mat = new THREE.PointsMaterial({
+  size: 0.075,
+  map: dotTexture,
+  color: COL_DOT.clone(),
+  transparent: true,
+  opacity: 0.95,
+  depthWrite: false,
+  sizeAttenuation: true,
+});
+const dots = new THREE.Points(geo, mat);
+globeGroup.add(dots);
 
+// Equirectangular black/white land mask (white = land)
+const maskImg = new Image();
+maskImg.crossOrigin = "anonymous";
+maskImg.onload = () => {
+  const mw = maskImg.width;
+  const mh = maskImg.height;
+  const mc = document.createElement("canvas");
+  mc.width = mw;
+  mc.height = mh;
+  const mctx = mc.getContext("2d")!;
+  mctx.drawImage(maskImg, 0, 0);
+  const data = mctx.getImageData(0, 0, mw, mh).data;
+
+  const isLand = (lat: number, lng: number) => {
+    const u = (lng + 180) / 360;
+    const v = (90 - lat) / 180;
+    const px = Math.min(mw - 1, Math.max(0, Math.floor(u * mw)));
+    const py = Math.min(mh - 1, Math.max(0, Math.floor(v * mh)));
+    const idx = (py * mw + px) * 4;
+    // bright pixel = land
+    return data[idx] < 130;
+  };
+
+  const positions: number[] = [];
+  const SAMPLES = 30000;
+  for (let i = 0; i < SAMPLES; i++) {
+    const t = i / SAMPLES;
+    const inclination = Math.acos(1 - 2 * t);
+    const azimuth = Math.PI * (1 + Math.sqrt(5)) * i;
+
+    const lat = 90 - (inclination * 180) / Math.PI;
+    let lng = ((azimuth * 180) / Math.PI) % 360;
+    if (lng > 180) lng -= 360;
+
+    if (isLand(lat, lng)) {
+      const vpos = latLngToVector3(lat, lng, earthRadius * 1.005);
+      positions.push(vpos.x, vpos.y, vpos.z);
+    }
+  }
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.attributes.position.needsUpdate = true;
+};
+
+// Water mask: oceans bright, continents dark (accurate coastlines)
+maskImg.src = "https://unpkg.com/three-globe@2.31.0/example/img/earth-water.png";
+    // Flight paths tracking lines setup
+    const flights: any[] = [];
     const hubCity = CITIES.find((c) => c.isHub) || CITIES[0];
 
     CITIES.forEach((city) => {
@@ -144,23 +191,28 @@ export default function InteractiveGlobe() {
 
       const p1 = latLngToVector3(hubCity.lat, hubCity.lng, earthRadius);
       const p2 = latLngToVector3(city.lat, city.lng, earthRadius);
+      const dist = p1.distanceTo(p2);
+      const arcHeight = 0.2 + dist * 0.35;
 
-      const curvePoints = [];
-      const numSegments = 80;
+      const curvePoints: THREE.Vector3[] = [];
+      const numSegments = 60;
       for (let i = 0; i <= numSegments; i++) {
         const t = i / numSegments;
         const point = new THREE.Vector3().copy(p1).lerp(p2, t).normalize();
-        // Tiny fixed offset lifts tube just above surface to avoid z-fighting
-        point.multiplyScalar(earthRadius + 0.012);
+        const lift = earthRadius + Math.sin(Math.PI * t) * arcHeight;
+        point.multiplyScalar(lift);
         curvePoints.push(point);
       }
 
       const curve = new THREE.CatmullRomCurve3(curvePoints);
-      const tubeGeo = new THREE.TubeGeometry(curve, 80, 0.005, 6, false);
-
-      const initialProgress = Math.random(); // shared so shader and jet start at the same point
+      const tubeGeo = new THREE.TubeGeometry(curve, 60, 0.01, 6, false);
+      const initialProgress = Math.random();
 
       const pathMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          uProgress: { value: initialProgress },
+          uColor: { value: COL_ARC.clone() },
+        },
         vertexShader: `
           varying vec2 vUv;
           void main() {
@@ -169,232 +221,165 @@ export default function InteractiveGlobe() {
           }
         `,
         fragmentShader: `
-          uniform float uProgress; // FIX: was uTime — now driven by flight.progress directly
+          uniform float uProgress;
           uniform vec3 uColor;
           varying vec2 vUv;
           void main() {
             float percent = vUv.x;
-            float progress = uProgress; // 0..1, same value used by the jet cone
-
-            float distToHead = percent - progress;
+            float distToHead = percent - uProgress;
             if (distToHead > 0.5) distToHead -= 1.0;
             if (distToHead < -0.5) distToHead += 1.0;
 
             float intensity = 0.0;
-            float tailLength = 0.40;
-
-            if (distToHead <= 0.0 && distToHead > -tailLength) {
-              intensity = (distToHead + tailLength) / tailLength;
+            if (distToHead <= 0.0 && distToHead > -0.4) {
+              intensity = (distToHead + 0.4) / 0.4;
               intensity = pow(intensity, 2.0);
             }
-
-            float baseLine = 0.08;
-            float finalGlow = intensity + baseLine;
-            float lateralFade = smoothstep(0.0, 0.5, vUv.y) * smoothstep(1.0, 0.5, vUv.y);
-
-            gl_FragColor = vec4(uColor, finalGlow * lateralFade * 1.5);
+            float finalGlow = clamp(intensity + 0.15, 0.0, 1.0);
+            float lateralFade = smoothstep(0.0, 0.4, vUv.y) * smoothstep(1.0, 0.6, vUv.y);
+            gl_FragColor = vec4(uColor, finalGlow * lateralFade * 0.8);
           }
         `,
-        uniforms: {
-          uProgress: { value: initialProgress }, // FIX: was uTime with random seed
-          uColor: { value: new THREE.Color(0xff2222) },
-        },
         transparent: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
       });
 
-      const lineMesh = new THREE.Mesh(tubeGeo, pathMaterial);
-      globeGroup.add(lineMesh);
+      globeGroup.add(new THREE.Mesh(tubeGeo, pathMaterial));
 
-      // Glowing orb: bright inner core + translucent outer shell (additive blending)
       const orbGroup = new THREE.Group();
-
-      const coreGeo = new THREE.SphereGeometry(0.022, 12, 12);
-      const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      orbGroup.add(new THREE.Mesh(coreGeo, coreMat));
-
-      const midGeo = new THREE.SphereGeometry(0.042, 12, 12);
-      const midMat = new THREE.MeshBasicMaterial({
-        color: 0xff6633,
-        transparent: true,
-        opacity: 0.55,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      });
-      orbGroup.add(new THREE.Mesh(midGeo, midMat));
-
-      const outerGeo = new THREE.SphereGeometry(0.072, 12, 12);
-      const outerMat = new THREE.MeshBasicMaterial({
-        color: 0xff2200,
-        transparent: true,
-        opacity: 0.18,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      });
-      orbGroup.add(new THREE.Mesh(outerGeo, outerMat));
-
+      const orbMat = new THREE.MeshBasicMaterial({ color: COL_ARC.clone() });
+      orbGroup.add(new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), orbMat));
       globeGroup.add(orbGroup);
 
       flights.push({
         curve,
-        jetMesh: orbGroup as unknown as THREE.Mesh,
-        lineMesh,
+        orb: orbGroup,
+        orbMat, // recolored each frame to the opposite color
         material: pathMaterial,
         progress: initialProgress,
-        speed: 0.0020 + Math.random() * 0.0015,
+        speed: 0.002 + Math.random() * 0.0015,
       });
     });
 
+    // Destination Pinpoints
+    const pins: { mat: THREE.MeshBasicMaterial }[] = [];
+    const rings: any[] = [];
     CITIES.forEach((city) => {
-      const pos = latLngToVector3(city.lat, city.lng, earthRadius);
-      const color = city.isHub ? 0xf59e0b : 0xef4444;
+      const pos = latLngToVector3(city.lat, city.lng, earthRadius * 1.005);
+      const color = city.isHub ? COL_HUB : COL_ARC;
 
-      const pinGeo = new THREE.SphereGeometry(0.025, 16, 16);
-      const pinMat = new THREE.MeshBasicMaterial({ color });
-      const pinMesh = new THREE.Mesh(pinGeo, pinMat);
-      pinMesh.position.copy(pos);
-      globeGroup.add(pinMesh);
+      const pinMat = new THREE.MeshBasicMaterial({ color: color.clone() });
+      const pin = new THREE.Mesh(new THREE.SphereGeometry(city.isHub ? 0.045 : 0.03, 16, 16), pinMat);
+      pin.position.copy(pos);
+      globeGroup.add(pin);
+      pins.push({ mat: pinMat });
 
-      const ringGeo = new THREE.RingGeometry(0.045, 0.055, 32);
-      const ringMat = new THREE.MeshBasicMaterial({
-        color,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.5
-      });
-      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      const ringMat = new THREE.MeshBasicMaterial({ color: color.clone(), side: THREE.DoubleSide, transparent: true, opacity: 0.8, depthWrite: false });
+      const ringMesh = new THREE.Mesh(new THREE.RingGeometry(0.04, 0.06, 32), ringMat);
       ringMesh.position.copy(pos);
       ringMesh.lookAt(pos.clone().multiplyScalar(2));
       globeGroup.add(ringMesh);
+      rings.push({ mesh: ringMesh, mat: ringMat, phase: Math.random() * Math.PI * 2 });
     });
 
-    // FIX 3: Updated initial rotation so Hyderabad (the hub at lng≈78.48°) faces the camera.
-    // With the corrected coordinate mapping, lng=0 sits at +Z (camera direction).
-    // Rotating the globe by -78.48° ≈ -1.37 rad brings Hyderabad to face forward.
-    let targetRotationX = 0.30;
-    let targetRotationY = -1.37; // was -1.35
-    let rotationX = 0.30;
-    let rotationY = -1.37;      // was -1.35
+    // Rotational angles
+    let targetRotationX = 0.3;
+    let targetRotationY = -(hubCity.lng + 180) * (Math.PI / 180) + Math.PI;
+    let rotationX = targetRotationX;
+    let rotationY = targetRotationY;
     let isDragging = false;
     let previousPoint = { x: 0, y: 0 };
 
     const onPointerDown = (e: PointerEvent) => {
-      e.preventDefault();
       isDragging = true;
       previousPoint = { x: e.clientX, y: e.clientY };
-      container.style.cursor = 'grabbing';
     };
-
     const onPointerMove = (e: PointerEvent) => {
       if (!isDragging) return;
       const dx = e.clientX - previousPoint.x;
       const dy = e.clientY - previousPoint.y;
       previousPoint = { x: e.clientX, y: e.clientY };
-      const scaleModifier = 0.0042;
-      targetRotationY += dx * scaleModifier;
-      targetRotationX = Math.max(-1.1, Math.min(1.1, targetRotationX + dy * scaleModifier));
+      targetRotationY += dx * 0.005;
+      targetRotationX = Math.max(-1.0, Math.min(1.0, targetRotationX + dy * 0.005));
     };
+    const onPointerUp = () => { isDragging = false; };
 
-    const onPointerUp = () => {
-      isDragging = false;
-      container.style.cursor = 'grab';
-    };
+    container.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
 
-    container.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
-
+    const startTime = performance.now();
     let animateId = 0;
+
     const tick = () => {
-      // Skip rendering when globe is not visible — saves GPU/CPU during scrolling
-      if (!isVisibleRef.current) {
-        animateId = requestAnimationFrame(tick);
-        return;
-      }
+      animateId = requestAnimationFrame(tick);
+      if (!isVisibleRef.current) return;
 
-      if (!isDragging) {
-        targetRotationY += 0.0006;
-      }
+      const elapsed = (performance.now() - startTime) / 1000;
 
-      const lerpSpeed = isDragging ? 0.15 : 0.032;
+      // --- Continuous navy <-> red wave ---
+      // period ~9s. Increase 0.7 for faster pulsing, decrease for slower.
+      const wave = 0.5 + 0.5 * Math.sin(elapsed * 0.7);
+      globeColor.copy(COLOR_NAVY).lerp(COLOR_RED, wave); // current globe color
+      oppColor.copy(COLOR_RED).lerp(COLOR_NAVY, wave);   // exact opposite
+
+      // Globe body: land dots + wireframe + atmosphere glow all share the same color
+      mat.color.copy(globeColor);
+      
+      atmosphereMat.uniforms.uColor.value.copy(globeColor);
+
+      if (!isDragging) targetRotationY += 0.0012;
+      const lerpSpeed = isDragging ? 0.25 : 0.05;
       rotationX += (targetRotationX - rotationX) * lerpSpeed;
       rotationY += (targetRotationY - rotationY) * lerpSpeed;
-
       globeGroup.rotation.x = rotationX;
       globeGroup.rotation.y = rotationY;
-      cloudMesh.rotation.y += 0.0002;
 
       flights.forEach((flight) => {
-        // Advance progress
         flight.progress += flight.speed;
-        if (flight.progress > 1.0) flight.progress = 0.0;
-
-        // FIX: push progress into the shader so the comet head tracks the jet exactly
+        if (flight.progress > 1) flight.progress = 0;
         flight.material.uniforms.uProgress.value = flight.progress;
-
-        // Position the glowing orb along the curve
-        const point = flight.curve.getPointAt(flight.progress);
-        flight.jetMesh.position.copy(point);
+        // Places (arcs + travelling orbs) use the opposite color
+        flight.material.uniforms.uColor.value.copy(oppColor);
+        flight.orbMat.color.copy(oppColor);
+        flight.orb.position.copy(flight.curve.getPointAt(flight.progress));
       });
 
+      rings.forEach((ring) => {
+        const s = 1 + Math.sin(elapsed * 2.5 + ring.phase) * 0.5 + 0.5;
+        ring.mesh.scale.setScalar(s);
+        ring.mat.opacity = Math.max(0, 0.8 - (s - 1) * 0.6);
+        ring.mat.color.copy(oppColor); // rings opposite to globe
+      });
+
+      // Pins opposite to globe
+      pins.forEach((p) => p.mat.color.copy(oppColor));
+
+      // HTML overlay positioning projections
       const containerW = container.clientWidth;
       const containerH = container.clientHeight;
-
-      // --- Label positioning with overlap repulsion ---
-      // 1. Project every city to screen space and collect visible ones
-      const visibleLabels: { x: number; y: number; index: number; opacity: number }[] = [];
+      const visibleLabels: any[] = [];
 
       CITIES.forEach((city, index) => {
         const el = labelRefs.current[index];
         if (!el) return;
-
         const locVec = latLngToVector3(city.lat, city.lng, earthRadius);
         const worldVec = locVec.clone().applyMatrix4(globeGroup.matrixWorld);
         const viewVec = camera.position.clone().sub(worldVec).normalize();
         const normVec = locVec.clone().applyQuaternion(globeGroup.quaternion).normalize();
         const factor = normVec.dot(viewVec);
 
-        if (factor > 0.15) {
+        if (factor > 0.2) {
           const projected = worldVec.project(camera);
           const x = (projected.x * 0.5 + 0.5) * containerW;
           const y = (-(projected.y * 0.5) + 0.5) * containerH;
-          visibleLabels.push({ x, y, index, opacity: Math.min(1.0, (factor - 0.15) * 7.5) });
-          el.style.display = 'block';
+          visibleLabels.push({ x, y, index, opacity: Math.min(1, (factor - 0.2) * 8) });
+          el.style.display = "block";
         } else {
-          el.style.display = 'none';
+          el.style.display = "none";
         }
       });
 
-      // 2. Iterative repulsion — push overlapping labels apart
-      //    Estimated label footprint: ~92px wide, 28px tall
-      const LW = 92, LH = 28, GAP = 6;
-      for (let iter = 0; iter < 8; iter++) {
-        for (let i = 0; i < visibleLabels.length; i++) {
-          for (let j = i + 1; j < visibleLabels.length; j++) {
-            const a = visibleLabels[i];
-            const b = visibleLabels[j];
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
-            const overlapX = LW + GAP - Math.abs(dx);
-            const overlapY = LH + GAP - Math.abs(dy);
-            if (overlapX > 0 && overlapY > 0) {
-              // Separate along the axis with the smaller overlap (less disruptive)
-              if (overlapX < overlapY) {
-                const push = overlapX / 2 + 1;
-                if (dx >= 0) { a.x -= push; b.x += push; }
-                else          { a.x += push; b.x -= push; }
-              } else {
-                const push = overlapY / 2 + 1;
-                if (dy >= 0) { a.y -= push; b.y += push; }
-                else          { a.y += push; b.y -= push; }
-              }
-            }
-          }
-        }
-      }
-
-      // 3. Apply final resolved positions
       visibleLabels.forEach(({ x, y, index, opacity }) => {
         const el = labelRefs.current[index];
         if (!el) return;
@@ -403,67 +388,41 @@ export default function InteractiveGlobe() {
       });
 
       renderer.render(scene, camera);
-      animateId = requestAnimationFrame(tick);
     };
-
     tick();
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width: entryW, height: entryH } = entry.contentRect;
-        camera.aspect = entryW / entryH;
-        camera.updateProjectionMatrix();
-        renderer.setSize(entryW, entryH);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      }
+    const resizeObserver = new ResizeObserver(() => {
+      if (!container) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w === 0 || h === 0) return;
+
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
     });
     resizeObserver.observe(container);
 
-    // Pause animation when globe is off-screen
-    const visibilityObserver = new IntersectionObserver(
-      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
-      { threshold: 0.05 }
-    );
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isVisibleRef.current = entry.isIntersecting;
+    }, { threshold: 0.05 });
     visibilityObserver.observe(container);
 
     return () => {
       cancelAnimationFrame(animateId);
-      resizeObserver.unobserve(container);
+      resizeObserver.disconnect();
       visibilityObserver.disconnect();
-      container.removeEventListener('pointerdown', onPointerDown);
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
-
-      earthGeo.dispose();
-      earthMat.dispose();
-      cloudGeo.dispose();
-      cloudMat.dispose();
-      atmosphereGeo.dispose();
-      atmosphereMat.dispose();
-
-      flights.forEach((f) => {
-        if (f.jetMesh) {
-          f.jetMesh.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-              if (child.geometry) child.geometry.dispose();
-              if (child.material) {
-                if (Array.isArray(child.material)) {
-                  child.material.forEach((m: THREE.Material) => m.dispose());
-                } else {
-                  child.material.dispose();
-                }
-              }
-            }
-          });
-        }
-        if (f.lineMesh) {
-          if (f.lineMesh.geometry) f.lineMesh.geometry.dispose();
-        }
-        if (f.material) {
-          f.material.dispose();
+      container.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      scene.traverse((obj) => {
+        if (obj instanceof THREE.Mesh || obj instanceof THREE.Points) {
+          obj.geometry?.dispose();
+          if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
+          else obj.material?.dispose();
         }
       });
-
+      dotTexture.dispose();
       renderer.dispose();
     };
   }, []);
@@ -473,50 +432,60 @@ export default function InteractiveGlobe() {
       ref={containerRef}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative w-[280px] h-[280px] xs:w-[340px] xs:h-[340px] md:w-[450px] md:h-[450px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
-      id="hero-3d-sculpture"
-      style={{ touchAction: 'none' }}
+      className="relative mx-auto block aspect-square w-full max-w-[480px] shrink-0 cursor-grab select-none overflow-visible active:cursor-grabbing"
+      style={{ touchAction: "none" }}
     >
+      {/* Background Soft Glow Aura - Navy/Red blend */}
       <div
-        className="absolute -inset-10 transition-all duration-700 pointer-events-none rounded-full"
+        className="pointer-events-none absolute inset-0 rounded-full transition-all duration-700"
         style={{
-          opacity: hovered ? 1.0 : 0.8,
-          background: `radial-gradient(circle 220px at 50% 50%, rgba(2, 28, 68, 0.4) 0%, rgba(1, 10, 24, 0.15) 65%, transparent 100%)`
+          opacity: hovered ? 0.9 : 0.6,
+          background:
+            "radial-gradient(circle at 50% 50%, rgba(0,31,63,0.12) 0%, rgba(255,0,0,0.03) 50%, transparent 70%)",
         }}
       />
 
-      <div className="absolute w-[95%] h-[95%] rounded-full border border-sky-400/10 pointer-events-none" />
-      <div className="absolute w-[105%] h-[105%] rounded-full border border-dashed border-red-500/10 animate-[spin_120s_linear_infinite] pointer-events-none" />
+      {/* Outer Dashed Orbit Design */}
+      <div className="pointer-events-none absolute top-[4%] left-[4%] h-[92%] w-[92%] rounded-full border border-[#001F3F]/10" />
+      <div className="pointer-events-none absolute top-[-1%] left-[-1%] h-[102%] w-[102%] animate-[spin_180s_linear_infinite] rounded-full border border-dashed border-[#FF0000]/20" />
 
+      {/* The 3D Canvas */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute top-0 left-0 block h-full w-full"
+        style={{ outline: "none" }}
       />
 
-      <div className="absolute inset-0 pointer-events-none overflow-visible" id="globe-labels-overlay">
+      {/* Floating 2D Dom City tags */}
+      <div className="pointer-events-none absolute inset-0 z-10">
         {CITIES.map((city, index) => (
           <div
             key={city.name}
-            ref={(el) => { labelRefs.current[index] = el; }}
-            className="absolute top-0 left-0 transition-opacity duration-150 select-none hidden"
-            style={{ transform: 'translate(-50%, -100%)' }}
+            ref={(el) => {
+              labelRefs.current[index] = el;
+            }}
+            className="absolute top-0 left-0 hidden select-none will-change-transform"
+            style={{ transform: "translate(-50%, -100%)" }}
           >
-            <div className={`flex flex-col items-center gap-0.5 bg-[#020d1c]/92 border ${city.isHub ? 'border-[#ffd700]/70' : 'border-[#ef4444]/60'} rounded-lg px-2.5 py-1 shadow-[0_4px_16px_rgba(0,0,0,0.6)] backdrop-blur-md`}>
-              <div className="flex items-center gap-1.5">
-                {city.isHub ? (
-                  <span className="text-[#ffd700] text-[9.5px] font-bold">★ hub</span>
-                ) : (
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#ff3b3b] animate-pulse" />
-                )}
-                <span className="text-white text-[10px] font-semibold tracking-tight whitespace-nowrap">{city.name}</span>
-              </div>
+            <div
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 shadow-sm backdrop-blur-md ${
+                city.isHub
+                  ? "border-[#FF0000]/30 bg-white/95 text-[#FF0000]"
+                  : "border-[#001F3F]/20 bg-white/90 text-[#001F3F]"
+              }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  city.isHub ? "animate-ping bg-[#FF0000]" : "bg-[#001F3F]"
+                }`}
+              />
+              <span className="whitespace-nowrap text-[11px] font-medium tracking-tight">
+                {city.name}
+              </span>
             </div>
-            <div className="w-0 h-0 border-l-[4.5px] border-l-transparent border-r-[4.5px] border-r-transparent border-t-[5.5px] border-t-[#020d1c] mx-auto filter drop-shadow-[0_1.5px_1px_rgba(0,0,0,0.65)]" />
           </div>
         ))}
       </div>
-
-
     </div>
   );
 }

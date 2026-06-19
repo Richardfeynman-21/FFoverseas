@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, Variants, Transition } from 'framer-motion';
 import {
   LayoutDashboard,
   Users,
@@ -147,16 +147,16 @@ const DEFAULT_CHAT_LOGS: ChatLogRecord[] = [
 ];
 
 // Animation Variants
-const staggerItem = {
+const staggerItem: Variants = {
   hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 70, damping: 13 } }
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 70, damping: 13 } as Transition }
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.05 }
+    transition: { staggerChildren: 0.05 } as Transition
   }
 };
 

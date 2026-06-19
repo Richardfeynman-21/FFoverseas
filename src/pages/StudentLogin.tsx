@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, Variants, Transition } from 'framer-motion';
 import {
   Mail,
   Lock,
@@ -19,15 +19,22 @@ import {
 
 // ─── Animation Variants ────────────────────────────────────────────────────────
 
-const pageVariants = {
-  hidden: { opacity: 0 },
+const pageVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.95, y: 20 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  },
+    scale: 1,
+    y: 0,
+    transition: {
+      type: 'spring', // use literal instead of generic string
+      stiffness: 200,
+      damping: 20,
+      mass: 1,
+    } as Transition
+  }
 };
 
-const panelVariants = {
+const panelVariants: Variants = {
   hidden: { opacity: 0, x: -60 },
   visible: {
     opacity: 1,
@@ -38,11 +45,11 @@ const panelVariants = {
       damping: 18,
       mass: 0.9,
       delay: 0.15,
-    },
+    } as Transition,
   },
 };
 
-const formContainerVariants = {
+const formContainerVariants: Variants = {
   hidden: { opacity: 0, x: 40 },
   visible: {
     opacity: 1,
@@ -53,11 +60,11 @@ const formContainerVariants = {
       damping: 18,
       mass: 0.9,
       delay: 0.25,
-    },
+    } as Transition,
   },
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -68,7 +75,7 @@ const staggerContainer = {
   },
 };
 
-const staggerItem = {
+const staggerItem: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
@@ -77,17 +84,16 @@ const staggerItem = {
       type: 'spring',
       stiffness: 60,
       damping: 14,
-    },
+    } as Transition,
   },
 };
 
 const floatAnimation = {
   y: [0, -14, 0],
-  transition: {
-    duration: 5,
-    repeat: Infinity,
-    ease: 'easeInOut',
-  },
+    transition: {
+        duration: 5,
+        repeat: Infinity,
+      },
 };
 
 const floatAnimationSlow = {
@@ -96,7 +102,6 @@ const floatAnimationSlow = {
   transition: {
     duration: 7,
     repeat: Infinity,
-    ease: 'easeInOut',
   },
 };
 
@@ -107,7 +112,6 @@ const planeAnimation = {
   transition: {
     duration: 4,
     repeat: Infinity,
-    ease: 'easeInOut',
   },
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { LogIn, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

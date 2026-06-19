@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Wrench, Sparkles, Plane, Home, ShieldAlert } from 'lucide-react';
 import OriginalLogo from '../components/OriginalLogo';
 

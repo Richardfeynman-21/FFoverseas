@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { TESTIMONIALS } from '../data';
 import { Quote, Star, MessageCircleCode, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Flag } from './Flag';
