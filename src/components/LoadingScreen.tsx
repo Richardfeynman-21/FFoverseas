@@ -117,18 +117,6 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         transition: { duration: 1.2, ease: 'easeInOut' },
       }}
     >
-      {/* HUD HEADER */}
-      <motion.div
-        className="absolute top-8 left-8 md:top-12 md:left-12 flex flex-col pointer-events-none"
-        exit={{ opacity: 0, y: -15, transition: { duration: 0.6, ease: 'easeOut' } }}
-      >
-        <span className="text-[10px] text-white/40 tracking-[0.4em] uppercase font-light">
-          FF Overseas
-        </span>
-        <span className="text-[8px] text-white/20 tracking-[0.2em] uppercase font-light mt-1">
-          System Boot Sequence v1.2
-        </span>
-      </motion.div>
 
       {/* DYNAMIC HUD STATE */}
       <motion.div
