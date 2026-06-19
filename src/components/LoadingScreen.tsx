@@ -262,29 +262,24 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
               />
             </motion.g>
 
-            {/* E. Glowing Overlapping Patches - Opacity driven by flight progress tMotion */}
+            {/* E. Glowing Overlapping Patches (Triangles only) - Opacity driven by flight progress tMotion */}
             <motion.g id="brand-emblem-patches-glow" mask="url(#glow-patches-mask)" style={{ opacity: tMotion }}>
               <path
                 d="M219 298L171 288H219V298Z"
                 fill="#FFFFFF"
                 stroke="#FFFFFF"
                 strokeWidth={0.5}
+                filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
               />
               <path
                 d="M353 299L316 296H353V299Z"
                 fill="#FFFFFF"
+                filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
               />
               <path
                 d="M353 291L316 296H353V291Z"
                 fill="#FFFFFF"
-              />
-              <path
-                d="M252 330C255.5 330 218.5 335 218.5 335H198V330H252Z"
-                fill="#FFFFFF"
-              />
-              <path
-                d="M368 310C353.6 317.8 338 319.75 332 319.75V323H353C354.833 322.278 360.4 318.667 368 310Z"
-                fill="#FFFFFF"
+                filter="drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.4))"
               />
             </motion.g>
 
