@@ -318,6 +318,19 @@ export default function App() {
         </div>
       </motion.section>
 
+      {/* 4. Admissions Roadmap blueprint */}
+      <motion.section 
+        className="relative py-20 bg-[#fdfdfd]" 
+        id="roadmap-flow"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.12 }}
+      >
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <FlourishRoadmap />
+        </div>
+      </motion.section>
       {/* 3. Global Destinations panel */}
       <motion.section 
         className="relative py-20 bg-slate-50/20 border-t border-b border-dashed border-slate-200/40" 
@@ -332,19 +345,6 @@ export default function App() {
         </div>
       </motion.section>
 
-      {/* 4. Admissions Roadmap blueprint */}
-      <motion.section 
-        className="relative py-20 bg-[#fdfdfd]" 
-        id="roadmap-flow"
-        variants={revealVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.12 }}
-      >
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <FlourishRoadmap />
-        </div>
-      </motion.section>
 
       {/* 5. Success Stories bubble drift */}
       <motion.section 
