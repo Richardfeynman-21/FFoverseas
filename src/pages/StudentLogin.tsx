@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, TargetAndTransition } from 'motion/react';
 import {
   Mail,
   Lock,
@@ -81,7 +81,7 @@ const staggerItem = {
   },
 } as const;
 
-const floatAnimation = {
+const floatAnimation: TargetAndTransition = {
   y: [0, -14, 0],
   transition: {
     duration: 5,
@@ -90,7 +90,7 @@ const floatAnimation = {
   },
 };
 
-const floatAnimationSlow = {
+const floatAnimationSlow: TargetAndTransition = {
   y: [0, -10, 0],
   x: [0, 6, 0],
   transition: {
@@ -100,7 +100,7 @@ const floatAnimationSlow = {
   },
 };
 
-const planeAnimation = {
+const planeAnimation: TargetAndTransition = {
   x: [0, 8, 0],
   y: [0, -6, 0],
   rotate: [0, 5, 0],
