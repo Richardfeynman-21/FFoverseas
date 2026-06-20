@@ -349,58 +349,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       </motion.div>
 
       {/* BOTTOM HUD - PROGRESS BAR & DATA COUNTER */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 px-8 md:px-12 pb-8 md:pb-12"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-        exit={{ opacity: 0, y: 15, transition: { duration: 0.6, ease: 'easeOut' } }}
-      >
-        <div className="flex items-end justify-between mb-3">
-          <span
-            style={{
-              fontFamily: 'Helvetica Neue, Helvetica, sans-serif',
-              letterSpacing: '0.28em',
-              fontSize: '9px',
-            }}
-            className="text-white/25 uppercase"
-          >
-            System Status: {displayProgress === 100 ? 'Takeoff Confirmed' : 'Pre-flight Check'}
-          </span>
-
-          <span
-            style={{
-              fontFamily: 'Helvetica Neue, Helvetica, sans-serif',
-              fontWeight: 300,
-              fontSize: '13px',
-              letterSpacing: '0.05em',
-              fontVariantNumeric: 'tabular-nums',
-              minWidth: '3ch',
-              textAlign: 'right',
-            }}
-            className="text-white"
-          >
-            {String(displayProgress).padStart(2, '0')}%
-          </span>
-        </div>
-
-        {/* Thin progress track */}
-        <div className="relative w-full h-px bg-white/10 overflow-hidden">
-          <motion.div
-            className="absolute left-0 top-0 h-full bg-[#FF0000]"
-            style={{ width: `${displayProgress}%` }}
-          />
-          {/* Active glow trail on leading edge */}
-          <motion.div
-            className="absolute top-0 h-full pointer-events-none"
-            style={{
-              width: '60px',
-              left: `calc(${displayProgress}% - 60px)`,
-              background: 'linear-gradient(to right, transparent, rgba(255, 0, 0, 0.45))',
-            }}
-          />
-        </div>
-      </motion.div>
+      
 
       {/* CORNER BRACKET MARKS */}
       {(['tl', 'tr', 'bl', 'br'] as const).map((pos, i) => (
