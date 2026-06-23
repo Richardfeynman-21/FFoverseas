@@ -342,6 +342,7 @@ async function serveViteApp() {
   } else {
     console.log("Starting full-stack application in production mode...");
     const distPath = path.join(process.cwd(), "dist");
+    app.use("/FFoverseas", express.static(distPath));
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

@@ -1,5 +1,29 @@
 import React, { useRef, useState, useEffect } from 'react';
-import * as THREE from 'three';
+import {
+  Scene,
+  PerspectiveCamera,
+  WebGLRenderer,
+  AmbientLight,
+  DirectionalLight,
+  Group,
+  SphereGeometry,
+  MeshPhongMaterial,
+  MeshLambertMaterial,
+  MeshBasicMaterial,
+  Mesh,
+  TextureLoader,
+  LoadingManager,
+  Color,
+  Vector3,
+  ShaderMaterial,
+  DoubleSide,
+  AdditiveBlending,
+  BackSide,
+  CatmullRomCurve3,
+  TubeGeometry,
+  RingGeometry,
+  Material,
+} from 'three';
 import { Sparkles } from 'lucide-react';
 
 // Target cities with actual geographic coordinates
@@ -17,10 +41,10 @@ const CITIES = [
 // FIX 1: Changed (lng + 180) → (lng + 90) to compensate for earthMesh.rotation.y = -Math.PI / 2.
 // The earth texture is rotated -90° on the mesh, so all pin/arc coordinates must
 // shift their longitude reference by +90° to stay aligned with the visual texture.
-function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector3 {
+function latLngToVector3(lat: number, lng: number, radius: number): Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lng + 90) * (Math.PI / 180); // was (lng + 180) — that's the fix
-  return new THREE.Vector3(
+  return new Vector3(
     -(radius * Math.sin(phi) * Math.cos(theta)),
     radius * Math.cos(phi),
     radius * Math.sin(phi) * Math.sin(theta)
@@ -59,11 +83,11 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
     const width = rect.width;
     const height = rect.height;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(42, width / height, 0.1, 100);
     camera.position.set(0, 0, 6.6);
 
-    const renderer = new THREE.WebGLRenderer({
+    const renderer = new WebGLRenderer({
       canvas,
       antialias: true,
       alpha: true,
@@ -72,51 +96,52 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
+    const ambientLight = new AmbientLight(0xffffff, 0.05);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    const sunLight = new DirectionalLight(0xffffff, 2.0);
     sunLight.position.set(5, 3, 5);
     scene.add(sunLight);
 
-    const backLight = new THREE.DirectionalLight(0x3366ff, 0.3);
+    const backLight = new DirectionalLight(0x3366ff, 0.3);
     backLight.position.set(-5, -3, -5);
     scene.add(backLight);
 
-    const globeGroup = new THREE.Group();
+    const globeGroup = new Group();
     scene.add(globeGroup);
 
     const earthRadius = 2.1;
-    const textureLoader = new THREE.TextureLoader();
+    const loadingManager = new LoadingManager();
+    const textureLoader = new TextureLoader(loadingManager);
     const baseUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/';
 
-    const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 64);
-    const earthMat = new THREE.MeshPhongMaterial({
+    const earthGeo = new SphereGeometry(earthRadius, 64, 64);
+    const earthMat = new MeshPhongMaterial({
       map: textureLoader.load(baseUrl + 'earth_atmos_2048.jpg'),
       specularMap: textureLoader.load(baseUrl + 'earth_specular_2048.jpg'),
       normalMap: textureLoader.load(baseUrl + 'earth_normal_2048.jpg'),
-      specular: new THREE.Color(0x333333),
+      specular: new Color(0x333333),
       shininess: 25,
     });
-    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    const earthMesh = new Mesh(earthGeo, earthMat);
     earthMesh.rotation.y = -Math.PI / 2; // texture alignment offset
     globeGroup.add(earthMesh);
 
-    const cloudGeo = new THREE.SphereGeometry(earthRadius * 1.01, 64, 64);
-    const cloudMat = new THREE.MeshLambertMaterial({
+    const cloudGeo = new SphereGeometry(earthRadius * 1.01, 64, 64);
+    const cloudMat = new MeshLambertMaterial({
       map: textureLoader.load(baseUrl + 'earth_clouds_1024.png'),
       transparent: true,
       opacity: 0.6,
-      blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide,
+      blending: AdditiveBlending,
+      side: DoubleSide,
       depthWrite: false,
     });
-    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+    const cloudMesh = new Mesh(cloudGeo, cloudMat);
     cloudMesh.rotation.y = -Math.PI / 2;
     globeGroup.add(cloudMesh);
 
-    const atmosphereGeo = new THREE.SphereGeometry(earthRadius * 1.03, 64, 64);
-    const atmosphereMat = new THREE.ShaderMaterial({
+    const atmosphereGeo = new SphereGeometry(earthRadius * 1.03, 64, 64);
+    const atmosphereMat = new ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
         void main() {
@@ -131,12 +156,12 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
           gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity * 1.5;
         }
       `,
-      blending: THREE.AdditiveBlending,
-      side: THREE.BackSide,
+      blending: AdditiveBlending,
+      side: BackSide,
       transparent: true,
       depthWrite: false,
     });
-    const atmosphereMesh = new THREE.Mesh(atmosphereGeo, atmosphereMat);
+    const atmosphereMesh = new Mesh(atmosphereGeo, atmosphereMat);
     scene.add(atmosphereMesh);
 
     // FIX 2: Flight animation sync.
@@ -145,10 +170,10 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
     // Now both use the same uProgress uniform (0→1), set directly from flight.progress
     // each frame, so the cone and the comet head always coincide on the curve.
     const flights: {
-      curve: THREE.CatmullRomCurve3;
-      jetMesh: THREE.Mesh;
-      lineMesh: THREE.Mesh;
-      material: THREE.ShaderMaterial;
+      curve: CatmullRomCurve3;
+      jetMesh: Mesh;
+      lineMesh: Mesh;
+      material: ShaderMaterial;
       progress: number;
       speed: number;
     }[] = [];
@@ -165,18 +190,18 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
       const numSegments = 80;
       for (let i = 0; i <= numSegments; i++) {
         const t = i / numSegments;
-        const point = new THREE.Vector3().copy(p1).lerp(p2, t).normalize();
+        const point = new Vector3().copy(p1).lerp(p2, t).normalize();
         // Tiny fixed offset lifts tube just above surface to avoid z-fighting
         point.multiplyScalar(earthRadius + 0.012);
         curvePoints.push(point);
       }
 
-      const curve = new THREE.CatmullRomCurve3(curvePoints);
-      const tubeGeo = new THREE.TubeGeometry(curve, 80, 0.005, 6, false);
+      const curve = new CatmullRomCurve3(curvePoints);
+      const tubeGeo = new TubeGeometry(curve, 80, 0.005, 6, false);
 
       const initialProgress = Math.random(); // shared so shader and jet start at the same point
 
-      const pathMaterial = new THREE.ShaderMaterial({
+      const pathMaterial = new ShaderMaterial({
         vertexShader: `
           varying vec2 vUv;
           void main() {
@@ -213,48 +238,48 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
         `,
         uniforms: {
           uProgress: { value: initialProgress }, // FIX: was uTime with random seed
-          uColor: { value: new THREE.Color(0xff2222) },
+          uColor: { value: new Color(0xff2222) },
         },
         transparent: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
       });
 
-      const lineMesh = new THREE.Mesh(tubeGeo, pathMaterial);
+      const lineMesh = new Mesh(tubeGeo, pathMaterial);
       globeGroup.add(lineMesh);
 
       // Glowing orb: bright inner core + translucent outer shell (additive blending)
-      const orbGroup = new THREE.Group();
+      const orbGroup = new Group();
 
-      const coreGeo = new THREE.SphereGeometry(0.022, 12, 12);
-      const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      orbGroup.add(new THREE.Mesh(coreGeo, coreMat));
+      const coreGeo = new SphereGeometry(0.022, 12, 12);
+      const coreMat = new MeshBasicMaterial({ color: 0xffffff });
+      orbGroup.add(new Mesh(coreGeo, coreMat));
 
-      const midGeo = new THREE.SphereGeometry(0.042, 12, 12);
-      const midMat = new THREE.MeshBasicMaterial({
+      const midGeo = new SphereGeometry(0.042, 12, 12);
+      const midMat = new MeshBasicMaterial({
         color: 0xff6633,
         transparent: true,
         opacity: 0.55,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
         depthWrite: false,
       });
-      orbGroup.add(new THREE.Mesh(midGeo, midMat));
+      orbGroup.add(new Mesh(midGeo, midMat));
 
-      const outerGeo = new THREE.SphereGeometry(0.072, 12, 12);
-      const outerMat = new THREE.MeshBasicMaterial({
+      const outerGeo = new SphereGeometry(0.072, 12, 12);
+      const outerMat = new MeshBasicMaterial({
         color: 0xff2200,
         transparent: true,
         opacity: 0.18,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
         depthWrite: false,
       });
-      orbGroup.add(new THREE.Mesh(outerGeo, outerMat));
+      orbGroup.add(new Mesh(outerGeo, outerMat));
 
       globeGroup.add(orbGroup);
 
       flights.push({
         curve,
-        jetMesh: orbGroup as unknown as THREE.Mesh,
+        jetMesh: orbGroup as unknown as Mesh,
         lineMesh,
         material: pathMaterial,
         progress: initialProgress,
@@ -266,20 +291,20 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
       const pos = latLngToVector3(city.lat, city.lng, earthRadius);
       const color = city.isHub ? 0xf59e0b : 0xef4444;
 
-      const pinGeo = new THREE.SphereGeometry(0.025, 16, 16);
-      const pinMat = new THREE.MeshBasicMaterial({ color });
-      const pinMesh = new THREE.Mesh(pinGeo, pinMat);
+      const pinGeo = new SphereGeometry(0.025, 16, 16);
+      const pinMat = new MeshBasicMaterial({ color });
+      const pinMesh = new Mesh(pinGeo, pinMat);
       pinMesh.position.copy(pos);
       globeGroup.add(pinMesh);
 
-      const ringGeo = new THREE.RingGeometry(0.045, 0.055, 32);
-      const ringMat = new THREE.MeshBasicMaterial({
+      const ringGeo = new RingGeometry(0.045, 0.055, 32);
+      const ringMat = new MeshBasicMaterial({
         color,
-        side: THREE.DoubleSide,
+        side: DoubleSide,
         transparent: true,
         opacity: 0.5
       });
-      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      const ringMesh = new Mesh(ringGeo, ringMat);
       ringMesh.position.copy(pos);
       ringMesh.lookAt(pos.clone().multiplyScalar(2));
       globeGroup.add(ringMesh);
@@ -388,7 +413,7 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
       // 2. Iterative repulsion — push overlapping labels apart
       //    Estimated label footprint: ~92px wide, 28px tall
       const LW = 92, LH = 28, GAP = 6;
-      for (let iter = 0; iter < 8; iter++) {
+      for (let iter = 0; iter < 3; iter++) {
         for (let i = 0; i < visibleLabels.length; i++) {
           for (let j = i + 1; j < visibleLabels.length; j++) {
             const a = visibleLabels[i];
@@ -463,11 +488,11 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
       flights.forEach((f) => {
         if (f.jetMesh) {
           f.jetMesh.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
+            if (child instanceof Mesh) {
               if (child.geometry) child.geometry.dispose();
               if (child.material) {
                 if (Array.isArray(child.material)) {
-                  child.material.forEach((m: THREE.Material) => m.dispose());
+                  child.material.forEach((m: Material) => m.dispose());
                 } else {
                   child.material.dispose();
                 }

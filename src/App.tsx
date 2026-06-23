@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
-import InteractiveGlobe from './components/InteractiveGlobe';
-import DestinationCarousel from './components/DestinationCarousel';
-import FlourishRoadmap from './components/FlourishRoadmap';
-import FloatingBubbles from './components/FloatingBubbles';
-import ConsultationForm from './components/ConsultationForm';
 import OriginalLogo from './components/OriginalLogo';
 import LoadingScreen from './components/LoadingScreen';
 import { AnimatePresence, motion } from 'motion/react';
-import Lenis from 'lenis';
-import PublicChatWidget from './components/chat/PublicChatWidget';
+
+// Lazy-load heavy / below-fold components — keeps initial bundle small
+const InteractiveGlobe = lazy(() => import('./components/InteractiveGlobe'));
+const DestinationCarousel = lazy(() => import('./components/DestinationCarousel'));
+const FlourishRoadmap = lazy(() => import('./components/FlourishRoadmap'));
+const FloatingBubbles = lazy(() => import('./components/FloatingBubbles'));
+const ConsultationForm = lazy(() => import('./components/ConsultationForm'));
+const PublicChatWidget = lazy(() => import('./components/chat/PublicChatWidget'));
 
 
 import { 
@@ -51,7 +52,7 @@ const revealVariants = {
 
 export default function App() {
   const worldTimeRef = React.useRef<HTMLSpanElement>(null);
-  const lenisRef = React.useRef<any>(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDestId, setSelectedDestId] = useState<string>('usa');
 
@@ -59,11 +60,7 @@ export default function App() {
     setSelectedDestId(destId);
     const target = document.getElementById('showcase-destinations');
     if (target) {
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(target, { offset: -20 });
-      } else {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
+      target.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -80,35 +77,31 @@ export default function App() {
     };
   }, [isLoading]);
 
-  // Initialize Lenis smooth scrolling
+  // Preload globe textures + components + fonts during loading screen so content is ready before first scroll
+  const [assetsReady, setAssetsReady] = useState(false);
   useEffect(() => {
-    if (isLoading) return;
+    const textureUrls = [
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg',
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg',
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
+    ];
 
-    const lenis = new Lenis({
-      duration: 0.9,
-      lerp: 0.1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutExpo
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      touchMultiplier: 1.5,
-    });
-    lenisRef.current = lenis;
-
-    let rafId = 0;
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    };
-
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-      lenisRef.current = null;
-    };
-  }, [isLoading]);
+    Promise.all([
+      // Pre-fetch textures into browser cache (Globe will load from cache later)
+      ...textureUrls.map(url => new Promise<void>((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve();
+        img.onerror = () => resolve(); // Don't block on failure
+        img.src = url;
+      })),
+      // Wait for web fonts to finish loading
+      document.fonts.ready,
+      // Preload heavy components so they are ready by the time the loader finishes
+      import('./components/InteractiveGlobe'),
+    ]).then(() => setAssetsReady(true));
+  }, []);
 
   // Update dynamic World Grid Clock — direct DOM write avoids re-rendering the entire App every second
   useEffect(() => {
@@ -149,7 +142,7 @@ export default function App() {
       {/* Dynamic Brand Loading Overlay */}
       <AnimatePresence mode="wait">
         {isLoading && (
-          <LoadingScreen key="brand-portal-loader" onComplete={() => setIsLoading(false)} />
+          <LoadingScreen key="brand-portal-loader" onComplete={() => setIsLoading(false)} assetsReady={assetsReady} />
         )}
       </AnimatePresence>
       {/* Brand aesthetic dynamic mesh glow backgrounds */}
@@ -168,7 +161,7 @@ export default function App() {
 
       {/* Global Header Navigation */}
       <Navbar />
-      <PublicChatWidget />
+      <Suspense fallback={null}><PublicChatWidget /></Suspense>
 
       {/* 2. Hero Section */}
       <motion.section 
@@ -250,7 +243,9 @@ export default function App() {
               <div className="absolute top-[40%] left-[60%] -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-blue-500/3 blur-3xl" />
 
               <div className="relative z-10">
-                <InteractiveGlobe onSelectCountry={handleSelectCountry} />
+                <Suspense fallback={null}>
+                  <InteractiveGlobe onSelectCountry={handleSelectCountry} />
+                </Suspense>
               </div>
             </div>
 
@@ -347,7 +342,7 @@ export default function App() {
         viewport={{ once: true, amount: 0.12 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <FlourishRoadmap />
+          <Suspense fallback={null}><FlourishRoadmap /></Suspense>
         </div>
       </motion.section>
       {/* 3. Global Destinations panel */}
@@ -360,7 +355,7 @@ export default function App() {
         viewport={{ once: true, amount: 0.15 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <DestinationCarousel selectedDestId={selectedDestId} onSelectDest={setSelectedDestId} />
+          <Suspense fallback={null}><DestinationCarousel selectedDestId={selectedDestId} onSelectDest={setSelectedDestId} /></Suspense>
         </div>
       </motion.section>
 
@@ -375,7 +370,7 @@ export default function App() {
         viewport={{ once: true, amount: 0.15 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <FloatingBubbles />
+          <Suspense fallback={null}><FloatingBubbles /></Suspense>
         </div>
       </motion.section>
 
@@ -389,7 +384,7 @@ export default function App() {
         viewport={{ once: true, amount: 0.1 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <ConsultationForm />
+          <Suspense fallback={null}><ConsultationForm /></Suspense>
         </div>
       </motion.section>
 

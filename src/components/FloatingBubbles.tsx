@@ -76,7 +76,14 @@ export default function FloatingBubbles() {
   }, []);
 
   // ── RAF physics loop — writes directly to DOM, NO React setState ──────────
-  const tick = useCallback(() => {
+  const lastPhysicsTimeRef = useRef(0);
+  const PHYSICS_INTERVAL = 1000 / 30;
+  const tick = useCallback((time: number) => {
+    if (time - lastPhysicsTimeRef.current < PHYSICS_INTERVAL) {
+      rafRef.current = requestAnimationFrame(tick);
+      return;
+    }
+    lastPhysicsTimeRef.current = time;
     // Only run physics when the section is visible on screen
     if (!isVisibleRef.current) {
       rafRef.current = requestAnimationFrame(tick);

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'motion/react';
-import { logoPaths } from './logoPaths';
 
 interface LoadingScreenProps {
   onComplete: () => void;
+  assetsReady?: boolean;
 }
 
 // Bezier curve control points (matching coordinate system of FFlogo.svg)
@@ -44,11 +44,22 @@ function getBezierTangentAngle(t: number) {
   return Math.atan2(der.y, der.x);
 }
 
-export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
+export default function LoadingScreen({ onComplete, assetsReady = false }: LoadingScreenProps) {
+  const [loadedPaths, setLoadedPaths] = useState<any>(null);
+  useEffect(() => {
+    import('./logoPaths').then((mod) => {
+      setLoadedPaths(mod.logoPaths);
+    });
+  }, []);
+
   const [success, setSuccess] = useState(false);
   const [phase, setPhase] = useState<'loading' | 'success' | 'reveal-text' | 'done'>('loading');
   const [displayProgress, setDisplayProgress] = useState(0);
-  
+  const assetsReadyRef = React.useRef(assetsReady);
+  useEffect(() => {
+    assetsReadyRef.current = assetsReady;
+  }, [assetsReady]);
+
   // Motion value for parameter t along the flight curve (0 to 1)
   const tMotion = useMotionValue(0);
 
@@ -66,14 +77,14 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     // Deliberate starting delay for loading initialization effect
     const delayTimer = setTimeout(() => {
       flightAnimation = animate(tMotion, 1, {
-        duration: 3.2,
+        duration: 2.5,
         ease: [0.76, 0, 0.175, 1], // Extra smooth, gradual deceleration curve
         onComplete: () => {
           setSuccess(true);
           setPhase('success');
         }
       });
-    }, 500);
+    }, 200);
 
     return () => {
       clearTimeout(delayTimer);
@@ -105,6 +116,18 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   // Exit transition curve for curtain-wipe
   const EASE_IN_OUT_QUART = [0.76, 0, 0.24, 1] as const;
 
+  if (!loadedPaths) {
+    return (
+      <div className="fixed inset-0 bg-[#001F3F] z-50 flex items-center justify-center">
+        {/* Simple initial spinner while path chunk parses */}
+        <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Rename to local variable logoPaths so the rest of JSX is completely unchanged
+  const logoPaths = loadedPaths;
+
   return (
     <motion.div
       className="fixed inset-0 z-[9999] bg-black select-none overflow-hidden"
@@ -114,7 +137,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       initial={{ opacity: 1 }}
       exit={{
         opacity: 0,
-        transition: { duration: 1.2, ease: 'easeInOut' },
+        transition: { duration: 0.8, ease: 'easeInOut' },
       }}
     >
 
@@ -323,9 +346,24 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 onAnimationComplete={() => {
                   if (phase === 'reveal-text') {
                     setPhase('done');
-                    setTimeout(() => {
-                      onComplete();
-                    }, 800);
+                    const finishLoading = () => {
+                      setTimeout(() => {
+                        onComplete();
+                      }, 400);
+                    };
+                    if (assetsReadyRef.current) {
+                      finishLoading();
+                    } else {
+                      // Assets still loading — wait up to 3s then proceed anyway
+                      const maxWait = setTimeout(finishLoading, 3000);
+                      const poll = setInterval(() => {
+                        if (assetsReadyRef.current) {
+                          clearInterval(poll);
+                          clearTimeout(maxWait);
+                          finishLoading();
+                        }
+                      }, 100);
+                    }
                   }
                 }}
               />
