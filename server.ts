@@ -307,21 +307,31 @@ app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
 
 // Proxy other /api calls to FastAPI backend on port 8000
 const BACKEND_TARGET = process.env.BACKEND_API_URL || "http://127.0.0.1:8000";
+console.log(`Configured backend proxy target: ${BACKEND_TARGET}`);
+
 app.use(
   createProxyMiddleware({
     target: BACKEND_TARGET,
     changeOrigin: true,
     pathFilter: "/api",
     on: {
-      proxyReq: fixRequestBody,
+      proxyReq: (proxyReq, req, res) => {
+        // Fix the request body if it was parsed by express.json()
+        fixRequestBody(proxyReq, req);
+        
+        // Inject shared API Key for FastAPI backend authorization
+        if (process.env.FRONTEND_API_KEY) {
+          proxyReq.setHeader("X-ORBIT-API-KEY", process.env.FRONTEND_API_KEY);
+        }
+      },
       error: (err, req, res: any) => {
-        console.error("Proxy error occurred:", err);
+        console.error("Proxy error occurred connecting to target:", BACKEND_TARGET, err);
         res.writeHead(502, {
           "Content-Type": "application/json",
         });
         res.end(JSON.stringify({ 
           error: "Bad Gateway", 
-          message: "Failed to connect to the backend API service.", 
+          message: `Failed to connect to the backend API service at ${BACKEND_TARGET}.`, 
           detail: err.message 
         }));
       }
