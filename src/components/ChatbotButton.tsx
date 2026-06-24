@@ -203,7 +203,7 @@ export default function ChatbotButton() {
             <div className="px-4 py-[7px] text-center"
               style={{ background: '#f8fafc', borderTop: '1px solid #edf0f4' }}>
               <p className="text-[9px] font-mono tracking-[0.08em] m-0" style={{ color: '#cbd5e1' }}>
-                FLY &amp; FLOURISH OVERSEAS · MEDPALLI, TELANGANA
+                FLY &amp; FLOURISH OVERSEAS · HYDERABAD, TELANGANA
               </p>
             </div>
           </motion.div>
