@@ -58,7 +58,7 @@ export default function PublicChatWidget() {
 
     try {
       const token = localStorage.getItem('ff_student_token');
-      const backendUrl = import.meta.env.VITE_PUBLIC_CHAT_API_URL || 'http://localhost:8000/api/public-chat';
+      const backendUrl = import.meta.env.VITE_PUBLIC_CHAT_API_URL || '/api/public-chat';
       const endpoint = token ? RAG_ENDPOINT : backendUrl;
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       
