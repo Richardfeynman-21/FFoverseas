@@ -45,7 +45,7 @@ export default function FloatingBubbles() {
     sizeRef.current = { w, h };
 
     // Set bubble radius based on container width
-    const r = w < 480 ? 54 : w < 768 ? 64 : 72;
+    const r = w < 480 ? 54 : w < 768 ? 64 : w < 1440 ? 72 : 82;
     setBubbleRadius(r);
 
     const n = TESTIMONIALS.length;
@@ -96,7 +96,7 @@ export default function FloatingBubbles() {
     const bs = physicsRef.current;
     const n  = bs.length;
     const m  = mouseRef.current;
-    const r  = w < 480 ? 54 : w < 768 ? 64 : 72;
+    const r  = w < 480 ? 54 : w < 768 ? 64 : w < 1440 ? 72 : 82;
     const D  = r * 2;
 
     // 1. Mouse repulsion
@@ -231,7 +231,7 @@ export default function FloatingBubbles() {
 
       <div className="text-center max-w-xl mx-auto mb-10">
 
-        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#001F3F]">
+        <h2 className="text-4xl md:text-5xl 2xl:text-6xl font-extrabold tracking-tight text-[#001F3F]">
           Elite Success Chronicles
         </h2>
         <p className="text-gray-500 mt-2 text-sm">
@@ -244,7 +244,7 @@ export default function FloatingBubbles() {
         {/* ── Bubble physics field ── */}
         <div
           ref={containerRef}
-          className="lg:col-span-7 relative h-[420px] overflow-hidden bg-white/10 rounded-3xl border border-white/40 shadow-inner"
+          className="lg:col-span-7 relative h-[420px] 2xl:h-[520px] overflow-hidden bg-white/10 rounded-3xl border border-white/40 shadow-inner"
           onMouseMove={handleMouseMove}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}

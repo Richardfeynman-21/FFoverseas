@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import OriginalLogo from './components/OriginalLogo';
 import LoadingScreen from './components/LoadingScreen';
 import { AnimatePresence, motion } from 'motion/react';
+import AnimatedCounter from './components/AnimatedCounter';
 
 // Lazy-load heavy / below-fold components — keeps initial bundle small
 const InteractiveGlobe = lazy(() => import('./components/InteractiveGlobe'));
@@ -165,7 +166,7 @@ export default function App() {
 
       {/* 2. Hero Section */}
       <motion.section 
-        className="relative pt-32 pb-20 overflow-hidden" 
+        className="relative pt-32 pb-20 2xl:pt-40 2xl:pb-28 overflow-hidden" 
         id="hero-landing"
         initial={{ opacity: 0, y: 25, scale: 0.97 }}
         animate={isLoading ? { opacity: 0, y: 25, scale: 0.97 } : { opacity: 1, y: 0, scale: 1 }}
@@ -176,7 +177,7 @@ export default function App() {
           delay: 0.1
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-10">
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
@@ -186,7 +187,7 @@ export default function App() {
 
 
                 {/* Massive space-grotesk paired heading */}
-                <h1 className="text-3.5xl sm:text-4.5xl md:text-6xl font-black text-[#001F3F] tracking-tighter leading-tight md:leading-none">
+                <h1 className="text-3.5xl sm:text-4.5xl md:text-6xl 2xl:text-7xl font-black text-[#001F3F] tracking-tighter leading-tight md:leading-none">
                   Study at Your <br />
                   <span className="text-[#FF0000] relative inline-block">
                     Dream Destination
@@ -219,17 +220,23 @@ export default function App() {
               </div>
 
               {/* Key Quick Metrics Indicators in elegant minimalist grid */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-200/80 max-w-md">
+              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-200/80 max-w-lg">
                 <div>
-                  <p className="text-[#FF0000] text-2xl font-black font-mono">98.4%</p>
+                  <p className="text-[#FF0000] text-2xl font-black font-mono">
+                    <AnimatedCounter target={98.4} decimals={1} suffix="%" trigger={!isLoading} minStart={60.0} maxStart={80.0} />
+                  </p>
                   <p className="text-[10px] text-gray-400 font-mono font-medium mt-0.5">VISA APPROVAL RATE</p>
                 </div>
                 <div className="border-l border-slate-200 pl-4">
-                  <p className="text-[#001F3F] text-2xl font-black font-mono">500+</p>
+                  <p className="text-[#001F3F] text-2xl font-black font-mono">
+                    <AnimatedCounter target={500} decimals={0} suffix="+" trigger={!isLoading} minStart={250} maxStart={380} />
+                  </p>
                   <p className="text-[10px] text-gray-400 font-mono font-medium mt-0.5">SCHOLARS DEPLOYED</p>
                 </div>
                 <div className="border-l border-slate-200 pl-4">
-                  <p className="text-[#001F3F] text-2xl font-black font-mono">$1.5M</p>
+                  <p className="text-[#001F3F] text-2xl font-black font-mono">
+                    <AnimatedCounter target={1.5} decimals={1} prefix="$" suffix="M" trigger={!isLoading} minStart={0.3} maxStart={0.8} />
+                  </p>
                   <p className="text-[10px] text-gray-400 font-mono font-medium mt-0.5">GRANTS SECURED</p>
                 </div>
               </div>
@@ -237,7 +244,7 @@ export default function App() {
             </div>
 
             {/* Hero Interactive 3D Sculpture Wrap (5 Columns) */}
-            <div className="lg:col-span-5 flex items-center justify-center relative min-h-[380px]">
+            <div className="lg:col-span-5 flex items-center justify-center relative min-h-[380px] 2xl:min-h-[460px]">
               {/* Outer decorative light leaks representing futuristic WebGL aura */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#FF0000]/4 blur-3xl" />
               <div className="absolute top-[40%] left-[60%] -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-blue-500/3 blur-3xl" />
@@ -267,11 +274,11 @@ export default function App() {
         <div className="absolute top-1/4 left-1/10 w-72 h-72 rounded-full bg-[#001F3F]/5 blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/10 w-80 h-80 rounded-full bg-[#FF0000]/3 blur-3xl pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Left side: Authentic Company Logo Display Container */}
-            <div className="lg:col-span-5 aspect-square flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-8 rounded-full border border-white/60 shadow-xl relative overflow-hidden group max-w-[400px] mx-auto w-full">
+            <div className="lg:col-span-5 aspect-square flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-8 rounded-full border border-white/60 shadow-xl relative overflow-hidden group max-w-[400px] 2xl:max-w-[460px] mx-auto w-full">
               <div className="absolute inset-0 bg-radial from-[#001F3F]/2 to-transparent opacity-60 rounded-full pointer-events-none" />
               <div className="relative w-full max-w-[200px] xs:max-w-[240px] md:max-w-[260px] aspect-square transition-transform duration-700 group-hover:scale-[1.03]">
                 <OriginalLogo showText={true} showGlobeBg={true} size="100%" />
@@ -287,7 +294,7 @@ export default function App() {
                   <span>WHO WE ARE</span>
                 </div>
                 
-                <h2 className="text-3xl sm:text-3.5xl md:text-5xl font-black text-[#001F3F] tracking-tight leading-tight md:leading-none">
+                <h2 className="text-3xl sm:text-3.5xl md:text-5xl 2xl:text-6xl font-black text-[#001F3F] tracking-tight leading-tight md:leading-none">
                   Sovereign Guidance for <br />
                   <span className="text-[#FF0000] relative inline-block">
                     Your Academic Flight Path
@@ -334,27 +341,27 @@ export default function App() {
 
       {/* 4. Admissions Roadmap blueprint */}
       <motion.section 
-        className="relative py-20 bg-[#fdfdfd]" 
+        className="relative py-20 2xl:py-28 bg-[#fdfdfd]" 
         id="roadmap-flow"
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.12 }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
           <Suspense fallback={null}><FlourishRoadmap /></Suspense>
         </div>
       </motion.section>
       {/* 3. Global Destinations panel */}
       <motion.section 
-        className="relative py-20 bg-slate-50/20 border-t border-b border-dashed border-slate-200/40" 
+        className="relative py-20 2xl:py-28 bg-slate-50/20 border-t border-b border-dashed border-slate-200/40" 
         id="showcase-destinations"
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
           <Suspense fallback={null}><DestinationCarousel selectedDestId={selectedDestId} onSelectDest={setSelectedDestId} /></Suspense>
         </div>
       </motion.section>
@@ -362,28 +369,28 @@ export default function App() {
 
       {/* 5. Success Stories bubble drift */}
       <motion.section 
-        className="relative py-20 bg-slate-50/20 border-t border-b border-dashed border-slate-200/40" 
+        className="relative py-20 2xl:py-28 bg-slate-50/20 border-t border-b border-dashed border-slate-200/40" 
         id="stories-drift"
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
           <Suspense fallback={null}><FloatingBubbles /></Suspense>
         </div>
       </motion.section>
 
       {/* 6. Consultation evaluation deployment hub */}
       <motion.section 
-        className="relative py-24 bg-[#fdfdfd]" 
+        className="relative py-24 2xl:py-32 bg-[#fdfdfd]" 
         id="consultation-hub"
         variants={revealVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.1 }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
           <Suspense fallback={null}><ConsultationForm /></Suspense>
         </div>
       </motion.section>
@@ -394,9 +401,9 @@ export default function App() {
         <div className="absolute right-0 bottom-0 w-96 h-96 rounded-full bg-[#FF0000]/10 blur-[130px] pointer-events-none" />
         <div className="absolute left-10 top-0 w-80 h-80 rounded-full bg-blue-500/5 blur-[120px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-10">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-16 border-b border-white/10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 2xl:gap-16 pb-16 border-b border-white/10">
             
             {/* Company Bio */}
             <div className="lg:col-span-5 space-y-6">

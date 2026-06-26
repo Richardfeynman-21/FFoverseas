@@ -80,7 +80,7 @@ export default function FlourishRoadmap() {
           <Milestone className="w-3.5 h-3.5 text-[#FF0000]" />
           <span>FLOURISH STRATEGIC ROADMAP</span>
         </div>
-        <h2 className="text-3.5xl md:text-4.5xl font-extrabold tracking-tight text-[#001F3F]">
+        <h2 className="text-3.5xl md:text-4.5xl 2xl:text-5xl font-extrabold tracking-tight text-[#001F3F]">
           Admissions Orbit Blueprint
         </h2>
         <p className="text-gray-500 mt-2 text-sm max-w-sm mx-auto">
@@ -95,7 +95,7 @@ export default function FlourishRoadmap() {
         <div 
           ref={containerRef}
           onScroll={handleScroll}
-          className="lg:col-span-7 max-h-[500px] overflow-y-auto pr-3 custom-scrollbar"
+          className="lg:col-span-7 max-h-[500px] 2xl:max-h-[620px] overflow-y-auto pr-3 custom-scrollbar"
         >
           {/* Relative wrapper content spanning full scroll height to allow absolute line to stretch properly */}
           <div className="relative">

@@ -35,7 +35,7 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
           <div>
 
             
-            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#001F3F]">
+            <h3 className="text-3xl md:text-4xl 2xl:text-5xl font-extrabold tracking-tight text-[#001F3F]">
               Curated World-Tier Destinations
             </h3>
             
@@ -142,7 +142,7 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
                     <Flag country={selectedDest.flag} className="w-14 h-9.5 md:w-16 md:h-11 shadow-md rounded-sm" />
                     <div>
                       <span className="text-xs font-mono text-[#FF0000] uppercase tracking-wider font-semibold"></span>
-                      <h2 className="text-2xl md:text-3.5xl font-extrabold text-[#001F3F] tracking-tight">{selectedDest.name}</h2>
+                      <h2 className="text-2xl md:text-3.5xl 2xl:text-4xl font-extrabold text-[#001F3F] tracking-tight">{selectedDest.name}</h2>
                     </div>
                   </div>
  
