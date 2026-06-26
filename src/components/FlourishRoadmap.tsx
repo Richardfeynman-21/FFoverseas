@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ROADMAP_STEPS } from '../data';
 import { RoadmapStep } from '../types';
@@ -7,6 +7,40 @@ import { HelpCircle, CheckSquare, Sparkles, Milestone, ArrowRight, ClipboardChec
 export default function FlourishRoadmap() {
   const [activeStepId, setActiveStepId] = useState<number>(1);
   const [hoveredStepId, setHoveredStepId] = useState<number | null>(null);
+  const [scrollProgress, setScrollProgress] = useState<number>(0.14);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const maxScroll = container.scrollHeight - container.clientHeight;
+    if (maxScroll <= 0) return;
+    
+    const progress = container.scrollTop / maxScroll;
+    
+    // Scale progress between first stage node (~14%) and last stage node (~95%)
+    const minProgress = 0.14;
+    const maxProgress = 0.95;
+    const calculatedProgress = minProgress + progress * (maxProgress - minProgress);
+    
+    setScrollProgress(calculatedProgress);
+  };
+
+  const handleStepClick = (stepId: number, element: HTMLDivElement) => {
+    setActiveStepId(stepId);
+    const container = containerRef.current;
+    if (container) {
+      const containerRect = container.getBoundingClientRect();
+      const elemRect = element.getBoundingClientRect();
+      
+      const offsetTop = elemRect.top - containerRect.top + container.scrollTop;
+      const targetScrollTop = offsetTop - container.clientHeight / 2 + elemRect.height / 2;
+      
+      container.scrollTo({
+        top: targetScrollTop,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const getStepIcon = (id: number) => {
     switch (id) {
@@ -58,95 +92,106 @@ export default function FlourishRoadmap() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
         
         {/* Step Progression Left Stack (7 Columns) */}
-        <div className="lg:col-span-7 flex flex-col justify-between relative">
-          
-          {/* Vertical Connecting Light-Trail Vector Line Graphic */}
-          <div className="absolute left-10 md:left-13 top-12 bottom-12 w-1.5 bg-[#001F3F]/5 rounded-full overflow-hidden pointer-events-none">
-            {/* Animated glowing neon trail representing flight paths */}
-            <div
-              className="absolute top-0 left-0 w-full rounded-full transition-all duration-700 ease-out"
-              style={{
-                height: `${(activeStepId / ROADMAP_STEPS.length) * 100}%`,
-                background:
-                  'linear-gradient(to bottom, #001F3F 0%, #001F3F 30%, #d91212 100%)'
-              }}
-            />
-            {/* Supersonic flying light particle */}
-            <div 
-              className="absolute left-0 right-0 h-8 bg-gradient-to-b from-transparent via-white to-transparent opacity-90 animate-[pulse_2s_infinite]"
-              style={{
-                top: `${((activeStepId - 0.5) / ROADMAP_STEPS.length) * 100}%`
-              }}
-            />
-          </div>
+        <div 
+          ref={containerRef}
+          onScroll={handleScroll}
+          className="lg:col-span-7 max-h-[500px] overflow-y-auto pr-3 custom-scrollbar"
+        >
+          {/* Relative wrapper content spanning full scroll height to allow absolute line to stretch properly */}
+          <div className="relative">
+            {/* Vertical Connecting Light-Trail Vector Line Graphic */}
+            <div className="absolute left-10 md:left-13 top-12 bottom-12 w-1.5 bg-[#001F3F]/5 rounded-full overflow-hidden pointer-events-none">
+              {/* Animated glowing neon trail representing flight paths */}
+              <div
+                className="absolute top-0 left-0 w-full rounded-full transition-all duration-700 ease-out"
+                style={{
+                  height: `${scrollProgress * 100}%`,
+                  background:
+                    'linear-gradient(to bottom, #001F3F 0%, #001F3F 30%, #d91212 100%)'
+                }}
+              />
+              {/* Supersonic flying light particle */}
+              <div 
+                className="absolute left-0 right-0 h-8 bg-gradient-to-b from-transparent via-white to-transparent opacity-90 animate-[pulse_2s_infinite]"
+                style={{
+                  top: `${scrollProgress * 100}%`
+                }}
+              />
+            </div>
 
-          <div className="space-y-6 relative z-10">
-            {ROADMAP_STEPS.map((step) => {
-              const isActive = step.id === activeStepId;
-              const isPast = step.id < activeStepId;
+            <div className="space-y-6 relative z-10">
+              {ROADMAP_STEPS.map((step) => {
+                const isActive = step.id === activeStepId;
+                const isPast = step.id < activeStepId;
 
-              return (
-                <div
-                  key={step.id}
-                  onClick={() => setActiveStepId(step.id)}
-                  onMouseEnter={() => setHoveredStepId(step.id)}
-                  onMouseLeave={() => setHoveredStepId(null)}
-                  className={`flex items-start space-x-4 md:space-x-6 p-4 md:p-6 rounded-2xl border transition-all duration-300 cursor-pointer select-none group ${
-                    isActive
-                      ? 'bg-white/60 border-white/80 border-l-4 border-l-[#FF0000] shadow-md translate-x-2 backdrop-blur-sm'
-                      : 'border-transparent bg-transparent hover:bg-white/40 hover:border-white/40'
-                  }`}
-                >
-                  {/* Circle Indicator with Custom Icons */}
-                  <div className="relative">
-                    <div 
-                      className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border transition-all duration-500 ${
-                        isActive 
-                          ? 'bg-gradient-to-r from-[#001F3F] to-[#FF0000] border-transparent shadow-[0_4px_15px_rgba(0,31,63,0.2)]'
-                          : isPast
-                            ? 'bg-[#FF0000] border-transparent shadow-[0_2px_10px_rgba(255,0,0,0.15)]'
-                            : 'bg-white border-slate-200 group-hover:border-[#FF0000] group-hover:bg-[#FF0000]/5'
-                      }`}
-                    >
-                      {isActive || isPast ? (
-                        getStepIcon(step.id)
-                      ) : (
-                        <span className="text-[#001F3F]/40 font-mono font-bold group-hover:text-[#FF0000]">
-                          0{step.id}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {/* Glowing secondary particle orbit node */}
-                    {isActive && (
-                      <div className="absolute -inset-1 rounded-full border border-[#FF0000]/30 animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
-                    )}
-                  </div>
-
-                  {/* Text Content */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono text-gray-400">STAGE 0{step.id} ・ {step.duration}</span>
+                return (
+                  <motion.div
+                    data-step-id={step.id}
+                    key={step.id}
+                    onClick={(e) => handleStepClick(step.id, e.currentTarget as HTMLDivElement)}
+                    onMouseEnter={() => setHoveredStepId(step.id)}
+                    onMouseLeave={() => setHoveredStepId(null)}
+                    initial={{ opacity: 0.35, y: 15, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ root: containerRef, once: false, amount: 0.25 }}
+                    transition={{ duration: 0.45, ease: 'easeOut' }}
+                    className={`flex items-start space-x-4 md:space-x-6 p-4 md:p-6 rounded-2xl border transition-all duration-300 cursor-pointer select-none group ${
+                      isActive
+                        ? 'bg-white/60 border-white/80 border-l-4 border-l-[#FF0000] shadow-md translate-x-2 backdrop-blur-sm'
+                        : 'border-transparent bg-transparent hover:bg-white/40 hover:border-white/40'
+                    }`}
+                  >
+                    {/* Circle Indicator with Custom Icons */}
+                    <div className="relative">
+                      <div 
+                        className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border transition-all duration-500 ${
+                          isActive 
+                            ? 'bg-gradient-to-r from-[#001F3F] to-[#FF0000] border-transparent shadow-[0_4px_15px_rgba(0,31,63,0.2)]'
+                            : isPast
+                              ? 'bg-[#FF0000] border-transparent shadow-[0_2px_10px_rgba(255,0,0,0.15)]'
+                              : 'bg-white border-slate-200 group-hover:border-[#FF0000] group-hover:bg-[#FF0000]/5'
+                        }`}
+                      >
+                        {isActive || isPast ? (
+                          getStepIcon(step.id)
+                        ) : (
+                          <span className="text-[#001F3F]/40 font-mono font-bold group-hover:text-[#FF0000]">
+                            0{step.id}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Glowing secondary particle orbit node */}
                       {isActive && (
-                        <span className="px-2 py-0.5 bg-[#FF0000]/10 border border-[#FF0000]/20 rounded-md text-[9px] text-[#FF0000] font-mono tracking-wider">
-                          ACTIVE PROCESS
-                        </span>
+                        <div className="absolute -inset-1 rounded-full border border-[#FF0000]/30 animate-ping pointer-events-none" style={{ animationDuration: '3s' }} />
                       )}
                     </div>
-                    
-                    <h3 className={`text-lg md:text-xl font-bold mt-1 transition-colors duration-300 ${
-                       isActive ? 'text-[#001F3F]' : 'text-gray-600 group-hover:text-[#001F3F]'
-                    }`}>
-                      {step.title}
-                    </h3>
 
-                    <p className="text-xs md:text-sm text-gray-500 mt-1 line-clamp-2">
-                      {step.subtitle}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+                    {/* Text Content */}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono text-gray-400">STAGE 0{step.id} ・ {step.duration}</span>
+                        {isActive && (
+                          <span className="px-2 py-0.5 bg-[#FF0000]/10 border border-[#FF0000]/20 rounded-md text-[9px] text-[#FF0000] font-mono tracking-wider">
+                            ACTIVE PROCESS
+                          </span>
+                        )}
+                      </div>
+                      
+                      <h3 className={`text-lg md:text-xl font-bold mt-1 transition-colors duration-300 ${
+                         isActive ? 'text-[#001F3F]' : 'text-gray-600 group-hover:text-[#001F3F]'
+                      }`}>
+                        {step.title}
+                      </h3>
+
+                      <p className="text-xs md:text-sm text-gray-500 mt-1 line-clamp-2">
+                        {step.subtitle}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
