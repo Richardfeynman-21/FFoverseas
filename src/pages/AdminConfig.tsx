@@ -102,21 +102,21 @@ interface ChatLogRecord {
 // ─── Default seed data mimicking backend models ───────────────────────────────
 const DEFAULT_STUDENTS: StudentRecord[] = [
   { id: 'st-01', name: 'Test Student', email: 'student@email.com', phone: '+919876543210', targetDestination: 'Canada', targetDegree: 'Masters', gpa: 8.5, status: 'active' },
-  { id: 'st-02', name: 'Aanya Sharma', email: 'aanya@sharma.com', phone: '+918889990001', targetDestination: 'USA', targetDegree: 'MS CS', gpa: 9.2, status: 'active' },
-  { id: 'st-03', name: 'Ethan Dubois', email: 'ethan@dubois.fr', phone: '+33612345678', targetDestination: 'UK', targetDegree: 'MBA', gpa: 8.1, status: 'active' },
+  { id: 'st-02', name: 'ROUTHU SAMPATH DEVI SRI', email: 'sri@sinsinati.edu', phone: '+918889990001', targetDestination: 'USA', targetDegree: 'MS CS', gpa: 9.2, status: 'active' },
+  { id: 'st-03', name: 'Tara Reddy', email: 'tara.reddy@leads.ac.uk', phone: '+918374740505', targetDestination: 'UK', targetDegree: 'MBA', gpa: 8.1, status: 'active' },
 ];
 
 const DEFAULT_APPLICATIONS: ApplicationRecord[] = [
   { id: 'ap-01', studentName: 'Test Student', universityName: 'University of Waterloo', program: 'Computer Science (Co-op)', status: 'Applied', appliedDate: '2026-06-08' },
-  { id: 'ap-02', studentName: 'Aanya Sharma', universityName: 'Stanford University', program: 'Artificial Intelligence', status: 'Offered', appliedDate: '2026-05-15' },
-  { id: 'ap-03', studentName: 'Ethan Dubois', universityName: 'London Business School', program: 'MBA in Finance', status: 'Accepted', appliedDate: '2026-05-20' },
+  { id: 'ap-02', studentName: 'ROUTHU SAMPATH DEVI SRI', universityName: 'Sinsinati University', program: 'Artificial Intelligence', status: 'Offered', appliedDate: '2026-05-15' },
+  { id: 'ap-03', studentName: 'Tara Reddy', universityName: 'University of Leads', program: 'MBA in Finance', status: 'Accepted', appliedDate: '2026-05-20' },
 ];
 
 const DEFAULT_DOCUMENTS: DocumentRecord[] = [
   { id: 'doc-01', studentName: 'Test Student', documentType: 'Passport', fileName: 'passport_scan.pdf', status: 'Verified', uploadedAt: '2026-05-28' },
   { id: 'doc-02', studentName: 'Test Student', documentType: 'Transcript', fileName: 'undergrad_transcript.pdf', status: 'Verified', uploadedAt: '2026-06-05' },
   { id: 'doc-03', studentName: 'Test Student', documentType: 'SOP', fileName: 'sop_draft_v3.docx', status: 'Pending Review', uploadedAt: '2026-06-12' },
-  { id: 'doc-04', studentName: 'Aanya Sharma', documentType: 'LOR', fileName: 'lor_stanford_rec.pdf', status: 'Verified', uploadedAt: '2026-05-10' },
+  { id: 'doc-04', studentName: 'ROUTHU SAMPATH DEVI SRI', documentType: 'LOR', fileName: 'lor_sinsinati_rec.pdf', status: 'Verified', uploadedAt: '2026-05-10' },
 ];
 
 const DEFAULT_UNIVERSITIES: UniversityRecord[] = [

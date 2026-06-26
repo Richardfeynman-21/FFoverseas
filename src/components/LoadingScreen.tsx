@@ -118,7 +118,7 @@ export default function LoadingScreen({ onComplete, assetsReady = false }: Loadi
 
   if (!loadedPaths) {
     return (
-      <div className="fixed inset-0 bg-[#001F3F] z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-[#001F3F] z-[9999] flex items-center justify-center">
         {/* Simple initial spinner while path chunk parses */}
         <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
       </div>

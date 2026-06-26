@@ -160,8 +160,8 @@ export default function App() {
       </div>
 
       {/* Global Header Navigation */}
-      <Navbar />
-      <Suspense fallback={null}><PublicChatWidget /></Suspense>
+      {!isLoading && <Navbar />}
+      {!isLoading && <Suspense fallback={null}><PublicChatWidget /></Suspense>}
 
       {/* 2. Hero Section */}
       <motion.section 
