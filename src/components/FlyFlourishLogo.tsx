@@ -102,9 +102,8 @@ export default function FlyFlourishLogo({
       {/* 2. MAIN LOGO VECTORS (Clipped & scaled to fill canvas) */}
       <g clipPath="url(#clip0_0_1)">
         <g transform={transformStr}>
-          {/* F1 & F2 Monogram (Using optimized paths with gaps built-in - no cover rectangles needed) */}
-          <path d={logoPaths.f1} fill="#001F3F" />
-          <path d={logoPaths.f2} fill="#001F3F" />
+          <path d={logoPaths.f1} fill="#001F3F" stroke="#001F3F" strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+          <path d={logoPaths.f2} fill="#001F3F" stroke="#001F3F" strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
 
           {/* Interlocking Connecting Patches / Spokes */}
           <path d="M219 298L171 288H219V298Z" fill="#001F3F" stroke="#001F3F" strokeWidth="0.5" />
