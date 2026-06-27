@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Wrench, Sparkles, Plane, Home, ShieldAlert } from 'lucide-react';
-import OriginalLogo from '../components/OriginalLogo';
+import FlyFlourishLogo from '../components/FlyFlourishLogo';
 
 const pageVariants = {
   hidden: { opacity: 0 },
@@ -118,7 +118,7 @@ export default function StudentMaintenance() {
         {/* Logo container */}
         <div className="flex justify-center mb-6">
           <div className="w-28 h-28 relative">
-            <OriginalLogo iconOnly={false} showText={false} showGlobeBg={true} size="100%" />
+            <FlyFlourishLogo iconOnly={true} showGlobeBg={true} size="100%" />
           </div>
         </div>
 

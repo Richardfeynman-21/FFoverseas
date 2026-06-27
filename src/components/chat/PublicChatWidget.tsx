@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Send, Globe, Plane } from 'lucide-react';
 import ChatBubble from './ChatBubble';
 import AuthPromptCard from './AuthPromptCard';
-import OriginalLogo from '../OriginalLogo';
+import FlyFlourishLogo from '../FlyFlourishLogo';
 
 const NAVY = '#001F3F';
 const RED   = '#CC1E1E';
@@ -122,7 +122,7 @@ export default function PublicChatWidget() {
                     border:     '1px solid rgba(255,255,255,0.20)',
                   }}
                 >
-                  <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+                  <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
                 </div>
                 <span
                   className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
@@ -168,7 +168,7 @@ export default function PublicChatWidget() {
                   <div
                     className="w-7 h-7 rounded-lg shrink-0 mt-0.5 flex items-center justify-center bg-white p-0.5 border border-slate-100 shadow-sm"
                   >
-                    <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+                    <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
                   </div>
                   <div className="px-[15px] py-3 rounded-[16px] rounded-tl-[4px] border border-[#e8ecf0] bg-white shadow-sm flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#cbd5e1] animate-bounce" />

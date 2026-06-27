@@ -1,6 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
-import OriginalLogo from './components/OriginalLogo';
+import FlyFlourishLogo from './components/FlyFlourishLogo';
 import LoadingScreen from './components/LoadingScreen';
 import { AnimatePresence, motion } from 'motion/react';
 import AnimatedCounter from './components/AnimatedCounter';
@@ -281,7 +281,7 @@ export default function App() {
             <div className="lg:col-span-5 aspect-square flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-8 rounded-full border border-white/60 shadow-xl relative overflow-hidden group max-w-[400px] 2xl:max-w-[460px] mx-auto w-full">
               <div className="absolute inset-0 bg-radial from-[#001F3F]/2 to-transparent opacity-60 rounded-full pointer-events-none" />
               <div className="relative w-full max-w-[200px] xs:max-w-[240px] md:max-w-[260px] aspect-square transition-transform duration-700 group-hover:scale-[1.03]">
-                <OriginalLogo showText={true} showGlobeBg={true} size="100%" />
+                <FlyFlourishLogo showGlobeBg={true} size="100%" />
               </div>
               <p className="text-[10px] text-gray-400 font-mono tracking-wider uppercase mt-4 z-10">OFFICIAL BRAND SEAL</p>
             </div>
@@ -409,7 +409,7 @@ export default function App() {
             <div className="lg:col-span-5 space-y-6">
               <div className="flex items-center space-x-2.5">
                 <div className="w-11 h-11 bg-white rounded-full p-0.5 flex items-center justify-center shadow-xs">
-                  <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+                  <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
                 </div>
                 <div>
                   <span className="font-extrabold text-lg text-white tracking-tight">Fly & Flourish</span>

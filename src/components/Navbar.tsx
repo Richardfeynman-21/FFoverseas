@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plane, Sparkles, Menu, X, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
-import OriginalLogo from './OriginalLogo';
+import FlyFlourishLogo from './FlyFlourishLogo';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -40,7 +40,7 @@ export default function Navbar() {
         {/* Brand logo featuring OriginalLogo icon and elegant title details */}
         <a href="#" className="flex items-center space-x-2 group cursor-pointer" id="brand-logo">
           <div className="relative w-11 h-11 transition-transform duration-500 group-hover:scale-105">
-            <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+            <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
           </div>
 
           <div className="text-left select-none">

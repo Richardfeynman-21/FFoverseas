@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Send, Globe, FileText, GraduationCap, Users, Plane } from 'lucide-react';
-import OriginalLogo from './OriginalLogo';
+import FlyFlourishLogo from './FlyFlourishLogo';
 
 const NAVY = '#001F3F';
 const RED   = '#CC1E1E';
@@ -52,7 +52,7 @@ export default function ChatbotButton() {
                     border:     '1px solid rgba(255,255,255,0.20)',
                   }}
                 >
-                  <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+                  <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
                 </div>
                 <span
                   className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
@@ -98,7 +98,7 @@ export default function ChatbotButton() {
                 <div
                   className="w-7 h-7 rounded-lg shrink-0 mt-0.5 flex items-center justify-center bg-white p-0.5 border border-slate-100 shadow-sm"
                 >
-                  <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+                  <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
                 </div>
                 <div>
                   <div

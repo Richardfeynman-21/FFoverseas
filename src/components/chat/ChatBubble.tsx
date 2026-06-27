@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import OriginalLogo from '../OriginalLogo';
+import FlyFlourishLogo from '../FlyFlourishLogo';
 
 interface ChatBubbleProps {
   role: 'user' | 'assistant';
@@ -22,7 +22,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ role, content }) => {
         <div
           className="w-7 h-7 rounded-lg shrink-0 mt-0.5 flex items-center justify-center bg-white p-0.5 border border-slate-100 shadow-sm"
         >
-          <OriginalLogo iconOnly={true} size="100%" showGlobeBg={false} />
+          <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
         </div>
       )}
       
