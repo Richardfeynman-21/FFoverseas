@@ -195,7 +195,7 @@ export default function App() {
                   </span>
                 </h1>
 
-                <p className="text-gray-500 text-sm md:text-base leading-relaxed mt-4 max-w-lg">
+                <p className="text-gray-500 text-sm md:text-base xl:text-lg 2xl:text-xl leading-relaxed mt-4 max-w-lg">
                   Break away from boring consultancies. Elevate your global transitions with our ultra-precise 3D application profiling, direct Ivy League shorts, and direct-to-visa success records.
                 </p>
               </div>
@@ -204,7 +204,7 @@ export default function App() {
               <div className="flex flex-wrap gap-4 items-center">
                 <a
                   href="#consultation-hub"
-                  className="px-7 py-3.5 bg-gradient-to-r from-[#001F3F] to-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-widest shadow-lg hover:shadow-red-500/20 active:scale-97 transition-all flex items-center gap-2 cursor-pointer"
+                  className="px-7 py-4 xl:py-5 bg-gradient-to-r from-[#001F3F] to-[#FF0000] text-white rounded-xl text-xs xl:text-sm font-extrabold uppercase tracking-widest shadow-lg hover:shadow-red-500/20 active:scale-97 transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>CALIBRATE VISA COORDINATES</span>
                   <ChevronRight className="w-4 h-4" />
@@ -212,7 +212,7 @@ export default function App() {
 
                 <a
                   href="#global-destinations"
-                  className="px-6 py-3.5 bg-white/40 backdrop-blur-md hover:bg-white/60 border border-white/80 text-[#001F3F] rounded-xl text-xs font-bold uppercase tracking-widest active:scale-97 transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+                  className="px-6 py-4 xl:py-5 bg-white/40 backdrop-blur-md hover:bg-white/60 border border-white/80 text-[#001F3F] rounded-xl text-xs xl:text-sm font-bold uppercase tracking-widest active:scale-97 transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   <span>EXPLORE DESTINATIONS</span>
                   <ArrowUpRight className="w-4 h-4 text-[#FF0000]" />
@@ -289,7 +289,7 @@ export default function App() {
             {/* Right side: Editorial text copy and values details */}
             <div className="lg:col-span-7 space-y-6">
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#001F3F]/5 border border-[#001F3F]/15 rounded-full text-xs text-[#001F3F] font-mono shadow-xs backdrop-blur-xs">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#001F3F]/5 border border-[#001F3F]/15 rounded-full text-xs xl:text-sm text-[#001F3F] font-mono shadow-xs backdrop-blur-xs">
                   <Plane className="w-3.5 h-3.5 text-[#FF0000]" style={{ transform: 'rotate(-30deg)' }} />
                   <span>WHO WE ARE</span>
                 </div>
@@ -303,7 +303,7 @@ export default function App() {
                 </h2>
               </div>
 
-              <p className="text-gray-500 text-sm md:text-base leading-relaxed">
+              <p className="text-gray-500 text-sm md:text-base xl:text-lg 2xl:text-xl leading-relaxed">
                 At **Fly & Flourish**, we are more than educational advisors. We are architects of global human potential, pioneering strategic admissions blueprints that bridge elite ambitious talents with world-tier universities across the United States, United Kingdom, Canada, and beyond.
               </p>
 
@@ -311,24 +311,24 @@ export default function App() {
                 <div className="space-y-2 bg-white/45 p-5 rounded-2xl border border-white/50 backdrop-blur-xs shadow-xs">
                   <div className="w-9 h-9 rounded-xl bg-[#001F3F]/5 flex items-center justify-center text-[#001F3F] font-bold">1</div>
                   <h4 className="font-bold text-[#001F3F] text-sm">Targeted Profiles</h4>
-                  <p className="text-xs text-gray-400 leading-relaxed">Precision diagnostics matching your distinct academic GPA, transcripts, and aspirations with the absolute highest probability admissions orbits.</p>
+                  <p className="text-xs xl:text-sm text-gray-400 leading-relaxed">Precision diagnostics matching your distinct academic GPA, transcripts, and aspirations with the absolute highest probability admissions orbits.</p>
                 </div>
 
                 <div className="space-y-2 bg-white/45 p-5 rounded-2xl border border-white/50 backdrop-blur-xs shadow-xs">
                   <div className="w-9 h-9 rounded-xl bg-[#FF0000]/5 flex items-center justify-center text-[#FF0000] font-bold">2</div>
                   <h4 className="font-bold text-[#001F3F] text-sm">Ironclad Visa Dossier</h4>
-                  <p className="text-xs text-gray-400 leading-relaxed">Our elite, zero-friction pre-visa vetting protocols secure a 98.4% success rate under stringent international immigration filters.</p>
+                  <p className="text-xs xl:text-sm text-gray-400 leading-relaxed">Our elite, zero-friction pre-visa vetting protocols secure a 98.4% success rate under stringent international immigration filters.</p>
                 </div>
               </div>
 
               <div className="pt-4 flex items-center gap-4 border-t border-slate-100">
                 <div className="flex -space-x-2.5">
-                  <div className="w-9 h-9 rounded-full bg-[#001F3F] text-white flex items-center justify-center text-xs font-mono font-bold border-2 border-white">US</div>
-                  <div className="w-9 h-9 rounded-full bg-[#FF0000] text-white flex items-center justify-center text-xs font-mono font-bold border-2 border-white">UK</div>
-                  <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-mono font-bold border-2 border-white">CA</div>
-                  <div className="w-9 h-9 rounded-full bg-indigo-900 text-white flex items-center justify-center text-xs font-mono font-bold border-2 border-white">EU</div>
+                  <div className="w-9 h-9 rounded-full bg-[#001F3F] text-white flex items-center justify-center text-xs xl:text-sm font-mono font-bold border-2 border-white">US</div>
+                  <div className="w-9 h-9 rounded-full bg-[#FF0000] text-white flex items-center justify-center text-xs xl:text-sm font-mono font-bold border-2 border-white">UK</div>
+                  <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs xl:text-sm font-mono font-bold border-2 border-white">CA</div>
+                  <div className="w-9 h-9 rounded-full bg-indigo-900 text-white flex items-center justify-center text-xs xl:text-sm font-mono font-bold border-2 border-white">EU</div>
                 </div>
-                <p className="text-xs text-gray-400 font-medium">
+                <p className="text-xs xl:text-sm text-gray-400 font-medium">
                   Direct channels established to over **200+ partner universities** and ivy circles.
                 </p>
               </div>
@@ -408,7 +408,7 @@ export default function App() {
             {/* Company Bio */}
             <div className="lg:col-span-5 space-y-6">
               <div className="flex items-center space-x-2.5">
-                <div className="w-11 h-11 bg-white rounded-full p-0.5 flex items-center justify-center shadow-xs">
+                <div className="w-11 h-11 xl:w-14 xl:h-14 bg-white rounded-full p-0.5 flex items-center justify-center shadow-xs">
                   <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
                 </div>
                 <div>
@@ -417,11 +417,11 @@ export default function App() {
                 </div>
               </div>
  
-              <p className="text-slate-400 text-xs md:text-sm leading-relaxed max-w-sm">
+              <p className="text-slate-400 text-xs xl:text-sm md:text-sm leading-relaxed max-w-sm">
                 A premier global education catalyst engineering frictionless admissions, custom-aligned visa dossiers, and departure networking orbits for Tomorrow's Leaders.
               </p>
  
-              <div className="flex items-center gap-2.5 text-xs text-slate-350">
+              <div className="flex items-center gap-2.5 text-xs xl:text-sm text-slate-350">
                 <Clock className="w-4 h-4 text-[#FF0000]" />
                 <span className="font-mono text-[11px] tracking-wide uppercase">GRID CLOCK: <span ref={worldTimeRef} /></span>
               </div>
@@ -429,8 +429,8 @@ export default function App() {
  
             {/* Quick Navigation links */}
             <div className="lg:col-span-3 space-y-4">
-              <h4 className="text-xs font-mono font-bold tracking-widest text-[#FF0000] uppercase">ORBIT SECTORS</h4>
-              <ul className="space-y-2.5 text-xs text-slate-400 font-sans font-medium">
+              <h4 className="text-xs xl:text-sm font-mono font-bold tracking-widest text-[#FF0000] uppercase">ORBIT SECTORS</h4>
+              <ul className="space-y-2.5 text-xs xl:text-sm text-slate-400 font-sans font-medium">
                 <li>
                   <a href="#" className="hover:text-white transition-colors">
                     Home (Current Page)
@@ -456,12 +456,12 @@ export default function App() {
 
             {/* Contact details */}
             <div className="lg:col-span-4 space-y-4">
-              <h4 className="text-xs font-mono font-bold tracking-widest text-white uppercase">OFFICE COORDINATES</h4>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
+              <h4 className="text-xs xl:text-sm font-mono font-bold tracking-widest text-white uppercase">OFFICE COORDINATES</h4>
+              <p className="text-xs xl:text-sm text-slate-400 leading-relaxed max-w-xs">
                 Reach our admissions desk for immediate immigration profile validation, shortlists, or seminar requests.
               </p>
               
-              <div className="space-y-2.5 text-xs text-slate-350 font-mono">
+              <div className="space-y-2.5 text-xs xl:text-sm text-slate-350 font-mono">
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4 text-[#FF0000]" />
                   <a href="tel:+918374740505" className="hover:text-white transition-colors">+91 8374740505</a>

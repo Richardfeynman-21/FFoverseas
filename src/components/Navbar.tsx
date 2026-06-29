@@ -31,21 +31,21 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out ${
         scrolled
-          ? 'py-3.5 bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm'
-          : 'py-6 bg-transparent border-b border-transparent'
+          ? 'py-4 xl:py-5 bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm'
+          : 'py-6 xl:py-8 bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto px-4 md:px-8 flex items-center justify-between">
+      <div className="w-full max-w-[1920px] mx-auto px-6 md:px-10 xl:px-16 2xl:px-24 flex items-center justify-between items-center gap-8 xl:gap-12">
         
         {/* Brand logo featuring OriginalLogo icon and elegant title details */}
         <a href="#" className="flex items-center space-x-2 group cursor-pointer" id="brand-logo">
-          <div className="relative w-11 h-11 transition-transform duration-500 group-hover:scale-105">
+          <div className="relative w-11 h-11 xl:w-14 xl:h-14 transition-transform duration-500 group-hover:scale-105">
             <FlyFlourishLogo iconOnly={true} size="100%" showGlobeBg={false} />
           </div>
 
           <div className="text-left select-none">
             <div className="flex items-center">
-              <span className="font-extrabold text-base text-[#001F3F] tracking-tight transition-colors duration-300 group-hover:text-[#FF0000]">
+              <span className="font-extrabold text-base xl:text-lg 2xl:text-xl text-[#001F3F] tracking-tight transition-colors duration-300 group-hover:text-[#FF0000]">
                 Fly & Flourish
               </span>
               <Plane className="w-3.5 h-3.5 text-[#FF0000] rotate-45 -ml-0.5 -mt-2 transition-transform duration-700 group-hover:-translate-y-1 group-hover:translate-x-1" />
@@ -55,28 +55,28 @@ export default function Navbar() {
         </a>
 
         {/* Navigation Middle (Desktop) */}
-        <nav className="hidden md:flex items-center space-x-7">
+        <nav className="hidden lg:flex items-center space-x-7 xl:space-x-10 2xl:space-x-14">
           <a
             href="#"
-            className="text-xs font-bold text-[#001F3F] hover:text-[#FF0000] tracking-wider transition-colors uppercase"
+            className="text-xs xl:text-sm font-bold text-[#001F3F] hover:text-[#FF0000] tracking-wider transition-colors uppercase"
           >
             Home
           </a>
           <a
             href="#about-us"
-            className="text-xs font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
+            className="text-xs xl:text-sm font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
           >
             About us
           </a>
           <a
             href="#showcase-destinations"
-            className="text-xs font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
+            className="text-xs xl:text-sm font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
           >
             Study Destinations
           </a>
           <a
             href="#consultation-hub"
-            className="text-xs font-mono font-bold text-[#FF0000] hover:text-[#001F3F] tracking-wider transition-colors flex items-center gap-1.5 bg-[#FF0000]/5 hover:bg-[#FF0000]/10 px-3.5 py-1.5 rounded-full border border-[#FF0000]/15"
+            className="text-xs xl:text-sm font-mono font-bold text-[#FF0000] hover:text-[#001F3F] tracking-wider transition-colors flex items-center gap-1.5 bg-[#FF0000]/5 hover:bg-[#FF0000]/10 px-3.5 py-1.5 rounded-full border border-[#FF0000]/15"
           >
             <Sparkles className="w-3 h-3 text-[#FF0000] animate-pulse" />
             <span>CONTACT US</span>
@@ -84,13 +84,13 @@ export default function Navbar() {
         </nav>
 
         {/* Right Action (Desktop) */}
-        <div className="hidden md:flex items-center space-x-3">
+        <div className="hidden lg:flex items-center space-x-3 xl:space-x-5">
           <Link
             to="/student/login"
             style={{
               transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
-            className="px-4 py-2.5 border border-[#001F3F]/20 hover:border-[#FF0000]/30 hover:bg-[#FF0000]/5 text-[#001F3F] hover:text-[#FF0000] rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-97 cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2.5 border border-[#001F3F]/20 hover:border-[#FF0000]/30 hover:bg-[#FF0000]/5 text-[#001F3F] hover:text-[#FF0000] rounded-xl text-xs xl:text-sm font-extrabold uppercase tracking-wider active:scale-97 cursor-pointer flex items-center gap-1.5"
           >
             <GraduationCap className="w-4 h-4" />
             <span>Student Portal</span>
@@ -100,7 +100,7 @@ export default function Navbar() {
             style={{
               transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
-            className="px-5 py-2.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg active:scale-97 cursor-pointer hover:shadow-red-500/10"
+            className="px-5 py-2.5 xl:px-7 xl:py-3 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs xl:text-sm font-bold uppercase tracking-wider shadow-md hover:shadow-lg active:scale-97 cursor-pointer hover:shadow-red-500/10"
           >
             BOOK SEMINAR
           </a>
@@ -127,7 +127,7 @@ export default function Navbar() {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="md:hidden border-b border-slate-100 bg-white/95 backdrop-blur-xl overflow-hidden"
           >
-            <div className="px-4 py-6 space-y-4 flex flex-col">
+            <div className="px-4 py-6 xl:py-8 space-y-4 flex flex-col">
               <a
                 href="#"
                 onClick={() => setIsOpen(false)}
@@ -152,7 +152,7 @@ export default function Navbar() {
               <a
                 href="#consultation-hub"
                 onClick={() => setIsOpen(false)}
-                className="text-xs font-mono font-bold text-[#FF0000] hover:text-[#001F3F] py-2 px-3 bg-[#FF0000]/5 rounded-xl border border-[#FF0000]/15 flex items-center justify-between"
+                className="text-xs xl:text-sm font-mono font-bold text-[#FF0000] hover:text-[#001F3F] py-2 px-3 bg-[#FF0000]/5 rounded-xl border border-[#FF0000]/15 flex items-center justify-between items-center gap-8 xl:gap-12"
               >
                 <span>Contact us</span>
                 <Sparkles className="w-4 h-4 text-[#FF0000] animate-pulse" />

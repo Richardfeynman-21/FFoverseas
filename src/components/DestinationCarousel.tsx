@@ -138,10 +138,10 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
               {/* Dynamic Header */}
               <div>
                 <div className="flex items-start justify-between flex-wrap gap-4">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 xl:space-x-5">
                     <Flag country={selectedDest.flag} className="w-14 h-9.5 md:w-16 md:h-11 shadow-md rounded-sm" />
                     <div>
-                      <span className="text-xs font-mono text-[#FF0000] uppercase tracking-wider font-semibold"></span>
+                      <span className="text-xs xl:text-sm font-mono text-[#FF0000] uppercase tracking-wider font-semibold"></span>
                       <h2 className="text-2xl md:text-3.5xl 2xl:text-4xl font-extrabold text-[#001F3F] tracking-tight">{selectedDest.name}</h2>
                     </div>
                   </div>
@@ -150,16 +150,16 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
                      <ShieldCheck className="w-4 h-4 text-[#FF0000]" />
                      <div className="text-left">
                        <p className="text-[9px] text-gray-400 font-mono leading-none">VISA INDEX</p>
-                       <p className="text-xs font-bold text-[#001F3F] font-mono">{selectedDest.visaSuccessRate}</p>
+                       <p className="text-xs xl:text-sm font-bold text-[#001F3F] font-mono">{selectedDest.visaSuccessRate}</p>
                      </div>
                    </div>
                  </div>
 
-                <p className="text-[#FF0000] font-medium text-sm md:text-base mt-4 italic font-sans">
+                <p className="text-[#FF0000] font-medium text-sm md:text-base xl:text-lg 2xl:text-xl mt-4 italic font-sans">
                   "{selectedDest.tagline}"
                 </p>
 
-                <p className="text-gray-500 text-sm md:text-base leading-relaxed mt-3 max-w-2xl">
+                <p className="text-gray-500 text-sm md:text-base xl:text-lg 2xl:text-xl leading-relaxed mt-3 max-w-2xl">
                   {selectedDest.description}
                 </p>
               </div>
@@ -172,7 +172,7 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
                     <Calendar className="w-4 h-4 text-[#FF0000]" />
                     <span>Intake Orbits</span>
                   </div>
-                  <p className="text-xs text-gray-400 font-mono leading-relaxed pl-6">{selectedDest.intakes}</p>
+                  <p className="text-xs xl:text-sm text-gray-400 font-mono leading-relaxed pl-6">{selectedDest.intakes}</p>
                 </div>
 
                 {/* Ivy League & Top Universities */}
@@ -185,7 +185,7 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
                     {selectedDest.universities.map((uni, idx) => (
                       <span
                         key={idx}
-                        className="px-2.5 py-1 bg-[#001F3F]/5 border border-[#001F3F]/10 rounded-lg text-xs text-[#001F3F] font-medium hover:bg-[#001F3F]/8 backdrop-blur-xs transition-colors cursor-default"
+                        className="px-2.5 py-1 bg-[#001F3F]/5 border border-[#001F3F]/10 rounded-lg text-xs xl:text-sm text-[#001F3F] font-medium hover:bg-[#001F3F]/8 backdrop-blur-xs transition-colors cursor-default"
                       >
                         {uni}
                       </span>
@@ -198,12 +198,12 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
               <div className="flex items-center justify-between mt-8 pt-4 border-t border-dashed border-[#001F3F]/5 flex-wrap gap-4">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[#FF0000]" />
-                  <span className="text-xs text-slate-400 font-mono">Comprehensive admissions counsel is fully unlocked.</span>
+                  <span className="text-xs xl:text-sm text-slate-400 font-mono">Comprehensive admissions counsel is fully unlocked.</span>
                 </div>
                 
                 <a
                   href="#consultation-hub"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-semibold tracking-wider transition-all duration-300 shadow-md hover:shadow-red-500/20 active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 xl:px-7 xl:py-3 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs xl:text-sm font-semibold tracking-wider transition-all duration-300 shadow-md hover:shadow-red-500/20 active:scale-95 cursor-pointer"
                 >
                   <span>PLAN {selectedDest.code} VOYAGE</span>
                   <ArrowRight className="w-3.5 h-3.5" />

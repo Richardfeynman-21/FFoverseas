@@ -86,11 +86,11 @@ export default function ConsultationForm() {
           </div>
 
           <div className="space-y-4 mt-8 bg-white/20 backdrop-blur-xs p-5 rounded-2xl border border-dashed border-[#001F3F]/20">
-            <h4 className="text-xs font-mono font-bold text-[#001F3F] uppercase tracking-wider flex items-center gap-2">
+            <h4 className="text-xs xl:text-sm font-mono font-bold text-[#001F3F] uppercase tracking-wider flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-[#FF0000]" />
               Commitment to Transparency
             </h4>
-            <ul className="text-xs text-gray-500 space-y-2.5">
+            <ul className="text-xs xl:text-sm text-gray-500 space-y-2.5">
               <li className="flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF0000] mt-1 shrink-0" />
                 <span>Zero hidden service handling charges.</span>
@@ -145,7 +145,7 @@ export default function ConsultationForm() {
                           placeholder="e.g. Priyan Roy"
                           pattern="^[A-Za-z][A-Za-z\s'-]{1,49}$"
                           title="Please enter a valid name"
-                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
+                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs xl:text-sm md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -166,7 +166,7 @@ export default function ConsultationForm() {
                           placeholder="e.g. roy.priyan@gmail.com"
                           pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
                           title="Please enter a valid email address."
-                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
+                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs xl:text-sm md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -187,7 +187,7 @@ export default function ConsultationForm() {
                           placeholder="e.g. +91 98765 43210"
                           pattern="^(?:\+91|0)?[6-9]\d{9}$"
                           title="please enter valid phone number"
-                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
+                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs xl:text-sm md:text-sm text-[#001F3F] placeholder-[#001F3F]/45 focus:bg-white/70 focus:border-[#FF0000] focus:ring-1 focus:ring-[#FF0000] outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -202,7 +202,7 @@ export default function ConsultationForm() {
                           id="student-destination"
                           value={formData.destination}
                           onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs md:text-sm text-[#001F3F] focus:bg-white/70 focus:border-[#FF0000] outline-none transition-all cursor-pointer"
+                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs xl:text-sm md:text-sm text-[#001F3F] focus:bg-white/70 focus:border-[#FF0000] outline-none transition-all cursor-pointer"
                         >
                           {DESTINATIONS.map(d => (
                             <option key={d.id} value={d.id}>
@@ -223,7 +223,7 @@ export default function ConsultationForm() {
                           id="student-degree"
                           value={formData.degree}
                           onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs md:text-sm text-[#001F3F] focus:bg-white/70 focus:border-[#FF0000] outline-none transition-all cursor-pointer"
+                          className="w-full pl-10 pr-4 py-2.5 bg-white/45 border border-white/60 backdrop-blur-xs rounded-xl text-xs xl:text-sm md:text-sm text-[#001F3F] focus:bg-white/70 focus:border-[#FF0000] outline-none transition-all cursor-pointer"
                         >
                           <option value="bachelor">Post-Secondary / Bachelor's</option>
                           <option value="master">Post-Graduate / Master's</option>
@@ -236,7 +236,7 @@ export default function ConsultationForm() {
                   </div>
 
                   {errorMsg && (
-                    <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-[#FF0000] text-xs rounded-xl font-mono">
+                    <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-[#FF0000] text-xs xl:text-sm rounded-xl font-mono">
                       ⚠️ {errorMsg}
                     </div>
                   )}
@@ -249,7 +249,7 @@ export default function ConsultationForm() {
                       type="submit"
                       disabled={loading}
                       style={{ transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg disabled:opacity-55 active:scale-97 cursor-pointer"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs xl:text-sm font-bold uppercase tracking-wider shadow-md hover:shadow-lg disabled:opacity-55 active:scale-97 cursor-pointer"
                     >
                       {loading ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -278,15 +278,15 @@ export default function ConsultationForm() {
 
                   <div className="max-w-md mx-auto space-y-2">
                     <h4 className="text-2xl font-black text-[#001F3F] tracking-tight">Your Enquiry is Logged!</h4>
-                    <p className="text-gray-500 text-xs md:text-sm leading-relaxed">
+                    <p className="text-gray-500 text-xs xl:text-sm md:text-sm leading-relaxed">
                       We have designated a senior Admissions Architect for you. A confirmation and next-step guide have been routed to:
                     </p>
-                    <p className="text-xs font-mono font-bold text-[#001F3F] bg-white/75 border border-white/80 p-2.5 rounded-xl inline-block backdrop-blur-xs">
+                    <p className="text-xs xl:text-sm font-mono font-bold text-[#001F3F] bg-white/75 border border-white/80 p-2.5 rounded-xl inline-block backdrop-blur-xs">
                       {formData.email}
                     </p>
                   </div>
 
-                  <div className="max-w-sm mx-auto bg-white/55 border border-white/70 p-4 rounded-xl text-left text-xs text-gray-400 font-mono space-y-1 backdrop-blur-xs">
+                  <div className="max-w-sm mx-auto bg-white/55 border border-white/70 p-4 rounded-xl text-left text-xs xl:text-sm text-gray-400 font-mono space-y-1 backdrop-blur-xs">
                     <p>・ AGENT ID: <span className="text-[#001F3F] font-semibold">FLYFLOURISH_ADM_ARCT_05</span></p>
                     <p>・ DISPATCH: <span className="text-[#001F3F] font-semibold">Express Queue Enabled</span></p>
                     <p>・ CONTACT WHATSAPP: <a href="https://wa.me/918374740505" target="_blank" rel="noopener noreferrer" className="text-[#FF0000] font-bold hover:underline transition-all">+91 8374740505</a></p>
@@ -297,7 +297,7 @@ export default function ConsultationForm() {
                       setBookingConfirmed(false);
                       setFormData({ name: '', email: '', phone: '', destination: 'usa', degree: 'master' });
                     }}
-                    className="px-5 py-2.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-semibold tracking-wider transition-colors cursor-pointer"
+                    className="px-5 py-2.5 xl:px-7 xl:py-3 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs xl:text-sm font-semibold tracking-wider transition-colors cursor-pointer"
                   >
                     Submit Another Enquiry
                   </button>

@@ -237,7 +237,7 @@ export default function StudentDashboard() {
           {/* Student Profile */}
           <div className="px-6 py-5 border-b border-white/8">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold"
+              <div className="w-11 h-11 xl:w-14 xl:h-14 rounded-full flex items-center justify-center text-sm font-bold"
                 style={{ background: 'linear-gradient(135deg, #FF0000, #ff4444)', color: '#fff' }}>
                 {getInitials(student.name)}
               </div>
@@ -374,7 +374,7 @@ export default function StudentDashboard() {
                 <div className="bg-white rounded-2xl p-6 border border-slate-100">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="font-bold text-[#001F3F] text-base">Application Progress</h3>
+                      <h3 className="font-bold text-[#001F3F] text-base xl:text-lg 2xl:text-xl">Application Progress</h3>
                       <p className="text-[11px] text-slate-400 font-mono">ADMIN-CONFIGURED PIPELINE</p>
                     </div>
                     <div className="text-right">
@@ -424,7 +424,7 @@ export default function StudentDashboard() {
                             )}
                           </div>
                           {stage.date && <p className="text-[11px] text-slate-400 font-mono mt-0.5">{stage.date}</p>}
-                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{stage.description}</p>
+                          <p className="text-xs xl:text-sm text-slate-400 mt-1 leading-relaxed">{stage.description}</p>
                         </div>
                       </div>
                     ))}
@@ -444,7 +444,7 @@ export default function StudentDashboard() {
                     <button
                       key={country}
                       onClick={() => setCountryFilter(country)}
-                      className={`px-4 py-2 rounded-full text-xs font-bold tracking-wider transition-all cursor-pointer ${
+                      className={`px-4 py-2 rounded-full text-xs xl:text-sm font-bold tracking-wider transition-all cursor-pointer ${
                         countryFilter === country
                           ? 'bg-[#001F3F] text-white shadow-md'
                           : 'bg-white text-slate-500 border border-slate-200 hover:border-[#001F3F] hover:text-[#001F3F]'
@@ -481,15 +481,15 @@ export default function StudentDashboard() {
                       <div className="space-y-2.5 mb-4">
                         <div className="flex items-center gap-2">
                           <DollarSign size={13} className="text-slate-400 shrink-0" />
-                          <span className="text-xs text-slate-600">{uni.tuition}</span>
+                          <span className="text-xs xl:text-sm text-slate-600">{uni.tuition}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Award size={13} className="text-emerald-500 shrink-0" />
-                          <span className="text-xs text-emerald-600 font-medium">{uni.scholarship}</span>
+                          <span className="text-xs xl:text-sm text-emerald-600 font-medium">{uni.scholarship}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Users size={13} className="text-slate-400 shrink-0" />
-                          <span className="text-xs text-slate-500">Acceptance: {uni.acceptanceRate}</span>
+                          <span className="text-xs xl:text-sm text-slate-500">Acceptance: {uni.acceptanceRate}</span>
                         </div>
                       </div>
 
@@ -501,7 +501,7 @@ export default function StudentDashboard() {
                       </div>
 
                       {/* CTA */}
-                      <button className="w-full py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all cursor-pointer bg-[#001F3F]/5 text-[#001F3F] hover:bg-[#001F3F] hover:text-white flex items-center justify-center gap-2">
+                      <button className="w-full py-2.5 rounded-xl text-xs xl:text-sm font-bold tracking-wider transition-all cursor-pointer bg-[#001F3F]/5 text-[#001F3F] hover:bg-[#001F3F] hover:text-white flex items-center justify-center gap-2">
                         Learn More <ExternalLink size={12} />
                       </button>
                     </motion.div>
@@ -560,7 +560,7 @@ export default function StudentDashboard() {
                               initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                               className="overflow-hidden"
                             >
-                              <p className="text-xs text-slate-500 mt-3 ml-11 leading-relaxed">{stage.description}</p>
+                              <p className="text-xs xl:text-sm text-slate-500 mt-3 ml-11 leading-relaxed">{stage.description}</p>
                             </motion.div>
                           )}
                         </AnimatePresence>

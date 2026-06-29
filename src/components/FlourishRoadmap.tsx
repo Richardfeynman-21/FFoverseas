@@ -76,7 +76,7 @@ export default function FlourishRoadmap() {
     <div className="w-full relative py-8 px-4 md:px-0" id="flourish-roadmap">
       {/* Container header */}
       <div className="text-center max-w-xl mx-auto mb-10 ml-auto">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#001F3F]/5 border border-[#001F3F]/15 rounded-full text-xs text-[#001F3F] font-mono mb-3 backdrop-blur-sm">
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#001F3F]/5 border border-[#001F3F]/15 rounded-full text-xs xl:text-sm text-[#001F3F] font-mono mb-3 backdrop-blur-sm">
           <Milestone className="w-3.5 h-3.5 text-[#FF0000]" />
           <span>FLOURISH STRATEGIC ROADMAP</span>
         </div>
@@ -170,7 +170,7 @@ export default function FlourishRoadmap() {
                     {/* Text Content */}
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono text-gray-400">STAGE 0{step.id} ・ {step.duration}</span>
+                        <span className="text-xs xl:text-sm font-mono text-gray-400">STAGE 0{step.id} ・ {step.duration}</span>
                         {isActive && (
                           <span className="px-2 py-0.5 bg-[#FF0000]/10 border border-[#FF0000]/20 rounded-md text-[9px] text-[#FF0000] font-mono tracking-wider">
                             ACTIVE PROCESS
@@ -184,7 +184,7 @@ export default function FlourishRoadmap() {
                         {step.title}
                       </h3>
 
-                      <p className="text-xs md:text-sm text-gray-500 mt-1 line-clamp-2">
+                      <p className="text-xs xl:text-sm md:text-sm text-gray-500 mt-1 line-clamp-2">
                         {step.subtitle}
                       </p>
                     </div>
@@ -216,9 +216,9 @@ export default function FlourishRoadmap() {
               <div>
                 <span className="text-[10px] font-mono font-medium tracking-widest text-[#FF0000]">STAGE METRICS & CHECKS</span>
                 <h4 className="text-xl md:text-2xl font-black text-[#001F3F] mt-1">{activeStep.title}</h4>
-                <p className="text-xs text-gray-400 font-mono italic mt-0.5">{activeStep.duration} execution window</p>
+                <p className="text-xs xl:text-sm text-gray-400 font-mono italic mt-0.5">{activeStep.duration} execution window</p>
 
-                <p className="text-gray-500 text-xs md:text-sm leading-relaxed mt-4 bg-white/40 p-3.5 rounded-2xl border border-white/50 backdrop-blur-xs">
+                <p className="text-gray-500 text-xs xl:text-sm md:text-sm leading-relaxed mt-4 bg-white/40 p-3.5 rounded-2xl border border-white/50 backdrop-blur-xs">
                   {activeStep.description}
                 </p>
 
@@ -229,11 +229,11 @@ export default function FlourishRoadmap() {
                   </span>
                   
                   {activeStep.deliverables.map((item, idx) => (
-                    <div key={idx} className="flex items-center space-x-3 bg-white/65 p-2.5 rounded-xl border border-white/70 backdrop-blur-xs">
+                    <div key={idx} className="flex items-center space-x-3 xl:space-x-5 bg-white/65 p-2.5 rounded-xl border border-white/70 backdrop-blur-xs">
                       <div className="w-5 h-5 rounded-md bg-[#FF0000]/10 flex items-center justify-center text-[#FF0000] shrink-0">
                         <CheckSquare className="w-3.5 h-3.5" />
                       </div>
-                      <span className="text-xs font-semibold text-[#001F3F]">
+                      <span className="text-xs xl:text-sm font-semibold text-[#001F3F]">
                         {item}
                       </span>
                     </div>
@@ -250,7 +250,7 @@ export default function FlourishRoadmap() {
 
                 <a 
                   href="#consultation-hub"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF0000] hover:text-[#001F3F] transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs xl:text-sm font-bold text-[#FF0000] hover:text-[#001F3F] transition-colors"
                 >
                   <span>Book This Stage</span>
                   <ArrowRight className="w-3.5 h-3.5" />

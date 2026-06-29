@@ -117,7 +117,7 @@ export default function PublicChatWidget() {
 
               <div className="relative shrink-0">
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center bg-white p-1"
+                  className="w-11 h-11 xl:w-14 xl:h-14 rounded-xl flex items-center justify-center bg-white p-1"
                   style={{
                     border:     '1px solid rgba(255,255,255,0.20)',
                   }}
