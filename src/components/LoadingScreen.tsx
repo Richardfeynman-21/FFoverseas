@@ -81,7 +81,7 @@ export default function LoadingScreen({ onComplete, assetsReady = false }: Loadi
         ease: [0.76, 0, 0.175, 1], // Extra smooth, gradual deceleration curve
         onComplete: () => {
           setSuccess(true);
-          setPhase('success');
+          setPhase('reveal-text');
         }
       });
     }, 200);
@@ -296,11 +296,7 @@ export default function LoadingScreen({ onComplete, assetsReady = false }: Loadi
                 mass: 0.7,
                 delay: 0.15,
               }}
-              onAnimationComplete={() => {
-                if (success) {
-                  setPhase('reveal-text');
-                }
-              }}
+              
               style={{ pointerEvents: 'none' }}
             />
 

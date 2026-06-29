@@ -177,9 +177,9 @@ export default function App() {
           delay: 0.1
         }}
       >
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-10">
+        <div className="max-w-[1920px] mx-auto px-6 md:px-10 xl:px-16 2xl:px-24 relative z-10">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20 2xl:gap-28 items-center">
             
             {/* Hero Editorial Headlines Panel (7 Columns) */}
             <div className="lg:col-span-7 space-y-8 text-left">
@@ -187,7 +187,7 @@ export default function App() {
 
 
                 {/* Massive space-grotesk paired heading */}
-                <h1 className="text-3.5xl sm:text-4.5xl md:text-6xl 2xl:text-7xl font-black text-[#001F3F] tracking-tighter leading-tight md:leading-none">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl 2xl:text-8xl font-black text-[#001F3F] tracking-tighter leading-tight md:leading-none">
                   Study at Your <br />
                   <span className="text-[#FF0000] relative inline-block">
                     Dream Destination
@@ -244,7 +244,7 @@ export default function App() {
             </div>
 
             {/* Hero Interactive 3D Sculpture Wrap (5 Columns) */}
-            <div className="lg:col-span-5 flex items-center justify-center relative min-h-[380px] 2xl:min-h-[460px]">
+            <div className="lg:col-span-5 flex items-center justify-center relative min-h-[420px] xl:min-h-[520px] 2xl:min-h-[700px]">
               {/* Outer decorative light leaks representing futuristic WebGL aura */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#FF0000]/4 blur-3xl" />
               <div className="absolute top-[40%] left-[60%] -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-blue-500/3 blur-3xl" />
@@ -274,8 +274,8 @@ export default function App() {
         <div className="absolute top-1/4 left-1/10 w-72 h-72 rounded-full bg-[#001F3F]/5 blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/10 w-80 h-80 rounded-full bg-[#FF0000]/3 blur-3xl pointer-events-none" />
 
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="max-w-[1920px] mx-auto px-6 md:px-10 xl:px-16 2xl:px-24 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20 2xl:gap-28 items-center">
             
             {/* Left side: Authentic Company Logo Display Container */}
             <div className="lg:col-span-5 aspect-square flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-8 rounded-full border border-white/60 shadow-xl relative overflow-hidden group max-w-[400px] 2xl:max-w-[460px] mx-auto w-full">
@@ -348,7 +348,7 @@ export default function App() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.12 }}
       >
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
+        <div className="max-w-[1920px] mx-auto px-6 md:px-10 xl:px-16 2xl:px-24">
           <Suspense fallback={null}><FlourishRoadmap /></Suspense>
         </div>
       </motion.section>
@@ -361,7 +361,7 @@ export default function App() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
       >
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
+        <div className="max-w-[1920px] mx-auto px-6 md:px-10 xl:px-16 2xl:px-24">
           <Suspense fallback={null}><DestinationCarousel selectedDestId={selectedDestId} onSelectDest={setSelectedDestId} /></Suspense>
         </div>
       </motion.section>
@@ -376,7 +376,7 @@ export default function App() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
       >
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
+        <div className="max-w-[1920px] mx-auto px-6 md:px-10 xl:px-16 2xl:px-24">
           <Suspense fallback={null}><FloatingBubbles /></Suspense>
         </div>
       </motion.section>
@@ -390,7 +390,7 @@ export default function App() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.1 }}
       >
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
+        <div className="max-w-[1920px] mx-auto px-6 md:px-10 xl:px-16 2xl:px-24">
           <Suspense fallback={null}><ConsultationForm /></Suspense>
         </div>
       </motion.section>
@@ -401,7 +401,7 @@ export default function App() {
         <div className="absolute right-0 bottom-0 w-96 h-96 rounded-full bg-[#FF0000]/10 blur-[130px] pointer-events-none" />
         <div className="absolute left-10 top-0 w-80 h-80 rounded-full bg-blue-500/5 blur-[120px] pointer-events-none" />
 
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-10">
+        <div className="max-w-[1920px] mx-auto px-6 md:px-10 xl:px-16 2xl:px-24 relative z-10">
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 2xl:gap-16 pb-16 border-b border-white/10">
             

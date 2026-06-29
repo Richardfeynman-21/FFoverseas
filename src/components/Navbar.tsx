@@ -35,7 +35,7 @@ export default function Navbar() {
           : 'py-6 bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
+      <div className="max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto px-4 md:px-8 flex items-center justify-between">
         
         {/* Brand logo featuring OriginalLogo icon and elegant title details */}
         <a href="#" className="flex items-center space-x-2 group cursor-pointer" id="brand-logo">
