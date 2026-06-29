@@ -92,7 +92,7 @@ export default function PublicChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9998] flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9998] flex flex-col items-end gap-3">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -100,7 +100,7 @@ export default function PublicChatWidget() {
             animate={{ opacity: 1, y: 0,  scale: 1    }}
             exit   ={{ opacity: 0, y: 18, scale: 0.92 }}
             transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-            className="w-[360px] rounded-[20px] overflow-hidden flex flex-col h-[480px]"
+            className="w-[calc(100vw-32px)] sm:w-[360px] rounded-[20px] overflow-hidden flex flex-col h-[480px]"
             style={{
               background:  '#ffffff',
               boxShadow:   '0 20px 60px rgba(0,31,63,0.18), 0 4px 16px rgba(0,0,0,0.06)',
@@ -117,7 +117,7 @@ export default function PublicChatWidget() {
 
               <div className="relative shrink-0">
                 <div
-                  className="w-11 h-11 xl:w-14 xl:h-14 rounded-xl flex items-center justify-center bg-white p-1"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center bg-white p-1"
                   style={{
                     border:     '1px solid rgba(255,255,255,0.20)',
                   }}

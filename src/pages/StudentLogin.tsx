@@ -234,7 +234,7 @@ export default function StudentLogin() {
         {/* Top — Brand Identity */}
         <div className="relative z-10 space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 xl:w-14 xl:h-14 rounded-full bg-white flex items-center justify-center p-1.5 shadow-sm">
+            <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center p-1.5 shadow-sm">
               <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
             </div>
             <div>
@@ -319,7 +319,7 @@ export default function StudentLogin() {
 
           {/* Testimonial card */}
           <div className="bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] rounded-2xl p-5">
-            <p className="text-slate-300 text-xs xl:text-sm leading-relaxed italic">
+            <p className="text-slate-300 text-xs leading-relaxed italic">
               "Fly & Flourish turned my dream of studying at University of Toronto into reality. The visa process was seamless and my counsellor was available 24/7."
             </p>
             <div className="mt-3 flex items-center gap-2.5">
@@ -373,7 +373,7 @@ export default function StudentLogin() {
                 <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
               </div>
               <div>
-                <h2 className="text-[#001F3F] font-extrabold text-base xl:text-lg 2xl:text-xl tracking-tight leading-none">
+                <h2 className="text-[#001F3F] font-extrabold text-base tracking-tight leading-none">
                   Fly & Flourish
                 </h2>
                 <p className="text-[8px] font-mono font-medium text-[#FF0000] tracking-[0.2em] uppercase leading-none mt-0.5">
@@ -404,9 +404,9 @@ export default function StudentLogin() {
                 transition={{ type: 'spring', stiffness: 60, damping: 14 }}
               >
                 <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-[#FF0000] text-xs xl:text-sm font-bold">!</span>
+                  <span className="text-[#FF0000] text-xs font-bold">!</span>
                 </div>
-                <p className="text-xs xl:text-sm text-red-600 font-medium leading-relaxed">{error}</p>
+                <p className="text-xs text-red-600 font-medium leading-relaxed">{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -430,7 +430,7 @@ export default function StudentLogin() {
                     setError('');
                   }}
                   placeholder="student@email.com"
-                  className="w-full pl-11 pr-4 py-4 xl:py-5 bg-white/60 backdrop-blur-sm border border-slate-200/80 rounded-xl text-sm text-[#001F3F] placeholder:text-gray-300 font-medium outline-none transition-all duration-300 focus:border-[#001F3F]/40 focus:bg-white focus:shadow-[0_0_0_3px_rgba(0,31,63,0.06)] hover:border-slate-300"
+                  className="w-full pl-11 pr-4 py-3.5 bg-white/60 backdrop-blur-sm border border-slate-200/80 rounded-xl text-sm text-[#001F3F] placeholder:text-gray-300 font-medium outline-none transition-all duration-300 focus:border-[#001F3F]/40 focus:bg-white focus:shadow-[0_0_0_3px_rgba(0,31,63,0.06)] hover:border-slate-300"
                   autoComplete="email"
                 />
               </div>
@@ -453,7 +453,7 @@ export default function StudentLogin() {
                     setError('');
                   }}
                   placeholder="Enter your password"
-                  className="w-full pl-11 pr-12 py-4 xl:py-5 bg-white/60 backdrop-blur-sm border border-slate-200/80 rounded-xl text-sm text-[#001F3F] placeholder:text-gray-300 font-medium outline-none transition-all duration-300 focus:border-[#001F3F]/40 focus:bg-white focus:shadow-[0_0_0_3px_rgba(0,31,63,0.06)] hover:border-slate-300"
+                  className="w-full pl-11 pr-12 py-3.5 bg-white/60 backdrop-blur-sm border border-slate-200/80 rounded-xl text-sm text-[#001F3F] placeholder:text-gray-300 font-medium outline-none transition-all duration-300 focus:border-[#001F3F]/40 focus:bg-white focus:shadow-[0_0_0_3px_rgba(0,31,63,0.06)] hover:border-slate-300"
                   autoComplete="current-password"
                 />
                 <button
@@ -491,14 +491,14 @@ export default function StudentLogin() {
                     )}
                   </div>
                 </div>
-                <span className="text-xs xl:text-sm text-gray-400 font-medium group-hover:text-gray-600 transition-colors">
+                <span className="text-xs text-gray-400 font-medium group-hover:text-gray-600 transition-colors">
                   Remember me
                 </span>
               </label>
 
               <button
                 type="button"
-                className="text-xs xl:text-sm text-[#FF0000]/70 hover:text-[#FF0000] font-semibold transition-colors duration-200"
+                className="text-xs text-[#FF0000]/70 hover:text-[#FF0000] font-semibold transition-colors duration-200"
               >
                 Forgot Password?
               </button>
@@ -509,7 +509,7 @@ export default function StudentLogin() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="relative w-full py-4 xl:py-5 bg-gradient-to-r from-[#001F3F] to-[#FF0000] text-white rounded-xl text-xs xl:text-sm font-extrabold uppercase tracking-[0.15em] shadow-lg hover:shadow-[#FF0000]/20 hover:shadow-xl active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden group"
+                className="relative w-full py-3.5 bg-gradient-to-r from-[#001F3F] to-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-[0.15em] shadow-lg hover:shadow-[#FF0000]/20 hover:shadow-xl active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden group"
               >
                 {/* Shimmer overlay */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
@@ -551,7 +551,7 @@ export default function StudentLogin() {
 
           {/* Contact admin */}
           <motion.div className="text-center space-y-4" variants={staggerItem}>
-            <p className="text-xs xl:text-sm text-gray-400">
+            <p className="text-xs text-gray-400">
               Don't have an account?{' '}
               <a
                 href="mailto:admin@ffoverseas.in"

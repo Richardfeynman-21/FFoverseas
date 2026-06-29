@@ -289,7 +289,7 @@ export default function FloatingBubbles() {
                   <div className="absolute inset-2 rounded-full border border-dashed border-[#001F3F]/8 opacity-40 pointer-events-none" />
 
                   <Flag country={t.destination} className="w-8 h-5.5 rounded-[2px]" />
-                  <h4 className="font-bold text-[#001F3F] text-xs xl:text-sm mt-1.5 px-3 truncate w-full text-center">{t.name}</h4>
+                  <h4 className="font-bold text-[#001F3F] text-xs mt-1.5 px-3 truncate w-full text-center">{t.name}</h4>
                   <p className="text-[10px] text-gray-400 font-mono font-medium px-3 truncate w-full text-center">{t.university}</p>
 
                   {isActive && ( 
@@ -330,7 +330,7 @@ export default function FloatingBubbles() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <p className="text-gray-600 text-sm md:text-base xl:text-lg 2xl:text-xl leading-relaxed italic">
+                  <p className="text-gray-600 text-sm md:text-base leading-relaxed italic">
                     "{TESTIMONIALS[activeIndex].quote}"
                   </p>
                   <div className="mt-6 pt-6 border-t border-dashed border-white/40">
@@ -338,11 +338,11 @@ export default function FloatingBubbles() {
                       {TESTIMONIALS[activeIndex].name}
                     </h4>
                     <div className="flex items-center space-x-2 mt-1 flex-wrap gap-y-1">
-                      <span className="text-xs xl:text-sm font-semibold text-[#FF0000] font-mono uppercase tracking-wider">
+                      <span className="text-xs font-semibold text-[#FF0000] font-mono uppercase tracking-wider">
                         {TESTIMONIALS[activeIndex].course}
                       </span>
                       <span className="text-gray-300 text-[10px]">|</span>
-                      <span className="text-xs xl:text-sm text-gray-500 font-medium">
+                      <span className="text-xs text-gray-500 font-medium">
                         {TESTIMONIALS[activeIndex].university}
                       </span>
                     </div>
@@ -352,7 +352,7 @@ export default function FloatingBubbles() {
             </div>
 
             <div className="flex items-center justify-between mt-8 pt-4 border-t border-[#001F3F]/10">
-              <span className="text-xs xl:text-sm font-mono text-gray-400">
+              <span className="text-xs font-mono text-gray-400">
                 CHRONICLE {String(activeIndex + 1).padStart(2, '0')} / {String(TESTIMONIALS.length).padStart(2, '0')}
               </span>
               <div className="flex space-x-2">

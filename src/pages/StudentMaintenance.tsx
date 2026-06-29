@@ -124,7 +124,7 @@ export default function StudentMaintenance() {
 
         {/* Maintenance Indicator Badge */}
         <motion.div 
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF0000]/10 border border-[#FF0000]/25 text-[#FF0000] text-xs xl:text-sm font-mono font-bold uppercase tracking-wider mb-6"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF0000]/10 border border-[#FF0000]/25 text-[#FF0000] text-xs font-mono font-bold uppercase tracking-wider mb-6"
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
@@ -136,7 +136,7 @@ export default function StudentMaintenance() {
           Student Portal <span className="text-[#FF0000]">Upgrading</span>
         </h1>
 
-        <p className="text-sm md:text-base xl:text-lg 2xl:text-xl text-gray-600 leading-relaxed max-w-md mx-auto mb-8">
+        <p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-md mx-auto mb-8">
           We are currently deployment-configuring the student portal services. Our backend integrations are getting set up to bring you the best-in-class visa and university application dashboard.
         </p>
 
@@ -151,19 +151,19 @@ export default function StudentMaintenance() {
             initial="hidden"
             animate="visible"
           >
-            <motion.li className="flex items-center gap-2 text-xs xl:text-sm font-semibold text-[#001F3F]" variants={itemVariants}>
+            <motion.li className="flex items-center gap-2 text-xs font-semibold text-[#001F3F]" variants={itemVariants}>
               <Sparkles className="w-4 h-4 text-[#FF0000] shrink-0" />
               <span>Real-time Visa Tracker</span>
             </motion.li>
-            <motion.li className="flex items-center gap-2 text-xs xl:text-sm font-semibold text-[#001F3F]" variants={itemVariants}>
+            <motion.li className="flex items-center gap-2 text-xs font-semibold text-[#001F3F]" variants={itemVariants}>
               <Sparkles className="w-4 h-4 text-[#FF0000] shrink-0" />
               <span>Direct Counselor Chat</span>
             </motion.li>
-            <motion.li className="flex items-center gap-2 text-xs xl:text-sm font-semibold text-[#001F3F]" variants={itemVariants}>
+            <motion.li className="flex items-center gap-2 text-xs font-semibold text-[#001F3F]" variants={itemVariants}>
               <Sparkles className="w-4 h-4 text-[#FF0000] shrink-0" />
               <span>Secure Document Vault</span>
             </motion.li>
-            <motion.li className="flex items-center gap-2 text-xs xl:text-sm font-semibold text-[#001F3F]" variants={itemVariants}>
+            <motion.li className="flex items-center gap-2 text-xs font-semibold text-[#001F3F]" variants={itemVariants}>
               <Sparkles className="w-4 h-4 text-[#FF0000] shrink-0" />
               <span>Step-by-step Roadmap</span>
             </motion.li>
@@ -174,14 +174,14 @@ export default function StudentMaintenance() {
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
           <Link
             to="/"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#001F3F] hover:bg-[#FF0000] text-white font-bold rounded-xl text-xs xl:text-sm uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-lg active:scale-97 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#001F3F] hover:bg-[#FF0000] text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-lg active:scale-97 cursor-pointer"
           >
             <Home className="w-4 h-4" />
             <span>Go Back Home</span>
           </Link>
           <a
             href="mailto:support@flyandflourish.com"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-[#001F3F]/20 hover:border-[#FF0000]/30 hover:bg-[#FF0000]/5 text-[#001F3F] hover:text-[#FF0000] font-bold rounded-xl text-xs xl:text-sm uppercase tracking-wider transition-all duration-300 active:scale-97 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-[#001F3F]/20 hover:border-[#FF0000]/30 hover:bg-[#FF0000]/5 text-[#001F3F] hover:text-[#FF0000] font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 active:scale-97 cursor-pointer"
           >
             <span>Contact Support</span>
           </a>

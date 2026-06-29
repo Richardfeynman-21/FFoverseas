@@ -319,14 +319,14 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className={`fixed top-5 right-5 z-50 px-5 py-4 xl:py-5 rounded-xl border flex items-center gap-3 shadow-xl backdrop-blur-md ${
+            className={`fixed top-5 right-5 z-50 px-5 py-3.5 rounded-xl border flex items-center gap-3 shadow-xl backdrop-blur-md ${
               notification.isError 
                 ? 'bg-red-950/80 border-red-500/30 text-red-200' 
                 : 'bg-emerald-950/80 border-emerald-500/30 text-emerald-200'
             }`}
           >
             <CheckCircle2 size={16} className={notification.isError ? 'text-red-400' : 'text-emerald-400'} />
-            <span className="text-xs xl:text-sm font-semibold font-mono tracking-wide">{notification.text}</span>
+            <span className="text-xs font-semibold font-mono tracking-wide">{notification.text}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -335,7 +335,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
       <aside className="w-full lg:w-72 bg-[#0c121f] border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col justify-between shrink-0">
         <div>
           {/* Brand Branding Banner */}
-          <div className="px-6 py-6 xl:py-8 border-b border-white/5 flex items-center gap-3">
+          <div className="px-6 py-6 border-b border-white/5 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1.5 shadow-md">
               <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
             </div>
@@ -348,11 +348,11 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
           {/* Admin profile detail summary */}
           {adminProfile && (
             <div className="px-6 py-4 border-b border-white/5 bg-slate-900/30 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-red-950/60 border border-red-500/20 flex items-center justify-center text-xs xl:text-sm font-black text-[#FF6B6B] font-mono select-none">
+              <div className="w-8 h-8 rounded-lg bg-red-950/60 border border-red-500/20 flex items-center justify-center text-xs font-black text-[#FF6B6B] font-mono select-none">
                 SA
               </div>
               <div className="min-w-0">
-                <p className="text-white text-xs xl:text-sm font-bold truncate leading-none">{adminProfile.name}</p>
+                <p className="text-white text-xs font-bold truncate leading-none">{adminProfile.name}</p>
                 <p className="text-[9px] font-mono text-slate-500 truncate leading-none mt-1.5 uppercase tracking-wider">{adminProfile.role}</p>
               </div>
             </div>
@@ -376,7 +376,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                 <button
                   key={item.key}
                   onClick={() => { setActiveTab(item.key as any); setSearchTerm(''); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs xl:text-sm font-bold tracking-tight transition-all cursor-pointer ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-tight transition-all cursor-pointer ${
                     isActive 
                       ? 'bg-[#FF0000] text-white shadow-lg shadow-red-600/10' 
                       : 'text-slate-400 hover:bg-white/[0.03] hover:text-white'
@@ -394,7 +394,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
         <div className="p-4 border-t border-white/5">
           <button
             onClick={onLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-950/40 hover:bg-red-900/40 text-red-300 rounded-xl text-xs xl:text-sm font-bold transition-all border border-red-500/10 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-950/40 hover:bg-red-900/40 text-red-300 rounded-xl text-xs font-bold transition-all border border-red-500/10 cursor-pointer"
           >
             <LogOut size={14} />
             <span>TERMINATE SESSION</span>
@@ -411,7 +411,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">System Metrics</h2>
-                <p className="text-slate-400 text-xs xl:text-sm mt-1">Cross-platform overview of the consultancy pipelines.</p>
+                <p className="text-slate-400 text-xs mt-1">Cross-platform overview of the consultancy pipelines.</p>
               </div>
               <button 
                 onClick={checkDatabaseHealth} 
@@ -456,7 +456,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                       {dbHealth?.status?.toUpperCase() || 'UNKNOWN'}
                     </span>
                   </div>
-                  <p className="text-xs xl:text-sm text-slate-400 leading-relaxed max-w-xl">
+                  <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
                     This administrative page automatically cross-references and matches the data schemas defined in the backend models (<code className="text-[#FF6B6B] font-mono text-[10px]">app/models/</code>). 
                     To store changes permanently, ensure the FastAPI database engine is running locally.
                   </p>
@@ -472,11 +472,11 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Journey Milestones</h2>
-                <p className="text-slate-400 text-xs xl:text-sm mt-1">Rearrange, add, or configure pipeline stages visible in the Student Portal.</p>
+                <p className="text-slate-400 text-xs mt-1">Rearrange, add, or configure pipeline stages visible in the Student Portal.</p>
               </div>
               <button 
                 onClick={() => setShowAddStage(true)}
-                className="self-start flex items-center gap-1.5 px-4 py-2.5 bg-[#FF0000] hover:bg-red-700 text-white text-xs xl:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-97 cursor-pointer"
+                className="self-start flex items-center gap-1.5 px-4 py-2.5 bg-[#FF0000] hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-97 cursor-pointer"
               >
                 <Plus size={14} />
                 <span>Create Milestone</span>
@@ -495,7 +495,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                     className="bg-[#0e1626] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl"
                   >
                     <div className="px-6 py-4 bg-slate-900 border-b border-white/5 flex items-center justify-between">
-                      <h3 className="font-bold text-xs xl:text-sm uppercase tracking-wider text-white">Create Journey Stage</h3>
+                      <h3 className="font-bold text-xs uppercase tracking-wider text-white">Create Journey Stage</h3>
                       <button onClick={() => setShowAddStage(false)} className="text-slate-400 hover:text-white">
                         <X size={16} />
                       </button>
@@ -518,8 +518,8 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                         />
                       </div>
                       <div className="pt-4 flex items-center justify-end gap-2 border-t border-white/5">
-                        <button type="button" onClick={() => setShowAddStage(false)} className="px-4 py-2 bg-slate-800 text-slate-300 text-xs xl:text-sm font-bold uppercase rounded-lg hover:bg-slate-700">Cancel</button>
-                        <button type="submit" className="px-4 py-2 bg-[#FF0000] text-white text-xs xl:text-sm font-bold uppercase rounded-lg hover:bg-red-600">Create</button>
+                        <button type="button" onClick={() => setShowAddStage(false)} className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-bold uppercase rounded-lg hover:bg-slate-700">Cancel</button>
+                        <button type="submit" className="px-4 py-2 bg-[#FF0000] text-white text-xs font-bold uppercase rounded-lg hover:bg-red-600">Create</button>
                       </div>
                     </form>
                   </motion.div>
@@ -543,7 +543,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <input 
                             type="text" value={editStageName} onChange={(e) => setEditStageName(e.target.value)}
-                            className="w-full px-3 py-1.5 bg-slate-950 border border-white/10 rounded-lg text-xs xl:text-sm text-white"
+                            className="w-full px-3 py-1.5 bg-slate-950 border border-white/10 rounded-lg text-xs text-white"
                           />
                           <div className="flex gap-2 justify-end self-center">
                             <button onClick={() => handleSaveStageEdit(stage.id)} className="p-1.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-900"><Check size={14} /></button>
@@ -552,7 +552,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                         </div>
                         <textarea 
                           value={editStageDesc} onChange={(e) => setEditStageDesc(e.target.value)}
-                          className="w-full px-3 py-1.5 bg-slate-950 border border-white/10 rounded-lg text-xs xl:text-sm text-white resize-none" rows={2}
+                          className="w-full px-3 py-1.5 bg-slate-950 border border-white/10 rounded-lg text-xs text-white resize-none" rows={2}
                         />
                       </div>
                     ) : (
@@ -590,7 +590,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Applications Hub</h2>
-                <p className="text-slate-400 text-xs xl:text-sm mt-1">Cross-reference and update university applications for student profiles.</p>
+                <p className="text-slate-400 text-xs mt-1">Cross-reference and update university applications for student profiles.</p>
               </div>
             </motion.div>
 
@@ -600,14 +600,14 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input 
                   type="text" placeholder="Search by student name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs xl:text-sm text-white focus:outline-none focus:border-[#FF0000]/40 placeholder:text-slate-600"
+                  className="w-full pl-9 pr-4 py-2 bg-slate-950 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#FF0000]/40 placeholder:text-slate-600"
                 />
               </div>
             </motion.div>
 
             {/* Applications list */}
             <motion.div className="overflow-x-auto bg-[#0c121f] border border-white/5 rounded-2xl shadow-sm" variants={staggerItem}>
-              <table className="w-full border-collapse text-left text-xs xl:text-sm">
+              <table className="w-full border-collapse text-left text-xs">
                 <thead>
                   <tr className="border-b border-white/5 text-slate-400 font-mono">
                     <th className="p-4 uppercase tracking-wider">Student Name</th>
@@ -659,7 +659,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Document Audits</h2>
-                <p className="text-slate-400 text-xs xl:text-sm mt-1">Review and approve transcripts, passports, and SOP files uploaded by students.</p>
+                <p className="text-slate-400 text-xs mt-1">Review and approve transcripts, passports, and SOP files uploaded by students.</p>
               </div>
             </motion.div>
 
@@ -679,7 +679,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                       </span>
                     </div>
                     <h4 className="font-bold text-sm text-white mt-2">{doc.studentName}</h4>
-                    <p className="text-xs xl:text-sm text-slate-400 font-mono mt-1 select-all">{doc.fileName}</p>
+                    <p className="text-xs text-slate-400 font-mono mt-1 select-all">{doc.fileName}</p>
                     <p className="text-[10px] text-slate-500 mt-2 font-mono">UPLOADED: {doc.uploadedAt}</p>
                   </div>
 
@@ -715,7 +715,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Universities Manager</h2>
-                <p className="text-slate-400 text-xs xl:text-sm mt-1">Manage institutional database mappings for dynamic routing.</p>
+                <p className="text-slate-400 text-xs mt-1">Manage institutional database mappings for dynamic routing.</p>
               </div>
             </motion.div>
 
@@ -729,7 +729,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                       <h4 className="font-extrabold text-sm text-white">{uni.name}</h4>
                       <span className="text-[10px] font-mono font-bold text-slate-400 shrink-0">{uni.qsRanking}</span>
                     </div>
-                    <p className="text-xs xl:text-sm text-slate-400 mt-1">{uni.country}</p>
+                    <p className="text-xs text-slate-400 mt-1">{uni.country}</p>
                     
                     <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] font-mono text-slate-400">
                       <div>TUITION: <span className="text-slate-200">{uni.tuitionRange}</span></div>
@@ -762,7 +762,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Consultation Leads</h2>
-                <p className="text-slate-400 text-xs xl:text-sm mt-1">Review enquiries submitted through the main consultation form.</p>
+                <p className="text-slate-400 text-xs mt-1">Review enquiries submitted through the main consultation form.</p>
               </div>
             </motion.div>
 
@@ -781,7 +781,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                         {lead.status.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-xs xl:text-sm text-slate-400 font-mono">{lead.email}</p>
+                    <p className="text-xs text-slate-400 font-mono">{lead.email}</p>
                     <p className="text-[11px] text-slate-500 mt-1.5">
                       DESTINATION: <span className="text-slate-300 font-bold">{lead.destination}</span> · DEGREE: <span className="text-slate-300 font-bold">{lead.degree}</span>
                     </p>
@@ -814,7 +814,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">Chatbot Logs</h2>
-                <p className="text-slate-400 text-xs xl:text-sm mt-1">Review public chat preview queries and AI generation payloads.</p>
+                <p className="text-slate-400 text-xs mt-1">Review public chat preview queries and AI generation payloads.</p>
               </div>
             </motion.div>
 
@@ -829,12 +829,12 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
                   
                   <div className="space-y-2">
                     <div className="flex gap-2">
-                      <span className="text-blue-400 text-xs xl:text-sm font-mono font-bold shrink-0">[USER]:</span>
-                      <p className="text-slate-300 text-xs xl:text-sm leading-relaxed">{log.message}</p>
+                      <span className="text-blue-400 text-xs font-mono font-bold shrink-0">[USER]:</span>
+                      <p className="text-slate-300 text-xs leading-relaxed">{log.message}</p>
                     </div>
                     <div className="flex gap-2">
-                      <span className="text-[#FF6B6B] text-xs xl:text-sm font-mono font-bold shrink-0">[BOT]:</span>
-                      <p className="text-slate-400 text-xs xl:text-sm leading-relaxed">{log.reply}</p>
+                      <span className="text-[#FF6B6B] text-xs font-mono font-bold shrink-0">[BOT]:</span>
+                      <p className="text-slate-400 text-xs leading-relaxed">{log.reply}</p>
                     </div>
                   </div>
                 </div>
@@ -849,7 +849,7 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
             <motion.div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4" variants={staggerItem}>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">System Health</h2>
-                <p className="text-slate-400 text-xs xl:text-sm mt-1">Real-time status of backend API services and database nodes.</p>
+                <p className="text-slate-400 text-xs mt-1">Real-time status of backend API services and database nodes.</p>
               </div>
             </motion.div>
 
@@ -858,15 +858,15 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-slate-950/60 p-4 border border-white/5 rounded-xl space-y-1">
                   <p className="text-[10px] font-mono text-slate-500 uppercase">FASTAPI SERVICE STATUS</p>
-                  <p className="text-base xl:text-lg 2xl:text-xl font-bold text-white uppercase tracking-tight">{dbHealth?.status || 'OFFLINE / STANDBY'}</p>
+                  <p className="text-base font-bold text-white uppercase tracking-tight">{dbHealth?.status || 'OFFLINE / STANDBY'}</p>
                 </div>
                 <div className="bg-slate-950/60 p-4 border border-white/5 rounded-xl space-y-1">
                   <p className="text-[10px] font-mono text-slate-500 uppercase">DATABASE CONNECTIVITY</p>
-                  <p className="text-base xl:text-lg 2xl:text-xl font-bold text-white uppercase tracking-tight">{dbHealth?.database || 'DISCONNECTED'}</p>
+                  <p className="text-base font-bold text-white uppercase tracking-tight">{dbHealth?.database || 'DISCONNECTED'}</p>
                 </div>
               </div>
 
-              <div className="space-y-3 pt-4 border-t border-white/5 text-xs xl:text-sm leading-relaxed text-slate-400">
+              <div className="space-y-3 pt-4 border-t border-white/5 text-xs leading-relaxed text-slate-400">
                 <h4 className="font-bold text-white text-sm">Deployment Information</h4>
                 <p>
                   The database uses PostgreSQL via SQLAlchemy and AsyncPG for high-speed, non-blocking queries. 
