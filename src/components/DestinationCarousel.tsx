@@ -142,7 +142,7 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
                     <Flag country={selectedDest.flag} className="w-14 h-9.5 md:w-16 md:h-11 shadow-md rounded-sm" />
                     <div>
                       <span className="text-xs font-mono text-[#FF0000] uppercase tracking-wider font-semibold"></span>
-                      <h2 className="text-2xl md:text-3.5xl 2xl:text-4xl font-extrabold text-[#001F3F] tracking-tight">{selectedDest.name}</h2>
+                      <h2 className="text-fluid-3xl font-extrabold text-[#001F3F] tracking-tight">{selectedDest.name}</h2>
                     </div>
                   </div>
  
@@ -155,11 +155,11 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
                    </div>
                  </div>
 
-                <p className="text-[#FF0000] font-medium text-sm md:text-base mt-4 italic font-sans">
+                <p className="text-[#FF0000] font-medium text-fluid-base mt-4 italic font-sans">
                   "{selectedDest.tagline}"
                 </p>
 
-                <p className="text-gray-500 text-sm md:text-base leading-relaxed mt-3 max-w-2xl">
+                <p className="text-gray-500 text-fluid-base leading-relaxed mt-3 max-w-2xl">
                   {selectedDest.description}
                 </p>
               </div>

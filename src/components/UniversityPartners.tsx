@@ -15,15 +15,14 @@ function UniversityCard({ uni }: { uni: University }) {
       group
       flex
       items-center
-      gap-5
+      gap-4 sm:gap-5
       bg-white/90
       backdrop-blur-md
       border
       border-slate-200
       rounded-2xl
-      px-6
-      py-5
-      w-[340px]
+      px-4 py-3.5 sm:px-6 sm:py-5
+      w-[280px] sm:w-[340px]
       shrink-0
       transition-all
       duration-500
@@ -34,8 +33,7 @@ function UniversityCard({ uni }: { uni: University }) {
     >
       <div
         className="
-        w-16
-        h-16
+        w-12 h-12 sm:w-16 sm:h-16
         rounded-xl
         bg-slate-50
         border
@@ -52,8 +50,7 @@ function UniversityCard({ uni }: { uni: University }) {
           src={uni.logo}
           alt={uni.name}
           className="
-          w-11
-          h-11
+          w-8 h-8 sm:w-11 sm:h-11
           object-contain
           grayscale
           opacity-80
@@ -71,6 +68,7 @@ function UniversityCard({ uni }: { uni: University }) {
           font-bold
           text-[#001F3F]
           leading-snug
+          text-sm sm:text-base
           "
         >
           {uni.name}
@@ -78,7 +76,7 @@ function UniversityCard({ uni }: { uni: University }) {
 
         <p
           className="
-          text-sm
+          text-xs sm:text-sm
           text-gray-500
           mt-1
           "
@@ -96,7 +94,7 @@ export default function UniversityPartners() {
       className="
       relative
       overflow-hidden
-      py-28
+      py-20 sm:py-28
       bg-[#FCFCFD]
       "
     >
@@ -139,8 +137,7 @@ export default function UniversityPartners() {
           <h2
             className="
             mt-6
-            text-4xl
-            md:text-6xl
+            text-fluid-5xl
             font-black
             tracking-tight
             text-[#001F3F]
@@ -158,7 +155,7 @@ export default function UniversityPartners() {
             max-w-3xl
             mx-auto
             text-gray-500
-            text-lg
+            text-fluid-base
             leading-relaxed
             "
           >

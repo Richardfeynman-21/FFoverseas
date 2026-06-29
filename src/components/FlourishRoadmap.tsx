@@ -215,10 +215,10 @@ export default function FlourishRoadmap() {
 
               <div>
                 <span className="text-[10px] font-mono font-medium tracking-widest text-[#FF0000]">STAGE METRICS & CHECKS</span>
-                <h4 className="text-xl md:text-2xl font-black text-[#001F3F] mt-1">{activeStep.title}</h4>
+                <h4 className="text-fluid-2xl font-black text-[#001F3F] mt-1">{activeStep.title}</h4>
                 <p className="text-xs text-gray-400 font-mono italic mt-0.5">{activeStep.duration} execution window</p>
 
-                <p className="text-gray-500 text-xs md:text-sm leading-relaxed mt-4 bg-white/40 p-3.5 rounded-2xl border border-white/50 backdrop-blur-xs">
+                <p className="text-gray-500 text-fluid-sm leading-relaxed mt-4 bg-white/40 p-3.5 rounded-2xl border border-white/50 backdrop-blur-xs">
                   {activeStep.description}
                 </p>
 

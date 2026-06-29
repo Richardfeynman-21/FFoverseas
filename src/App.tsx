@@ -188,7 +188,7 @@ export default function App() {
 
 
                 {/* Massive space-grotesk paired heading */}
-                <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl 2xl:text-8xl font-black text-[#001F3F] tracking-tighter leading-tight md:leading-none">
+                <h1 className="text-fluid-6xl font-black text-[#001F3F] tracking-tighter leading-tight md:leading-none">
                   Study at Your <br />
                   <span className="text-[#FF0000] relative inline-block">
                     Dream Destination
@@ -196,7 +196,7 @@ export default function App() {
                   </span>
                 </h1>
 
-                <p className="text-gray-500 text-sm md:text-base leading-relaxed mt-4 max-w-lg">
+                <p className="text-fluid-base text-gray-500 leading-relaxed mt-4 max-w-lg">
                   Break away from boring consultancies. Elevate your global transitions with our ultra-precise 3D application profiling, direct Ivy League shorts, and direct-to-visa success records.
                 </p>
               </div>
@@ -279,12 +279,12 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20 2xl:gap-28 items-center">
             
             {/* Left side: Authentic Company Logo Display Container */}
-            <div className="lg:col-span-5 aspect-square flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-8 rounded-full border border-white/60 shadow-xl relative overflow-hidden group max-w-[400px] 2xl:max-w-[460px] mx-auto w-full">
+            <div className="lg:col-span-5 aspect-square flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-8 rounded-full border border-white/60 shadow-xl relative overflow-hidden group max-w-[280px] sm:max-w-[340px] 2xl:max-w-[400px] mx-auto w-full">
               <div className="absolute inset-0 bg-radial from-[#001F3F]/2 to-transparent opacity-60 rounded-full pointer-events-none" />
-              <div className="relative w-full max-w-[200px] xs:max-w-[240px] md:max-w-[260px] aspect-square transition-transform duration-700 group-hover:scale-[1.03]">
+              <div className="relative w-full max-w-[140px] xs:max-w-[170px] md:max-w-[200px] aspect-square transition-transform duration-700 group-hover:scale-[1.03]">
                 <FlyFlourishLogo showGlobeBg={true} size="100%" />
               </div>
-              <p className="text-[10px] text-gray-400 font-mono tracking-wider uppercase mt-4 z-10">OFFICIAL BRAND SEAL</p>
+              <p className="text-[9px] text-gray-400 font-mono tracking-wider uppercase mt-3 z-10">OFFICIAL BRAND SEAL</p>
             </div>
 
             {/* Right side: Editorial text copy and values details */}
@@ -295,7 +295,7 @@ export default function App() {
                   <span>WHO WE ARE</span>
                 </div>
                 
-                <h2 className="text-3xl sm:text-3.5xl md:text-5xl 2xl:text-6xl font-black text-[#001F3F] tracking-tight leading-tight md:leading-none">
+                <h2 className="text-fluid-5xl font-black text-[#001F3F] tracking-tight leading-tight md:leading-none">
                   Sovereign Guidance for <br />
                   <span className="text-[#FF0000] relative inline-block">
                     Your Academic Flight Path
@@ -304,7 +304,7 @@ export default function App() {
                 </h2>
               </div>
 
-              <p className="text-gray-500 text-sm md:text-base leading-relaxed">
+              <p className="text-fluid-base text-gray-500 leading-relaxed">
                 At **Fly & Flourish**, we are more than educational advisors. We are architects of global human potential, pioneering strategic admissions blueprints that bridge elite ambitious talents with world-tier universities across the United States, United Kingdom, Canada, and beyond.
               </p>
 
