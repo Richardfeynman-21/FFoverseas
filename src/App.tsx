@@ -12,6 +12,7 @@ const FlourishRoadmap = lazy(() => import('./components/FlourishRoadmap'));
 const FloatingBubbles = lazy(() => import('./components/FloatingBubbles'));
 const ConsultationForm = lazy(() => import('./components/ConsultationForm'));
 const PublicChatWidget = lazy(() => import('./components/chat/PublicChatWidget'));
+const UniversityPartners = lazy(() => import("./components/UniversityPartners"));
 
 
 import { 
@@ -380,6 +381,17 @@ export default function App() {
           <Suspense fallback={null}><FloatingBubbles /></Suspense>
         </div>
       </motion.section>
+      {/* University partnership slides */}
+      <Suspense fallback={null}>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+        >
+          <UniversityPartners />
+        </motion.div>
+      </Suspense>
 
       {/* 6. Consultation evaluation deployment hub */}
       <motion.section 

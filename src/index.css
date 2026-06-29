@@ -1,7 +1,7 @@
 
 @import "tailwindcss";
 
-@theme {
+:root {
   --font-sans: "Outfit", "Space Grotesk", "Inter", ui-sans-serif, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --color-brand-navy: #001F3F;
@@ -112,4 +112,82 @@ body {
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 31, 63, 0.1) transparent;
+}
+
+/* ================================================= */
+
+.marquee{
+display:flex;
+gap:32px;
+width:max-content;
+animation:marquee 45s linear infinite;
+will-change:transform;
+}
+
+.marquee-reverse{
+animation:marqueeReverse 45s linear infinite;
+}
+
+.marquee:hover,
+.marquee-reverse:hover{
+animation-play-state:paused;
+}
+
+@keyframes marquee{
+
+0%{
+transform:translateX(0);
+}
+
+100%{
+transform:translateX(-50%);
+}
+
+}
+
+@keyframes marqueeReverse{
+
+0%{
+transform:translateX(-50%);
+}
+
+100%{
+transform:translateX(0);
+}
+
+}
+
+.fade-left{
+position:absolute;
+left:0;
+top:0;
+bottom:0;
+width:140px;
+z-index:5;
+background:linear-gradient(to right,#FCFCFD 0%,transparent 100%);
+pointer-events:none;
+}
+
+.fade-right{
+position:absolute;
+right:0;
+top:0;
+bottom:0;
+width:140px;
+z-index:5;
+background:linear-gradient(to left,#FCFCFD 0%,transparent 100%);
+pointer-events:none;
+}
+
+@media(max-width:768px){
+
+.fade-left,
+.fade-right{
+width:50px;
+}
+
+.marquee{
+gap:18px;
+}
+
 }
