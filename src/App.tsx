@@ -139,7 +139,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#fdfdfd] text-[#001F3F] selection:bg-[#FF0000]/10 selection:text-[#001F3F] overflow-hidden" id="app-canvas">
+    <div className="relative min-h-screen w-full bg-[#fdfdfd] text-[#001F3F] selection:bg-[#FF0000]/10 selection:text-[#001F3F] overflow-x-hidden" id="app-canvas">
 
       {/* Dynamic Brand Loading Overlay */}
       <AnimatePresence mode="wait">
@@ -167,7 +167,7 @@ export default function App() {
 
       {/* 2. Hero Section */}
       <motion.section 
-        className="relative pt-32 pb-20 2xl:pt-40 2xl:pb-28 overflow-hidden" 
+        className="relative pt-32 pb-20 sm:pt-36 lg:pt-40 xl:pt-44 2xl:pt-52 2xl:pb-32 overflow-hidden" 
         id="hero-landing"
         initial={{ opacity: 0, y: 25, scale: 0.97 }}
         animate={isLoading ? { opacity: 0, y: 25, scale: 0.97 } : { opacity: 1, y: 0, scale: 1 }}
@@ -178,7 +178,7 @@ export default function App() {
           delay: 0.1
         }}
       >
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 xl:px-16 2xl:px-24 relative z-10">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 relative z-10">
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20 2xl:gap-28 items-center">
             
@@ -275,7 +275,7 @@ export default function App() {
         <div className="absolute top-1/4 left-1/10 w-72 h-72 rounded-full bg-[#001F3F]/5 blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/10 w-80 h-80 rounded-full bg-[#FF0000]/3 blur-3xl pointer-events-none" />
 
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 xl:px-16 2xl:px-24 relative z-10">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20 2xl:gap-28 items-center">
             
             {/* Left side: Authentic Company Logo Display Container */}
@@ -349,7 +349,7 @@ export default function App() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.12 }}
       >
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 xl:px-16 2xl:px-24">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
           <Suspense fallback={null}><FlourishRoadmap /></Suspense>
         </div>
       </motion.section>
@@ -362,7 +362,7 @@ export default function App() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
       >
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 xl:px-16 2xl:px-24">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
           <Suspense fallback={null}><DestinationCarousel selectedDestId={selectedDestId} onSelectDest={setSelectedDestId} /></Suspense>
         </div>
       </motion.section>
@@ -377,7 +377,7 @@ export default function App() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
       >
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 xl:px-16 2xl:px-24">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
           <Suspense fallback={null}><FloatingBubbles /></Suspense>
         </div>
       </motion.section>
@@ -402,7 +402,7 @@ export default function App() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.1 }}
       >
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 xl:px-16 2xl:px-24">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
           <Suspense fallback={null}><ConsultationForm /></Suspense>
         </div>
       </motion.section>
@@ -413,7 +413,7 @@ export default function App() {
         <div className="absolute right-0 bottom-0 w-96 h-96 rounded-full bg-[#FF0000]/10 blur-[130px] pointer-events-none" />
         <div className="absolute left-10 top-0 w-80 h-80 rounded-full bg-blue-500/5 blur-[120px] pointer-events-none" />
 
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 xl:px-16 2xl:px-24 relative z-10">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 relative z-10">
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 2xl:gap-16 pb-16 border-b border-white/10">
             

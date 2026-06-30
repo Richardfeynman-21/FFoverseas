@@ -1,7 +1,7 @@
 
 @import "tailwindcss";
 
-@theme {
+:root {
   --font-sans: "Outfit", "Space Grotesk", "Inter", ui-sans-serif, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --color-brand-navy: #001F3F;

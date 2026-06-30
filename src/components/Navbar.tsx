@@ -47,7 +47,7 @@ export default function Navbar() {
           : 'py-[clamp(0.7rem,0.5rem+0.8vw,1.4rem)] bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between">
+      <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 flex items-center justify-between">
         
         {/* Brand logo featuring OriginalLogo icon and elegant title details */}
         <a href="#" className="flex items-center space-x-2 group cursor-pointer" id="brand-logo">
