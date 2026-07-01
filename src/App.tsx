@@ -1,5 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import FlyFlourishLogo from './components/FlyFlourishLogo';
 import LoadingScreen from './components/LoadingScreen';
@@ -53,11 +53,14 @@ const revealVariants = {
   }
 } as const;
 
+// Define outside the App component to survive route transitions
+let hasLoadedOnce = false;
+
 export default function App() {
   const location = useLocation();
   const worldTimeRef = React.useRef<HTMLSpanElement>(null);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!hasLoadedOnce);
   const [selectedDestId, setSelectedDestId] = useState<string>('usa');
 
   // Handle smooth scroll to section from router state (e.g. from Universities page)
@@ -166,7 +169,10 @@ export default function App() {
       {/* Dynamic Brand Loading Overlay */}
       <AnimatePresence mode="wait">
         {isLoading && (
-          <LoadingScreen key="brand-portal-loader" onComplete={() => setIsLoading(false)} assetsReady={assetsReady} />
+          <LoadingScreen key="brand-portal-loader" onComplete={() => {
+            setIsLoading(false);
+            hasLoadedOnce = true;
+          }} assetsReady={assetsReady} />
         )}
       </AnimatePresence>
       {/* Brand aesthetic dynamic mesh glow backgrounds */}
@@ -225,13 +231,13 @@ export default function App() {
 
               {/* High-Contrast Interactive CTA button pairing */}
               <div className="flex flex-wrap gap-4 items-center">
-                <a
-                  href="#consultation-hub"
+                <Link
+                  to="/universities"
                   className="px-7 py-3.5 bg-gradient-to-r from-[#001F3F] to-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-widest shadow-lg hover:shadow-red-500/20 active:scale-97 transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <span>CALIBRATE VISA COORDINATES</span>
+                  <span>APPLY TO YOUR UNIVERSITY</span>
                   <ChevronRight className="w-4 h-4" />
-                </a>
+                </Link>
 
                 <a
                   href="#global-destinations"

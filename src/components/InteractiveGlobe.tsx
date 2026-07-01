@@ -181,42 +181,27 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
     CITIES.forEach((city) => {
       if (city.isHub) return;
 
-      const p1 = latLngToVector3(hubCity.lat, hubCity.lng, earthRadius);
-      const p2 = latLngToVector3(city.lat, city.lng, earthRadius);
-
       const curvePoints = [];
-      const numSegments = 80;
-      const angle = p1.angleTo(p2);
-      const sinAngle = Math.sin(angle);
-      
-      // Longer paths arch higher to look natural (up to 0.25 units above the globe surface)
-      const maxArcHeight = 0.25 * (angle / Math.PI); 
+      const numSegments = 32;
 
       for (let i = 0; i <= numSegments; i++) {
         const t = i / numSegments;
-        let point: Vector3;
         
-        if (sinAngle > 0.001) {
-          // Spherical Linear Interpolation (Slerp) for the true Great Circle path (North Pole route)
-          const w1 = Math.sin((1 - t) * angle) / sinAngle;
-          const w2 = Math.sin(t * angle) / sinAngle;
-          point = new Vector3()
-            .copy(p1)
-            .multiplyScalar(w1)
-            .addScaledVector(p2, w2)
-            .normalize();
-        } else {
-          point = new Vector3().copy(p1).lerp(p2, t).normalize();
-        }
+        // Directly interpolate latitude and longitude to keep paths in the mid-latitudes
+        const lat = hubCity.lat + (city.lat - hubCity.lat) * t;
+        
+        let lngDiff = city.lng - hubCity.lng;
+        while (lngDiff < -180) lngDiff += 360;
+        while (lngDiff > 180) lngDiff -= 360;
+        const lng = hubCity.lng + lngDiff * t;
 
-        // Add a beautiful sub-orbital flight arch altitude
-        const arcHeight = maxArcHeight * Math.sin(t * Math.PI);
-        point.multiplyScalar(earthRadius + arcHeight + 0.01);
+        // Hug the ground (flat on the sphere's surface)
+        const point = latLngToVector3(lat, lng, earthRadius + 0.012);
         curvePoints.push(point);
       }
 
       const curve = new CatmullRomCurve3(curvePoints);
-      const tubeGeo = new TubeGeometry(curve, 80, 0.006, 6, false);
+      const tubeGeo = new TubeGeometry(curve, 32, 0.004, 3, false);
 
       const initialProgress = Math.random(); // shared so shader and jet start at the same point
 
@@ -270,11 +255,11 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
       // Glowing orb: bright inner core + translucent outer shell (additive blending)
       const orbGroup = new Group();
 
-      const coreGeo = new SphereGeometry(0.022, 12, 12);
+      const coreGeo = new SphereGeometry(0.038, 6, 6);
       const coreMat = new MeshBasicMaterial({ color: 0xffffff });
       orbGroup.add(new Mesh(coreGeo, coreMat));
 
-      const midGeo = new SphereGeometry(0.042, 12, 12);
+      const midGeo = new SphereGeometry(0.075, 6, 6);
       const midMat = new MeshBasicMaterial({
         color: 0xff6633,
         transparent: true,
@@ -284,7 +269,7 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
       });
       orbGroup.add(new Mesh(midGeo, midMat));
 
-      const outerGeo = new SphereGeometry(0.072, 12, 12);
+      const outerGeo = new SphereGeometry(0.125, 6, 6);
       const outerMat = new MeshBasicMaterial({
         color: 0xff2200,
         transparent: true,
@@ -310,13 +295,13 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
       const pos = latLngToVector3(city.lat, city.lng, earthRadius);
       const color = city.isHub ? 0xf59e0b : 0xef4444;
 
-      const pinGeo = new SphereGeometry(0.025, 16, 16);
+      const pinGeo = new SphereGeometry(0.025, 6, 6);
       const pinMat = new MeshBasicMaterial({ color });
       const pinMesh = new Mesh(pinGeo, pinMat);
       pinMesh.position.copy(pos);
       globeGroup.add(pinMesh);
 
-      const ringGeo = new RingGeometry(0.045, 0.055, 32);
+      const ringGeo = new RingGeometry(0.045, 0.055, 12);
       const ringMat = new MeshBasicMaterial({
         color,
         side: DoubleSide,
