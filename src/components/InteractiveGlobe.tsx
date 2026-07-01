@@ -186,16 +186,37 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
 
       const curvePoints = [];
       const numSegments = 80;
+      const angle = p1.angleTo(p2);
+      const sinAngle = Math.sin(angle);
+      
+      // Longer paths arch higher to look natural (up to 0.25 units above the globe surface)
+      const maxArcHeight = 0.25 * (angle / Math.PI); 
+
       for (let i = 0; i <= numSegments; i++) {
         const t = i / numSegments;
-        const point = new Vector3().copy(p1).lerp(p2, t).normalize();
-        // Tiny fixed offset lifts tube just above surface to avoid z-fighting
-        point.multiplyScalar(earthRadius + 0.012);
+        let point: Vector3;
+        
+        if (sinAngle > 0.001) {
+          // Spherical Linear Interpolation (Slerp) for the true Great Circle path (North Pole route)
+          const w1 = Math.sin((1 - t) * angle) / sinAngle;
+          const w2 = Math.sin(t * angle) / sinAngle;
+          point = new Vector3()
+            .copy(p1)
+            .multiplyScalar(w1)
+            .addScaledVector(p2, w2)
+            .normalize();
+        } else {
+          point = new Vector3().copy(p1).lerp(p2, t).normalize();
+        }
+
+        // Add a beautiful sub-orbital flight arch altitude
+        const arcHeight = maxArcHeight * Math.sin(t * Math.PI);
+        point.multiplyScalar(earthRadius + arcHeight + 0.01);
         curvePoints.push(point);
       }
 
       const curve = new CatmullRomCurve3(curvePoints);
-      const tubeGeo = new TubeGeometry(curve, 80, 0.005, 6, false);
+      const tubeGeo = new TubeGeometry(curve, 80, 0.006, 6, false);
 
       const initialProgress = Math.random(); // shared so shader and jet start at the same point
 
