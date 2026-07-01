@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import FlyFlourishLogo from './components/FlyFlourishLogo';
 import LoadingScreen from './components/LoadingScreen';
@@ -53,10 +54,31 @@ const revealVariants = {
 } as const;
 
 export default function App() {
+  const location = useLocation();
   const worldTimeRef = React.useRef<HTMLSpanElement>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDestId, setSelectedDestId] = useState<string>('usa');
+
+  // Handle smooth scroll to section from router state (e.g. from Universities page)
+  useEffect(() => {
+    if (isLoading) return;
+    
+    const state = location.state as { scrollTo?: string } | null;
+    if (state?.scrollTo) {
+      const target = document.getElementById(state.scrollTo);
+      if (target) {
+        // Delay slightly to ensure Lenis is fully loaded
+        const timer = setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+      
+      // Clear router state to prevent scrolling again on reload
+      window.history.replaceState({}, document.title);
+    }
+  }, [location, isLoading]);
 
   const handleSelectCountry = (destId: string) => {
     setSelectedDestId(destId);

@@ -5,6 +5,7 @@ import App from './App';
 // Lazy-load non-home routes — they are separate pages rarely visited together
 const StudentMaintenance = lazy(() => import('./pages/StudentMaintenance'));
 const AdminConfig = lazy(() => import('./pages/AdminConfig'));
+const Universities = lazy(() => import('./pages/Universities'));
 
 export default function AppRouter() {
   return (
@@ -15,6 +16,7 @@ export default function AppRouter() {
         <Route path="/student/login" element={<StudentMaintenance />} />
         <Route path="/student/dashboard" element={<StudentMaintenance />} />
         <Route path="/admin" element={<AdminConfig />} />
+        <Route path="/universities" element={<Universities />} />
       </Routes>
     </Suspense>
   );
