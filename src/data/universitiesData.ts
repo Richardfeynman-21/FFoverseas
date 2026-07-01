@@ -1,4 +1,40 @@
+// =============================================================================
+// University API Client & Data Types
+// Connects to the FastAPI backend via the Express proxy (/api/*)
+// =============================================================================
+
+// --- API Response Types ---
+
+export interface ApiUniversity {
+  id: number;
+  name: string;
+  country: string;
+  alpha_two_code: string;
+  state_province: string | null;
+  web_pages: string[];
+  qs_rank_2026: string | null;
+  national_rank: number | null;
+  overall_score: number | null;
+  course_count: number;
+  avg_tuition_fee: number | null;
+  currency: string | null;
+  scholarship_count: number;
+  sample_programs: string[];
+  degree_levels: string[];
+}
+
+export interface UniversityApiResponse {
+  universities: ApiUniversity[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+// --- Display Interface (used by the UI cards & modals) ---
+
 export interface DetailedUniversity {
+  id: number;
   name: string;
   country: string;
   code: string;
@@ -6,527 +42,135 @@ export interface DetailedUniversity {
   ranking: string;
   rankValue: number;
   tuition: string;
-  tuitionValue: number; // in local currency (GBP for UK, USD for USA, CAD for Canada, EUR for Germany)
-  currency: string; // '£', '$', 'CAD $', '€'
+  tuitionValue: number;
+  currency: string;
   scholarship: string;
   scholarshipValue: number;
   acceptanceRate: string;
   acceptanceValue: number;
   programs: string[];
-  intakes: string[]; // ['September', 'January', 'May']
+  intakes: string[];
   courseCount: number;
   logoUrl: string;
   imageUrl: string;
+  webPages: string[];
 }
 
-export const DETAILED_UNIVERSITIES: DetailedUniversity[] = [
-  // --- UK Universities from Azent ---
-  {
-    name: "University of Greenwich",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "Rank #72 (Webometrics)",
-    rankValue: 72,
-    tuition: "£14,000 - £18,000/yr",
-    tuitionValue: 16000,
-    currency: "£",
-    scholarship: "Up to £3,000",
-    scholarshipValue: 3000,
-    acceptanceRate: "64%",
-    acceptanceValue: 64,
-    programs: ["Computer Science", "Business Management", "Engineering", "Data Science"],
-    intakes: ["September", "January"],
-    courseCount: 256,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60", // dynamic building icon placeholder
-    imageUrl: "https://images.unsplash.com/photo-1564981797816-1043664bf78d?w=600&auto=format&fit=crop&q=80" // greenwich / royal navy campus
-  },
-  {
-    name: "University of Essex",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #459",
-    rankValue: 459,
-    tuition: "£16,500 - £20,000/yr",
-    tuitionValue: 18250,
-    currency: "£",
-    scholarship: "Up to £5,000",
-    scholarshipValue: 5000,
-    acceptanceRate: "70%",
-    acceptanceValue: 70,
-    programs: ["Economics", "AI & Robotics", "Business Analytics", "Law"],
-    intakes: ["September", "January"],
-    courseCount: 180,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "University of East Anglia",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #330",
-    rankValue: 330,
-    tuition: "£17,000 - £21,000/yr",
-    tuitionValue: 19000,
-    currency: "£",
-    scholarship: "Up to £4,000",
-    scholarshipValue: 4000,
-    acceptanceRate: "79%",
-    acceptanceValue: 79,
-    programs: ["Environmental Science", "Creative Writing", "Computing Science", "Medicine"],
-    intakes: ["September", "January"],
-    courseCount: 220,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1460518451285-cd7af78a2c10?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Coventry University",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #551",
-    rankValue: 551,
-    tuition: "£15,000 - £19,000/yr",
-    tuitionValue: 17000,
-    currency: "£",
-    scholarship: "Up to £2,500",
-    scholarshipValue: 2500,
-    acceptanceRate: "32%",
-    acceptanceValue: 32,
-    programs: ["Automotive Design", "Cyber Security", "MBA", "Engineering Management"],
-    intakes: ["September", "January", "May"],
-    courseCount: 310,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Heriot-Watt University",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #281",
-    rankValue: 281,
-    tuition: "£16,000 - £22,000/yr",
-    tuitionValue: 19000,
-    currency: "£",
-    scholarship: "Up to £3,000",
-    scholarshipValue: 3000,
-    acceptanceRate: "80%",
-    acceptanceValue: 80,
-    programs: ["Petroleum Engineering", "Actuarial Science", "Robotics", "Finance"],
-    intakes: ["September", "January"],
-    courseCount: 140,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Brunel University London",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #351",
-    rankValue: 351,
-    tuition: "£16,800 - £21,000/yr",
-    tuitionValue: 18900,
-    currency: "£",
-    scholarship: "Up to £6,000",
-    scholarshipValue: 6000,
-    acceptanceRate: "70%",
-    acceptanceValue: 70,
-    programs: ["Design Engineering", "Digital Marketing", "Computer Science", "Public Health"],
-    intakes: ["September", "January"],
-    courseCount: 190,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5c?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Liverpool John Moores University",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #801",
-    rankValue: 801,
-    tuition: "£14,500 - £16,500/yr",
-    tuitionValue: 15500,
-    currency: "£",
-    scholarship: "Up to £2,000",
-    scholarshipValue: 2000,
-    acceptanceRate: "75%",
-    acceptanceValue: 75,
-    programs: ["Sports Science", "Marine Technology", "Business Management", "Software Engineering"],
-    intakes: ["September", "January"],
-    courseCount: 170,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1525920980995-f8a382bf42c5?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Nottingham Trent University",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #601",
-    rankValue: 601,
-    tuition: "£15,800 - £17,500/yr",
-    tuitionValue: 16650,
-    currency: "£",
-    scholarship: "Up to £3,000",
-    scholarshipValue: 3000,
-    acceptanceRate: "15%",
-    acceptanceValue: 15,
-    programs: ["Art & Design", "Journalism", "Law", "Computer Science"],
-    intakes: ["September", "January"],
-    courseCount: 240,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Oxford Brookes University",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #401",
-    rankValue: 401,
-    tuition: "£16,000 - £19,000/yr",
-    tuitionValue: 17500,
-    currency: "£",
-    scholarship: "Up to £2,000",
-    scholarshipValue: 2000,
-    acceptanceRate: "31%",
-    acceptanceValue: 31,
-    programs: ["Architecture", "Motorsport Engineering", "Hospitality Management", "Business"],
-    intakes: ["September", "January"],
-    courseCount: 150,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1544531586-fde5298cdd40?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Queen's University Belfast",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #202",
-    rankValue: 202,
-    tuition: "£18,000 - £24,000/yr",
-    tuitionValue: 21000,
-    currency: "£",
-    scholarship: "Up to £5,000",
-    scholarshipValue: 5000,
-    acceptanceRate: "35%",
-    acceptanceValue: 35,
-    programs: ["Pharmacy", "Cyber Security", "Conflict Studies", "Electrical Engineering"],
-    intakes: ["September"],
-    courseCount: 280,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1627556704353-016ed912b77b?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Swansea University",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #301",
-    rankValue: 301,
-    tuition: "£16,000 - £20,500/yr",
-    tuitionValue: 18250,
-    currency: "£",
-    scholarship: "Up to £4,000",
-    scholarshipValue: 4000,
-    acceptanceRate: "53%",
-    acceptanceValue: 53,
-    programs: ["Computer Science", "Materials Engineering", "Marine Biology", "Business Analytics"],
-    intakes: ["September", "January"],
-    courseCount: 210,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1606761568286-a49623ced08f?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "The University of Sheffield",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #105",
-    rankValue: 105,
-    tuition: "£20,000 - £29,000/yr",
-    tuitionValue: 24500,
-    currency: "£",
-    scholarship: "Up to £7,500",
-    scholarshipValue: 7500,
-    acceptanceRate: "14%",
-    acceptanceValue: 14,
-    programs: ["Aerospace Engineering", "Architecture", "Computer Science", "Economics"],
-    intakes: ["September"],
-    courseCount: 350,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Ulster University (Belfast)",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #651",
-    rankValue: 651,
-    tuition: "£15,000 - £18,000/yr",
-    tuitionValue: 16500,
-    currency: "£",
-    scholarship: "Up to £2,000",
-    scholarshipValue: 2000,
-    acceptanceRate: "80%",
-    acceptanceValue: 80,
-    programs: ["Data Science", "Biomedical Engineering", "MBA", "Hospitality"],
-    intakes: ["September", "January"],
-    courseCount: 130,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1492538368577-8789e905caee?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "University of Exeter",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #153",
-    rankValue: 153,
-    tuition: "£19,500 - £27,000/yr",
-    tuitionValue: 23250,
-    currency: "£",
-    scholarship: "Up to £5,000",
-    scholarshipValue: 5000,
-    acceptanceRate: "37%",
-    acceptanceValue: 37,
-    programs: ["Mining Engineering", "Finance & Investment", "Data Science", "Law"],
-    intakes: ["September"],
-    courseCount: 290,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1610116306796-6ebd30d77fa1?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "University of Portsmouth",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #502",
-    rankValue: 502,
-    tuition: "£15,500 - £18,000/yr",
-    tuitionValue: 16750,
-    currency: "£",
-    scholarship: "Up to £3,000",
-    scholarshipValue: 3000,
-    acceptanceRate: "79%",
-    acceptanceValue: 79,
-    programs: ["Criminology", "Software Engineering", "Logistics", "Business Analytics"],
-    intakes: ["September", "January"],
-    courseCount: 200,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "University of Oxford",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #3",
-    rankValue: 3,
-    tuition: "£28,000 - £44,000/yr",
-    tuitionValue: 36000,
-    currency: "£",
-    scholarship: "Up to £18,000/yr",
-    scholarshipValue: 18000,
-    acceptanceRate: "15.3%",
-    acceptanceValue: 15.3,
-    programs: ["PPE", "Computer Science", "Medicine", "Ancient History"],
-    intakes: ["September"],
-    courseCount: 400,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1580824453163-b401034169dba?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "University of Cambridge",
-    country: "UK",
-    code: "GBR",
-    flag: "GB",
-    ranking: "QS #2",
-    rankValue: 2,
-    tuition: "£25,000 - £40,000/yr",
-    tuitionValue: 32500,
-    currency: "£",
-    scholarship: "Up to £16,000/yr",
-    scholarshipValue: 16000,
-    acceptanceRate: "18.0%",
-    acceptanceValue: 18,
-    programs: ["Natural Sciences", "Engineering", "Mathematics", "Law"],
-    intakes: ["September"],
-    courseCount: 400,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1548189719-758be47752cf?w=600&auto=format&fit=crop&q=80"
-  },
+// --- Constants ---
 
-  // --- US Universities ---
-  {
-    name: "Massachusetts Institute of Technology",
-    country: "USA",
-    code: "USA",
-    flag: "US",
-    ranking: "QS #1",
-    rankValue: 1,
-    tuition: "$55,000 - $61,000/yr",
-    tuitionValue: 58000,
-    currency: "$",
-    scholarship: "Up to $30,000/yr",
-    scholarshipValue: 30000,
-    acceptanceRate: "3.9%",
-    acceptanceValue: 3.9,
-    programs: ["Computer Science", "Electrical Engineering", "Data Science", "Physics"],
-    intakes: ["September"],
-    courseCount: 450,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1565034946487-077786996e27?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Stanford University",
-    country: "USA",
-    code: "USA",
-    flag: "US",
-    ranking: "QS #5",
-    rankValue: 5,
-    tuition: "$56,000 - $62,000/yr",
-    tuitionValue: 59000,
-    currency: "$",
-    scholarship: "Up to $28,000/yr",
-    scholarshipValue: 28000,
-    acceptanceRate: "3.7%",
-    acceptanceValue: 3.7,
-    programs: ["AI & Machine Learning", "Business Administration", "Bioengineering"],
-    intakes: ["September", "January"],
-    courseCount: 380,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1506970135314-15c8e3149028?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Harvard University",
-    country: "USA",
-    code: "USA",
-    flag: "US",
-    ranking: "QS #4",
-    rankValue: 4,
-    tuition: "$52,000 - $57,000/yr",
-    tuitionValue: 54500,
-    currency: "$",
-    scholarship: "Up to $35,000/yr",
-    scholarshipValue: 35000,
-    acceptanceRate: "3.2%",
-    acceptanceValue: 3.2,
-    programs: ["Law", "Medicine", "Economics", "Government & Policy"],
-    intakes: ["September"],
-    courseCount: 420,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1506970135314-15c8e3149028?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "Columbia University",
-    country: "USA",
-    code: "USA",
-    flag: "US",
-    ranking: "QS #23",
-    rankValue: 23,
-    tuition: "$63,000 - $68,000/yr",
-    tuitionValue: 65500,
-    currency: "$",
-    scholarship: "Up to $25,000/yr",
-    scholarshipValue: 25000,
-    acceptanceRate: "3.9%",
-    acceptanceValue: 3.9,
-    programs: ["Journalism", "Finance", "International Relations", "Computer Science"],
-    intakes: ["September", "January"],
-    courseCount: 310,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1492538368577-8789e905caee?w=600&auto=format&fit=crop&q=80"
-  },
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  GBP: '£',
+  USD: '$',
+  CAD: 'CAD $',
+  AUD: 'AUD $',
+  EUR: '€',
+};
 
-  // --- Canada Universities ---
-  {
-    name: "University of Toronto",
-    country: "Canada",
-    code: "CAN",
-    flag: "CA",
-    ranking: "QS #21",
-    rankValue: 21,
-    tuition: "CAD $45,000 - $62,000/yr",
-    tuitionValue: 53500,
-    currency: "CAD $",
-    scholarship: "Up to CAD $20,000/yr",
-    scholarshipValue: 20000,
-    acceptanceRate: "43.0%",
-    acceptanceValue: 43,
-    programs: ["Computer Science", "Engineering Management", "Life Sciences"],
-    intakes: ["September", "January"],
-    courseCount: 330,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    name: "McGill University",
-    country: "Canada",
-    code: "CAN",
-    flag: "CA",
-    ranking: "QS #30",
-    rankValue: 30,
-    tuition: "CAD $25,000 - $50,000/yr",
-    tuitionValue: 37500,
-    currency: "CAD $",
-    scholarship: "Up to CAD $12,000/yr",
-    scholarshipValue: 12000,
-    acceptanceRate: "41.0%",
-    acceptanceValue: 41,
-    programs: ["Medicine", "Music Performance", "Neuroscience", "Business"],
-    intakes: ["September", "January"],
-    courseCount: 290,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=600&auto=format&fit=crop&q=80"
-  },
+const COUNTRY_SHORT_NAMES: Record<string, string> = {
+  'United Kingdom': 'UK',
+  'United States': 'USA',
+};
 
-  // --- Australia Universities ---
-  {
-    name: "University of Melbourne",
-    country: "Australia",
-    code: "AUS",
-    flag: "AU",
-    ranking: "QS #13",
-    rankValue: 13,
-    tuition: "AUD $35,000 - $50,000/yr",
-    tuitionValue: 42500,
-    currency: "AUD $",
-    scholarship: "Up to AUD $15,000/yr",
-    scholarshipValue: 15000,
-    acceptanceRate: "52%",
-    acceptanceValue: 52,
-    programs: ["Biomedicine", "Urban Design", "Commerce & MBA"],
-    intakes: ["February", "July"],
-    courseCount: 300,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1527891751199-7225231a68dd?w=600&auto=format&fit=crop&q=80"
-  },
+const COUNTRY_IMAGES: Record<string, string> = {
+  'UK': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&auto=format&fit=crop&q=80',
+  'USA': 'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=600&auto=format&fit=crop&q=80',
+  'Canada': 'https://images.unsplash.com/photo-1517935706615-2717063c2225?w=600&auto=format&fit=crop&q=80',
+  'Australia': 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=600&auto=format&fit=crop&q=80',
+  'Germany': 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=600&auto=format&fit=crop&q=80',
+};
 
-  // --- Germany Universities ---
-  {
-    name: "Technical University of Munich",
-    country: "Germany",
-    code: "DEU",
-    flag: "DE",
-    ranking: "QS #37",
-    rankValue: 37,
-    tuition: "€250 semester fee",
-    tuitionValue: 500,
-    currency: "€",
-    scholarship: "DAAD up to €15,000/yr",
-    scholarshipValue: 15000,
-    acceptanceRate: "8%",
-    acceptanceValue: 8,
-    programs: ["Mechanical Engineering", "Informatics & AI", "Quantum Technology"],
-    intakes: ["September", "May"],
-    courseCount: 160,
-    logoUrl: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=60",
-    imageUrl: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&auto=format&fit=crop&q=80"
+// --- Mapping Function ---
+
+export function mapApiToDetailedUniversity(api: ApiUniversity): DetailedUniversity {
+  const shortCountry = COUNTRY_SHORT_NAMES[api.country] || api.country;
+  const currencySymbol = CURRENCY_SYMBOLS[api.currency || ''] || (api.currency || '$');
+  const fee = api.avg_tuition_fee || 0;
+  const rankStr = api.qs_rank_2026;
+  const rankNum = rankStr ? parseInt(rankStr.replace(/[^0-9]/g, ''), 10) : 99999;
+
+  let tuitionDisplay: string;
+  if (fee === 0) {
+    tuitionDisplay = 'Free';
+  } else {
+    tuitionDisplay = `${currencySymbol}${fee.toLocaleString('en-US', { maximumFractionDigits: 0 })}/yr`;
   }
-];
+
+  return {
+    id: api.id,
+    name: api.name,
+    country: shortCountry,
+    code: api.alpha_two_code,
+    flag: api.alpha_two_code,
+    ranking: rankStr ? `QS #${rankStr}` : 'Unranked',
+    rankValue: isNaN(rankNum) ? 99999 : rankNum,
+    tuition: tuitionDisplay,
+    tuitionValue: fee,
+    currency: currencySymbol,
+    scholarship: api.scholarship_count > 0
+      ? `${api.scholarship_count} scholarships available`
+      : 'No scholarships listed',
+    scholarshipValue: api.scholarship_count,
+    acceptanceRate: 'N/A',
+    acceptanceValue: 0,
+    programs: api.sample_programs.length > 0 ? api.sample_programs : ['General Studies'],
+    intakes: ['September', 'January'], // Default — not available in DB
+    courseCount: api.course_count,
+    logoUrl: '', // Will trigger initials fallback in the card
+    imageUrl: COUNTRY_IMAGES[shortCountry] || COUNTRY_IMAGES['UK'],
+    webPages: api.web_pages || [],
+  };
+}
+
+// --- API Query Params ---
+
+export interface UniversityQueryParams {
+  search?: string;
+  countries?: string;
+  degree_levels?: string;
+  course_search?: string;
+  course_types?: string;
+  fee_range?: string;
+  min_ranking?: string;
+  sort_by?: string;
+  page?: number;
+  page_size?: number;
+  featured?: boolean;
+}
+
+// --- API Fetch Functions ---
+
+export async function fetchUniversities(params: UniversityQueryParams): Promise<UniversityApiResponse> {
+  const searchParams = new URLSearchParams();
+
+  if (params.search) searchParams.set('search', params.search);
+  if (params.countries) searchParams.set('countries', params.countries);
+  if (params.degree_levels) searchParams.set('degree_levels', params.degree_levels);
+  if (params.course_search) searchParams.set('course_search', params.course_search);
+  if (params.course_types) searchParams.set('course_types', params.course_types);
+  if (params.fee_range) searchParams.set('fee_range', params.fee_range);
+  if (params.min_ranking) searchParams.set('min_ranking', params.min_ranking);
+  if (params.sort_by) searchParams.set('sort_by', params.sort_by);
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.page_size) searchParams.set('page_size', String(params.page_size));
+  if (params.featured) searchParams.set('featured', 'true');
+
+  const queryString = searchParams.toString();
+  const url = `/api/universities${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch universities: ${response.status} ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function fetchCourseAutocomplete(query: string): Promise<string[]> {
+  if (!query || query.trim().length < 2) return [];
+
+  const response = await fetch(`/api/universities/courses/search?q=${encodeURIComponent(query.trim())}`);
+  if (!response.ok) {
+    console.warn('Course autocomplete failed:', response.status);
+    return [];
+  }
+  return response.json();
+}

@@ -31,8 +31,25 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Flag } from '../components/Flag';
 import FlyFlourishLogo from '../components/FlyFlourishLogo';
-import { DETAILED_UNIVERSITIES, DetailedUniversity } from '../data/universitiesData';
+import {
+  DetailedUniversity,
+  fetchUniversities,
+  fetchCourseAutocomplete,
+  mapApiToDetailedUniversity
+} from '../data/universitiesData';
 import { ROUTES } from '../routes';
+
+const COMMON_COURSES = [
+  "Computer Science",
+  "Business Management",
+  "Engineering",
+  "Data Science",
+  "Economics",
+  "Law",
+  "Medicine",
+  "Finance",
+  "Mechanical Engineering"
+];
 
 export default function Universities() {
   const worldTimeRef = useRef<HTMLSpanElement>(null);
@@ -60,9 +77,18 @@ export default function Universities() {
   const [pendingFeeRange, setPendingFeeRange] = useState<string>('All');
   const [pendingMinRanking, setPendingMinRanking] = useState<string>('All');
   
+  // API State
+  const [universities, setUniversities] = useState<DetailedUniversity[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [courseOptions, setCourseOptions] = useState<string[]>([]);
+  const [isFeatured, setIsFeatured] = useState(true);
+
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 12; // Paginated list from real database
   
   // Modal & Drawer State
   const [eligibilityUni, setEligibilityUni] = useState<DetailedUniversity | null>(null);
@@ -71,22 +97,24 @@ export default function Universities() {
   // Mobile Filter Sidebar Overlay State
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Extract all unique programs / courses from the database
-  const allUniqueCourses = useMemo(() => {
-    const coursesSet = new Set<string>();
-    DETAILED_UNIVERSITIES.forEach(uni => {
-      uni.programs.forEach(prog => coursesSet.add(prog));
-    });
-    return Array.from(coursesSet).sort();
-  }, []);
+  // Debounced course options fetching
+  useEffect(() => {
+    if (pendingCourseInput.trim().length === 0) {
+      setCourseOptions(COMMON_COURSES);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const results = await fetchCourseAutocomplete(pendingCourseInput);
+        setCourseOptions(results);
+      } catch (err) {
+        console.error("Autocomplete error:", err);
+      }
+    }, 300);
 
-  // Filter unique courses list by typing search keyword
-  const filteredDropdownCourses = useMemo(() => {
-    if (!pendingCourseInput) return allUniqueCourses;
-    const q = pendingCourseInput.toLowerCase();
-    return allUniqueCourses.filter(c => c.toLowerCase().includes(q));
-  }, [allUniqueCourses, pendingCourseInput]);
-  
+    return () => clearTimeout(timer);
+  }, [pendingCourseInput]);
+
   // Eligibility Form Multi-step State
   const [eligibilityStep, setEligibilityStep] = useState(1);
   const [eligibilityData, setEligibilityData] = useState({
@@ -168,6 +196,16 @@ export default function Universities() {
   };
 
   const handleApplyFilters = () => {
+    const willHaveFilters = pendingSearchQuery.trim() !== '' || 
+      pendingSelectedCountries.length > 0 || 
+      pendingSelectedIntakes.length > 0 || 
+      pendingSelectedDegreeLevels.length > 0 || 
+      pendingSelectedCourseTypes.length > 0 || 
+      pendingSelectedCourse !== '' || 
+      pendingFeeRange !== 'All' || 
+      pendingMinRanking !== 'All';
+      
+    setIsFeatured(!willHaveFilters);
     setSearchQuery(pendingSearchQuery);
     setSelectedCountries(pendingSelectedCountries);
     setSelectedIntakes(pendingSelectedIntakes);
@@ -180,6 +218,7 @@ export default function Universities() {
   };
 
   const handleResetFilters = () => {
+    setIsFeatured(true);
     setSearchQuery('');
     setSelectedCountries([]);
     setSelectedIntakes([]);
@@ -205,39 +244,67 @@ export default function Universities() {
 
   // Remove specific active filter tag (instantly clears both active and pending filter states)
   const removeFilterTag = (type: string, value: string) => {
+    let nextSearchQuery = searchQuery;
+    let nextSelectedCountries = selectedCountries;
+    let nextSelectedIntakes = selectedIntakes;
+    let nextSelectedDegreeLevels = selectedDegreeLevels;
+    let nextSelectedCourseTypes = selectedCourseTypes;
+    let nextSelectedCourse = selectedCourse;
+    let nextFeeRange = feeRange;
+    let nextMinRanking = minRanking;
+
     if (type === 'country') {
-      setSelectedCountries(prev => prev.filter(c => c !== value));
+      nextSelectedCountries = selectedCountries.filter(c => c !== value);
+      setSelectedCountries(nextSelectedCountries);
       setPendingSelectedCountries(prev => prev.filter(c => c !== value));
     }
     if (type === 'intake') {
-      setSelectedIntakes(prev => prev.filter(i => i !== value));
+      nextSelectedIntakes = selectedIntakes.filter(i => i !== value);
+      setSelectedIntakes(nextSelectedIntakes);
       setPendingSelectedIntakes(prev => prev.filter(i => i !== value));
     }
     if (type === 'degree') {
-      setSelectedDegreeLevels(prev => prev.filter(d => d !== value));
+      nextSelectedDegreeLevels = selectedDegreeLevels.filter(d => d !== value);
+      setSelectedDegreeLevels(nextSelectedDegreeLevels);
       setPendingSelectedDegreeLevels(prev => prev.filter(d => d !== value));
     }
     if (type === 'courseType') {
-      setSelectedCourseTypes(prev => prev.filter(t => t !== value));
+      nextSelectedCourseTypes = selectedCourseTypes.filter(t => t !== value);
+      setSelectedCourseTypes(nextSelectedCourseTypes);
       setPendingSelectedCourseTypes(prev => prev.filter(t => t !== value));
     }
     if (type === 'course') {
+      nextSelectedCourse = '';
       setSelectedCourse('');
       setPendingSelectedCourse('');
       setPendingCourseInput('');
     }
     if (type === 'fee') {
+      nextFeeRange = 'All';
       setFeeRange('All');
       setPendingFeeRange('All');
     }
     if (type === 'rank') {
+      nextMinRanking = 'All';
       setMinRanking('All');
       setPendingMinRanking('All');
     }
     if (type === 'search') {
+      nextSearchQuery = '';
       setSearchQuery('');
       setPendingSearchQuery('');
     }
+
+    const hasFiltersLeft = nextSearchQuery !== '' ||
+      nextSelectedCountries.length > 0 ||
+      nextSelectedIntakes.length > 0 ||
+      nextSelectedDegreeLevels.length > 0 ||
+      nextSelectedCourseTypes.length > 0 ||
+      nextSelectedCourse !== '' ||
+      nextFeeRange !== 'All' ||
+      nextMinRanking !== 'All';
+
+    setIsFeatured(!hasFiltersLeft);
     setCurrentPage(1);
   };
 
@@ -274,280 +341,124 @@ export default function Universities() {
     pendingMinRanking, minRanking
   ]);
 
-  // Pending filter universities calculator (used for button badge numbers)
-  const pendingFilteredUniversities = useMemo(() => {
-    let result = [...DETAILED_UNIVERSITIES];
-
-    // 1. Search Query
-    if (pendingSearchQuery.trim() !== '') {
-      const q = pendingSearchQuery.toLowerCase();
-      result = result.filter(uni => 
-        uni.name.toLowerCase().includes(q) || 
-        uni.country.toLowerCase().includes(q) || 
-        uni.programs.some(prog => prog.toLowerCase().includes(q))
+  // Debounced effect to fetch pending count for sidebar button badge
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      const mappedCountries = pendingSelectedCountries.map(c => 
+        c === 'UK' ? 'United Kingdom' : c === 'USA' ? 'United States' : c
       );
-    }
+      
+      const mappedDegrees = pendingSelectedDegreeLevels
+        .map(d => {
+          if (d === "Bachelor's") return "Bachelor";
+          if (d === "Master's") return "Master";
+          if (d === "PhD") return "PhD";
+          return "";
+        })
+        .filter(Boolean);
 
-    // 2. Country Filter
-    if (pendingSelectedCountries.length > 0) {
-      result = result.filter(uni => pendingSelectedCountries.includes(uni.country));
-    }
+      const hasPendingFilters = pendingSearchQuery.trim() !== '' || 
+        pendingSelectedCountries.length > 0 || 
+        pendingSelectedIntakes.length > 0 || 
+        pendingSelectedDegreeLevels.length > 0 || 
+        pendingSelectedCourseTypes.length > 0 || 
+        pendingSelectedCourse !== '' || 
+        pendingFeeRange !== 'All' || 
+        pendingMinRanking !== 'All';
 
-    // 3. Intake Filter
-    if (pendingSelectedIntakes.length > 0) {
-      result = result.filter(uni => 
-        uni.intakes.some(month => pendingSelectedIntakes.includes(month))
-      );
-    }
+      const params = {
+        search: pendingSearchQuery || undefined,
+        countries: mappedCountries.length > 0 ? mappedCountries.join(',') : undefined,
+        degree_levels: mappedDegrees.length > 0 ? mappedDegrees.join(',') : undefined,
+        course_search: pendingSelectedCourse || undefined,
+        course_types: pendingSelectedCourseTypes.length > 0 ? pendingSelectedCourseTypes.join(',') : undefined,
+        fee_range: pendingFeeRange !== 'All' ? pendingFeeRange : undefined,
+        min_ranking: pendingMinRanking !== 'All' ? pendingMinRanking : undefined,
+        page: 1,
+        page_size: 1,
+        featured: (!hasPendingFilters && sortBy === 'rank') ? true : undefined,
+      };
 
-    // 4. Course Level / Degree Filter
-    if (pendingSelectedDegreeLevels.length > 0) {
-      result = result.filter(uni => {
-        const hasBachelors = pendingSelectedDegreeLevels.includes("Bachelor's");
-        const hasMasters = pendingSelectedDegreeLevels.includes("Master's");
-        const hasPhD = pendingSelectedDegreeLevels.includes("PhD");
-        const hasPGDip = pendingSelectedDegreeLevels.includes("PG Diploma");
-        
-        let match = false;
-        if (hasBachelors && uni.programs.some(p => p.includes("Bachelor") || p.includes("B.S.") || p.includes("PPE") || p.includes("Law") || p.includes("Medicine"))) match = true;
-        if (hasMasters && uni.programs.some(p => p.includes("Master") || p.includes("M.S.") || p.includes("AI") || p.includes("MBA") || p.includes("Finance") || p.includes("Computing"))) match = true;
-        if (hasPhD && uni.programs.some(p => p.includes("PhD") || p.includes("Doctorate") || p.includes("Research") || p.includes("Quantum"))) match = true;
-        if (hasPGDip && uni.programs.some(p => p.includes("Diploma") || p.includes("Management") || p.includes("Criminology"))) match = true;
-        
-        if (!match && (hasMasters || hasBachelors)) match = true;
-        return match;
-      });
-    }
+      try {
+        const data = await fetchUniversities(params);
+        setPendingCount(data.total);
+      } catch (err) {
+        console.error("Pending count fetch error:", err);
+      }
+    }, 500);
 
-    // 4.5. Course Type Filter
-    if (pendingSelectedCourseTypes.length > 0) {
-      result = result.filter(uni => {
-        return uni.programs.some(p => {
-          const lowerP = p.toLowerCase();
-          return pendingSelectedCourseTypes.some(type => {
-            if (type === 'STEM') {
-              return lowerP.includes('science') || lowerP.includes('engineering') || 
-                     lowerP.includes('computer') || lowerP.includes('ai') || 
-                     lowerP.includes('robotics') || lowerP.includes('computing') || 
-                     lowerP.includes('math') || lowerP.includes('technology') || 
-                     lowerP.includes('physics') || lowerP.includes('cyber') || 
-                     lowerP.includes('data');
-            }
-            if (type === 'Business') {
-              return lowerP.includes('business') || lowerP.includes('management') || 
-                     lowerP.includes('mba') || lowerP.includes('finance') || 
-                     lowerP.includes('economics') || lowerP.includes('analytics') || 
-                     lowerP.includes('marketing') || lowerP.includes('hospitality') || 
-                     lowerP.includes('logistics');
-            }
-            if (type === 'Arts') {
-              return lowerP.includes('art') || lowerP.includes('design') || 
-                     lowerP.includes('writing') || lowerP.includes('journalism') || 
-                     lowerP.includes('law') || lowerP.includes('criminology') || 
-                     lowerP.includes('ppe') || lowerP.includes('history') || 
-                     lowerP.includes('conflict') || lowerP.includes('architecture');
-            }
-            if (type === 'Medicine') {
-              return lowerP.includes('medicine') || lowerP.includes('pharmacy') || 
-                     lowerP.includes('health') || lowerP.includes('biology') || 
-                     lowerP.includes('biomedical') || lowerP.includes('sports');
-            }
-            return false;
-          });
-        });
-      });
-    }
-
-    // 4.7. Course Search-Select / Type Filter
-    if (pendingSelectedCourse.trim() !== '') {
-      const q = pendingSelectedCourse.toLowerCase();
-      result = result.filter(uni => 
-        uni.programs.some(p => p.toLowerCase().includes(q))
-      );
-    }
-
-    // 5. Tuition Fee Filter
-    if (pendingFeeRange !== 'All') {
-      result = result.filter(uni => {
-        const val = uni.tuitionValue;
-        if (pendingFeeRange === 'under18k') return val < 18000;
-        if (pendingFeeRange === '18kto35k') return val >= 18000 && val <= 35000;
-        if (pendingFeeRange === '35kto55k') return val > 35000 && val <= 55000;
-        if (pendingFeeRange === 'over55k') return val > 55000;
-        return true;
-      });
-    }
-
-    // 6. Ranking Filter
-    if (pendingMinRanking !== 'All') {
-      result = result.filter(uni => {
-        const rank = uni.rankValue;
-        if (pendingMinRanking === 'top10') return rank <= 10;
-        if (pendingMinRanking === 'top50') return rank <= 50;
-        if (pendingMinRanking === 'top100') return rank <= 100;
-        if (pendingMinRanking === 'top500') return rank <= 500;
-        return true;
-      });
-    }
-
-    return result;
+    return () => clearTimeout(timer);
   }, [
-    pendingSearchQuery, pendingSelectedCountries, pendingSelectedIntakes,
-    pendingSelectedDegreeLevels, pendingSelectedCourseTypes, pendingSelectedCourse,
-    pendingFeeRange, pendingMinRanking
+    pendingSearchQuery,
+    pendingSelectedCountries,
+    pendingSelectedIntakes,
+    pendingSelectedDegreeLevels,
+    pendingSelectedCourseTypes,
+    pendingSelectedCourse,
+    pendingFeeRange,
+    pendingMinRanking,
+    sortBy
   ]);
 
-  // Multi-faceted filtering & sorting logic
-  const filteredAndSortedUniversities = useMemo(() => {
-    let result = [...DETAILED_UNIVERSITIES];
-
-    // 1. Search Query
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(uni => 
-        uni.name.toLowerCase().includes(q) || 
-        uni.country.toLowerCase().includes(q) || 
-        uni.programs.some(prog => prog.toLowerCase().includes(q))
-      );
-    }
-
-    // 2. Country Filter
-    if (selectedCountries.length > 0) {
-      result = result.filter(uni => selectedCountries.includes(uni.country));
-    }
-
-    // 3. Intake Filter
-    if (selectedIntakes.length > 0) {
-      result = result.filter(uni => 
-        uni.intakes.some(intake => selectedIntakes.includes(intake))
-      );
-    }
-
-    // 4. Course Level / Degree Filter
-    if (selectedDegreeLevels.length > 0) {
-      // Programs inside detailed universities are mapped to standard categories
-      result = result.filter(uni => {
-        // If searching Bachelor's, check if has standard undergrad course or if matches programs
-        const hasBachelors = selectedDegreeLevels.includes("Bachelor's");
-        const hasMasters = selectedDegreeLevels.includes("Master's");
-        const hasPhD = selectedDegreeLevels.includes("PhD");
-        const hasPGDip = selectedDegreeLevels.includes("PG Diploma");
+  // Load universities when applied filters or page changes
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const mappedCountries = selectedCountries.map(c => 
+          c === 'UK' ? 'United Kingdom' : c === 'USA' ? 'United States' : c
+        );
         
-        let match = false;
-        if (hasBachelors && uni.programs.some(p => p.includes("Bachelor") || p.includes("B.S.") || p.includes("PPE") || p.includes("Law") || p.includes("Medicine"))) match = true;
-        if (hasMasters && uni.programs.some(p => p.includes("Master") || p.includes("M.S.") || p.includes("AI") || p.includes("MBA") || p.includes("Finance") || p.includes("Computing"))) match = true;
-        if (hasPhD && uni.programs.some(p => p.includes("PhD") || p.includes("Doctorate") || p.includes("Research") || p.includes("Quantum"))) match = true;
-        if (hasPGDip && uni.programs.some(p => p.includes("Diploma") || p.includes("Management") || p.includes("Criminology"))) match = true;
+        const mappedDegrees = selectedDegreeLevels
+          .map(d => {
+            if (d === "Bachelor's") return "Bachelor";
+            if (d === "Master's") return "Master";
+            if (d === "PhD") return "PhD";
+            return "";
+          })
+          .filter(Boolean);
+
+        const params = {
+          search: searchQuery || undefined,
+          countries: mappedCountries.length > 0 ? mappedCountries.join(',') : undefined,
+          degree_levels: mappedDegrees.length > 0 ? mappedDegrees.join(',') : undefined,
+          course_search: selectedCourse || undefined,
+          course_types: selectedCourseTypes.length > 0 ? selectedCourseTypes.join(',') : undefined,
+          fee_range: feeRange !== 'All' ? feeRange : undefined,
+          min_ranking: minRanking !== 'All' ? minRanking : undefined,
+          sort_by: sortBy === 'acceptanceDesc' ? 'rank' : sortBy,
+          page: currentPage,
+          page_size: itemsPerPage,
+          featured: (isFeatured && sortBy === 'rank') ? true : undefined,
+        };
+
+        const data = await fetchUniversities(params);
+        const mappedUnis = data.universities.map(mapApiToDetailedUniversity);
         
-        // Default fallback if no specific keywords: assume Master's and Bachelor's are available on most
-        if (!match && (hasMasters || hasBachelors)) match = true;
-        
-        return match;
-      });
-    }
-
-    // 4.5. Course Type Filter
-    if (selectedCourseTypes.length > 0) {
-      result = result.filter(uni => {
-        return uni.programs.some(p => {
-          const lowerP = p.toLowerCase();
-          return selectedCourseTypes.some(type => {
-            if (type === 'STEM') {
-              return lowerP.includes('science') || lowerP.includes('engineering') || 
-                     lowerP.includes('computer') || lowerP.includes('ai') || 
-                     lowerP.includes('robotics') || lowerP.includes('computing') || 
-                     lowerP.includes('math') || lowerP.includes('technology') || 
-                     lowerP.includes('physics') || lowerP.includes('cyber') || 
-                     lowerP.includes('data');
-            }
-            if (type === 'Business') {
-              return lowerP.includes('business') || lowerP.includes('management') || 
-                     lowerP.includes('mba') || lowerP.includes('finance') || 
-                     lowerP.includes('economics') || lowerP.includes('analytics') || 
-                     lowerP.includes('marketing') || lowerP.includes('hospitality') || 
-                     lowerP.includes('logistics');
-            }
-            if (type === 'Arts') {
-              return lowerP.includes('art') || lowerP.includes('design') || 
-                     lowerP.includes('writing') || lowerP.includes('journalism') || 
-                     lowerP.includes('law') || lowerP.includes('criminology') || 
-                     lowerP.includes('ppe') || lowerP.includes('history') || 
-                     lowerP.includes('conflict') || lowerP.includes('architecture');
-            }
-            if (type === 'Medicine') {
-              return lowerP.includes('medicine') || lowerP.includes('pharmacy') || 
-                     lowerP.includes('health') || lowerP.includes('biology') || 
-                     lowerP.includes('biomedical') || lowerP.includes('sports');
-            }
-            return false;
-          });
-        });
-      });
-    }
-
-    // 4.7. Course Search-Select / Type Filter
-    if (selectedCourse.trim() !== '') {
-      const q = selectedCourse.toLowerCase();
-      result = result.filter(uni => 
-        uni.programs.some(p => p.toLowerCase().includes(q))
-      );
-    }
-
-    // 5. Tuition Fee Filter
-    if (feeRange !== 'All') {
-      result = result.filter(uni => {
-        // tuitionValue is in local currency: GBP/USD/CAD
-        const val = uni.tuitionValue;
-        if (feeRange === 'under18k') return val < 18000;
-        if (feeRange === '18kto35k') return val >= 18000 && val <= 35000;
-        if (feeRange === '35kto55k') return val > 35000 && val <= 55000;
-        if (feeRange === 'over55k') return val > 55000;
-        return true;
-      });
-    }
-
-    // 6. Ranking Filter
-    if (minRanking !== 'All') {
-      result = result.filter(uni => {
-        const rank = uni.rankValue;
-        if (minRanking === 'top10') return rank <= 10;
-        if (minRanking === 'top50') return rank <= 50;
-        if (minRanking === 'top100') return rank <= 100;
-        if (minRanking === 'top500') return rank <= 500;
-        return true;
-      });
-    }
-
-    // Sort Results
-    result.sort((a, b) => {
-      if (sortBy === 'rank') {
-        return a.rankValue - b.rankValue; // Lower number = better rank
+        setUniversities(mappedUnis);
+        setTotalResults(data.total);
+        setTotalPages(data.total_pages);
+      } catch (err) {
+        console.error("Failed to load universities:", err);
+      } finally {
+        setLoading(false);
       }
-      if (sortBy === 'courseCount') {
-        return b.courseCount - a.courseCount;
-      }
-      if (sortBy === 'tuitionAsc') {
-        // Standardize fee to USD/GBP approximate for sort
-        const feeA = a.country === 'Germany' ? 0 : a.tuitionValue;
-        const feeB = b.country === 'Germany' ? 0 : b.tuitionValue;
-        return feeA - feeB;
-      }
-      if (sortBy === 'acceptanceDesc') {
-        return b.acceptanceValue - a.acceptanceValue;
-      }
-      return 0;
-    });
+    };
 
-    return result;
-  }, [searchQuery, selectedCountries, selectedIntakes, selectedDegreeLevels, selectedCourseTypes, selectedCourse, feeRange, minRanking, sortBy]);
-
-  // Paginated Data
-  const paginatedUniversities = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredAndSortedUniversities.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredAndSortedUniversities, currentPage]);
-
-  const totalPages = Math.ceil(filteredAndSortedUniversities.length / itemsPerPage);
+    loadData();
+  }, [
+    searchQuery,
+    selectedCountries,
+    selectedIntakes,
+    selectedDegreeLevels,
+    selectedCourseTypes,
+    selectedCourse,
+    feeRange,
+    minRanking,
+    sortBy,
+    currentPage,
+    isFeatured
+  ]);
 
   // Active filter helper array for rendering tags
   const activeFilterTags = useMemo(() => {
@@ -905,12 +816,12 @@ export default function Universities() {
                     
                     {/* Dropdown Options List */}
                     <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto border border-slate-150 rounded-2xl bg-white shadow-xl z-35 p-2 space-y-1 custom-scrollbar text-left">
-                      {filteredDropdownCourses.length === 0 ? (
+                      {courseOptions.length === 0 ? (
                         <div className="text-[11px] text-slate-400 text-center py-4 font-medium">
                           No courses match your search
                         </div>
                       ) : (
-                        filteredDropdownCourses.map(course => {
+                        courseOptions.map(course => {
                           const isSelected = pendingSelectedCourse === course;
                           return (
                             <button
@@ -1008,8 +919,8 @@ export default function Universities() {
                       : 'bg-[#001F3F] hover:bg-[#001F3F]/90'
                   }`}
                 >
-                  <Filter className="w-4 h-4" />
-                  <span>Apply Filters ({pendingFilteredUniversities.length})</span>
+                   <Filter className="w-4 h-4" />
+                   <span>Apply Filters ({pendingCount})</span>
                 </button>
               </div>
 
@@ -1021,14 +932,48 @@ export default function Universities() {
               {/* Dynamic Header Controls Bar */}
               <div className="bg-white rounded-3xl p-5 border border-slate-100/90 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
                 
-                {/* Result count & active details */}
-                <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 text-center md:text-left">
-                  {filteredAndSortedUniversities.length === 0 ? (
-                    <span className="text-red-500">0 match results found</span>
-                  ) : (
-                    <span>
-                      Found {filteredAndSortedUniversities.length} Universities matching criteria
-                    </span>
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                  {/* Result count & active details */}
+                  <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-450 text-center md:text-left shrink-0">
+                    {totalResults === 0 ? (
+                      <span className="text-red-500 font-mono">0 match results found</span>
+                    ) : (
+                      <span>
+                        Found {totalResults} Universities matching criteria
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Featured / All Toggle Tabs */}
+                  {!hasActiveFilters && sortBy === 'rank' && (
+                    <div className="flex items-center gap-1 bg-slate-50 p-1.5 rounded-2xl border border-slate-100 shrink-0">
+                      <button
+                        onClick={() => {
+                          setIsFeatured(true);
+                          setCurrentPage(1);
+                        }}
+                        className={`px-3.5 py-1.5 rounded-xl text-[10px] font-mono font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                          isFeatured 
+                            ? 'bg-[#001F3F] text-white shadow-md' 
+                            : 'text-slate-450 hover:text-[#001F3F]'
+                        }`}
+                      >
+                        🌟 Featured
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsFeatured(false);
+                          setCurrentPage(1);
+                        }}
+                        className={`px-3.5 py-1.5 rounded-xl text-[10px] font-mono font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                          !isFeatured 
+                            ? 'bg-[#001F3F] text-white shadow-md' 
+                            : 'text-slate-450 hover:text-[#001F3F]'
+                        }`}
+                      >
+                        All Campuses
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -1047,7 +992,14 @@ export default function Universities() {
                     <span className="text-xs font-extrabold text-slate-400 font-mono hidden sm:inline">SORTBY:</span>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSortBy(val);
+                        if (val !== 'rank') {
+                          setIsFeatured(false);
+                        }
+                        setCurrentPage(1);
+                      }}
                       className="px-4 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#001F3F] focus:outline-none focus:border-[#FF0000]/40 cursor-pointer bg-slate-50/50"
                     >
                       <option value="rank">QS Ranking (High to Low)</option>
@@ -1088,147 +1040,158 @@ export default function Universities() {
               )}
 
               {/* CATALOG GRID */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-                <AnimatePresence mode="popLayout">
-                  {paginatedUniversities.map((uni, idx) => (
-                    <motion.article
-                      key={uni.name}
-                      layout
-                      initial={{ opacity: 0, y: 30, scale: 0.96 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                      transition={{ duration: 0.35, delay: Math.min(idx * 0.05, 0.25) }}
-                      className="bg-white rounded-3xl border border-slate-100/90 hover:border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden relative group"
-                    >
-                      {/* Hover top border gradient glow */}
-                      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#FF0000]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+              <div className="relative min-h-[400px]">
+                {loading && (
+                  <div className="absolute inset-0 bg-white/60 backdrop-blur-xs flex items-center justify-center z-20 rounded-3xl">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-10 h-10 border-4 border-[#001F3F] border-t-[#FF0000] rounded-full animate-spin" />
+                      <span className="text-xs font-mono font-bold text-[#001F3F] tracking-widest uppercase animate-pulse">Syncing catalog...</span>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+                  <AnimatePresence mode="popLayout">
+                    {universities.map((uni, idx) => (
+                      <motion.article
+                        key={uni.id || uni.name}
+                        layout
+                        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                        transition={{ duration: 0.35, delay: Math.min(idx * 0.05, 0.25) }}
+                        className="bg-white rounded-3xl border border-slate-100/90 hover:border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden relative group"
+                      >
+                        {/* Hover top border gradient glow */}
+                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#FF0000]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
 
-                      {/* Header image section */}
-                      <div className="relative h-44 overflow-hidden bg-slate-100 shrink-0">
-                        <img
-                          src={uni.imageUrl}
-                          alt={`${uni.name} Campus`}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                        
-                        {/* QS Ranking Tag top-right overlay */}
-                        <div className="absolute top-4.5 right-4.5 px-3 py-1.5 bg-white/90 backdrop-blur-xs border border-white/30 rounded-xl text-[10px] font-mono font-black text-[#001F3F] shadow-sm select-none">
-                          {uni.ranking}
-                        </div>
-
-                        {/* Location bottom-left overlay */}
-                        <div className="absolute bottom-4 left-5 flex items-center gap-2">
-                          <Flag country={uni.flag} className="w-5.5 h-3.5 rounded shadow-xs shrink-0" />
-                          <span className="text-[10px] text-white font-black uppercase tracking-wider font-mono drop-shadow-sm flex items-center gap-1">
-                            <MapPin size={11} className="text-white/80" />
-                            {uni.country}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Content details section */}
-                      <div className="p-6.5 flex-1 flex flex-col justify-between relative pt-8.5">
-                        
-                        {/* Float-overlapping circular logo */}
-                        <div className="absolute -top-7 left-6.5 w-14 h-14 bg-white rounded-full p-1.5 shadow-md border border-slate-100 flex items-center justify-center overflow-hidden">
+                        {/* Header image section */}
+                        <div className="relative h-44 overflow-hidden bg-slate-100 shrink-0">
                           <img
-                            src={uni.logoUrl}
-                            alt={`${uni.name} Badge`}
-                            className="w-full h-full object-cover rounded-full"
-                            onError={(e) => {
-                              // If image fails, replace with dynamic initial crest
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                const placeholder = document.createElement('div');
-                                placeholder.className = "w-full h-full rounded-full bg-gradient-to-br from-[#001F3F] to-[#FF0000] flex items-center justify-center text-white text-[11px] font-black font-mono";
-                                placeholder.textContent = uni.name.split(' ').map(n => n[0]).join('').slice(0, 3);
-                                parent.appendChild(placeholder);
-                              }
-                            }}
+                            src={uni.imageUrl}
+                            alt={`${uni.name} Campus`}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            loading="lazy"
                           />
-                        </div>
-
-                        <div className="space-y-4">
-                          <h3 className="font-extrabold text-[#001F3F] text-base md:text-lg leading-snug tracking-tight hover:text-[#FF0000] transition-colors duration-250 min-h-[48px] flex items-center">
-                            {uni.name}
-                          </h3>
-
-                          {/* Quick Tag Badges (Intake & courses count) */}
-                          <div className="flex flex-wrap gap-2 select-none">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-lg text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
-                              <Calendar size={11} className="text-slate-400" />
-                              {uni.intakes.join('/')} Intake
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-lg text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
-                              <BookOpen size={11} className="text-slate-400" />
-                              {uni.courseCount} Courses
-                            </span>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                          
+                          {/* QS Ranking Tag top-right overlay */}
+                          <div className="absolute top-4.5 right-4.5 px-3 py-1.5 bg-white/90 backdrop-blur-xs border border-white/30 rounded-xl text-[10px] font-mono font-black text-[#001F3F] shadow-sm select-none">
+                            {uni.ranking}
                           </div>
 
-                          {/* Stats specifications table */}
-                          <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 space-y-3">
-                            <div className="flex items-center justify-between text-xs font-medium">
-                              <div className="flex items-center gap-2 text-slate-450">
-                                <DollarSign size={13.5} strokeWidth={2.5} className="text-slate-400" />
-                                <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Tuition Fees</span>
-                              </div>
-                              <span className="font-bold text-slate-700">{uni.tuition}</span>
-                            </div>
-                            
-                            <div className="flex items-center justify-between border-t border-slate-100/80 pt-3 text-xs font-medium">
-                              <div className="flex items-center gap-2 text-emerald-500">
-                                <Award size={13.5} strokeWidth={2.5} />
-                                <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Scholarships</span>
-                              </div>
-                              <span className="font-black text-emerald-600 bg-emerald-50/90 px-2.5 py-0.5 rounded-lg border border-emerald-100/60">
-                                {uni.scholarship}
+                          {/* Location bottom-left overlay */}
+                          <div className="absolute bottom-4 left-5 flex items-center gap-2">
+                            <Flag country={uni.flag} className="w-5.5 h-3.5 rounded shadow-xs shrink-0" />
+                            <span className="text-[10px] text-white font-black uppercase tracking-wider font-mono drop-shadow-sm flex items-center gap-1">
+                              <MapPin size={11} className="text-white/80" />
+                              {uni.country}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Content details section */}
+                        <div className="p-6.5 flex-1 flex flex-col justify-between relative pt-8.5">
+                          
+                          {/* Float-overlapping circular logo */}
+                          <div className="absolute -top-7 left-6.5 w-14 h-14 bg-white rounded-full p-1.5 shadow-md border border-slate-100 flex items-center justify-center overflow-hidden">
+                            <img
+                              src={uni.logoUrl}
+                              alt={`${uni.name} Badge`}
+                              className="w-full h-full object-cover rounded-full"
+                              onError={(e) => {
+                                // If image fails, replace with dynamic initial crest
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  const placeholder = document.createElement('div');
+                                  placeholder.className = "w-full h-full rounded-full bg-gradient-to-br from-[#001F3F] to-[#FF0000] flex items-center justify-center text-white text-[11px] font-black font-mono";
+                                  placeholder.textContent = uni.name.split(' ').map(n => n[0]).join('').slice(0, 3);
+                                  parent.appendChild(placeholder);
+                                }
+                              }}
+                            />
+                          </div>
+
+                          <div className="space-y-4">
+                            <h3 className="font-extrabold text-[#001F3F] text-base md:text-lg leading-snug tracking-tight hover:text-[#FF0000] transition-colors duration-250 min-h-[48px] flex items-center">
+                              {uni.name}
+                            </h3>
+
+                            {/* Quick Tag Badges (Intake & courses count) */}
+                            <div className="flex flex-wrap gap-2 select-none">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-lg text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                                <Calendar size={11} className="text-slate-400" />
+                                {uni.intakes.join('/')} Intake
+                              </span>
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-lg text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                                <BookOpen size={11} className="text-slate-400" />
+                                {uni.courseCount} Courses
                               </span>
                             </div>
-                            
-                            <div className="flex items-center justify-between border-t border-slate-100/80 pt-3 text-xs font-medium">
-                              <div className="flex items-center gap-2 text-slate-450">
-                                <Percent size={13.5} strokeWidth={2.5} className="text-slate-400" />
-                                <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Acceptance Rate</span>
+
+                            {/* Stats specifications table */}
+                            <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 space-y-3">
+                              <div className="flex items-center justify-between text-xs font-medium">
+                                <div className="flex items-center gap-2 text-slate-450">
+                                  <DollarSign size={13.5} strokeWidth={2.5} className="text-slate-400" />
+                                  <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Tuition Fees</span>
+                                </div>
+                                <span className="font-bold text-slate-700">{uni.tuition}</span>
                               </div>
-                              <span className="font-bold text-slate-700">{uni.acceptanceRate}</span>
+                              
+                              <div className="flex items-center justify-between border-t border-slate-100/80 pt-3 text-xs font-medium">
+                                <div className="flex items-center gap-2 text-emerald-500">
+                                  <Award size={13.5} strokeWidth={2.5} />
+                                  <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Scholarships</span>
+                                </div>
+                                <span className="font-black text-emerald-600 bg-emerald-50/90 px-2.5 py-0.5 rounded-lg border border-emerald-100/60">
+                                  {uni.scholarship}
+                                </span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between border-t border-slate-100/80 pt-3 text-xs font-medium">
+                                <div className="flex items-center gap-2 text-slate-450">
+                                  <Percent size={13.5} strokeWidth={2.5} className="text-slate-400" />
+                                  <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Acceptance Rate</span>
+                                </div>
+                                <span className="font-bold text-slate-700">{uni.acceptanceRate}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Actions buttons */}
-                        <div className="grid grid-cols-2 gap-3 mt-6">
-                          <button
-                            onClick={() => handleOpenDetailsModal(uni)}
-                            className="py-3 px-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-97 cursor-pointer text-center flex items-center justify-center gap-1.5"
-                          >
-                            <Info className="w-3.5 h-3.5 text-slate-400" />
-                            <span>Details</span>
-                          </button>
-                          
-                          <button
-                            onClick={() => handleOpenEligibilityModal(uni)}
-                            className="py-3 px-2 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider hover:shadow-lg active:scale-97 transition-all duration-200 cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
-                          >
-                            <GraduationCap className="w-4 h-4" />
-                            <span>Match Profile</span>
-                          </button>
-                        </div>
+                          {/* Actions buttons */}
+                          <div className="grid grid-cols-2 gap-3 mt-6">
+                            <button
+                              onClick={() => handleOpenDetailsModal(uni)}
+                              className="py-3 px-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-97 cursor-pointer text-center flex items-center justify-center gap-1.5"
+                            >
+                              <Info className="w-3.5 h-3.5 text-slate-400" />
+                              <span>Details</span>
+                            </button>
+                            
+                            <button
+                              onClick={() => handleOpenEligibilityModal(uni)}
+                              className="py-3 px-2 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider hover:shadow-lg active:scale-97 transition-all duration-200 cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
+                            >
+                              <GraduationCap className="w-4 h-4" />
+                              <span>Match Profile</span>
+                            </button>
+                          </div>
 
-                      </div>
-                    </motion.article>
-                  ))}
-                </AnimatePresence>
+                        </div>
+                      </motion.article>
+                    ))}
+                  </AnimatePresence>
+                </div>
               </div>
 
               {/* PAGINATION CONTROLS */}
               {totalPages > 1 && (
                 <div className="bg-white rounded-3xl p-4 border border-slate-100/90 shadow-sm flex items-center justify-between">
                   <div className="text-xs font-mono font-bold text-slate-450">
-                    Showing {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filteredAndSortedUniversities.length)} of {filteredAndSortedUniversities.length} results
+                    Showing {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, totalResults)} of {totalResults} results
                   </div>
                   
                   <div className="flex items-center gap-1.5">
@@ -1861,12 +1824,12 @@ export default function Universities() {
                       
                       {/* Dropdown Options List */}
                       <div className="absolute left-0 right-0 top-full mt-1.5 max-h-48 overflow-y-auto border border-slate-150 rounded-2xl bg-white shadow-xl z-35 p-2 space-y-1 custom-scrollbar text-left">
-                        {filteredDropdownCourses.length === 0 ? (
+                        {courseOptions.length === 0 ? (
                           <div className="text-[11px] text-slate-400 text-center py-4 font-medium">
                             No courses match your search
                           </div>
                         ) : (
-                          filteredDropdownCourses.map(course => {
+                          courseOptions.map(course => {
                             const isSelected = pendingSelectedCourse === course;
                             return (
                               <button
@@ -1956,7 +1919,7 @@ export default function Universities() {
                 }}
                 className="w-full py-4.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-2xl text-xs font-extrabold uppercase tracking-widest cursor-pointer shadow-md text-center shrink-0"
               >
-                Apply Filters ({pendingFilteredUniversities.length} Results)
+                Apply Filters ({pendingCount} Results)
               </button>
             </motion.div>
           </div>
