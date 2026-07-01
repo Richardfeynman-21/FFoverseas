@@ -12,8 +12,26 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
+// Trust Vercel's reverse proxy for correct req.ip / headers
+app.set("trust proxy", true);
+
 // Ensure JSON parsing
 app.use(express.json());
+
+// In-memory rate limiting (IP-based)
+const ipCache = new Map<string, number>();
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+
+// Helper to parse cookies manually without external dependency
+function parseCookies(cookieHeader: string | undefined): Record<string, string> {
+  const list: Record<string, string> = {};
+  if (!cookieHeader) return list;
+  cookieHeader.split(";").forEach((cookie) => {
+    const parts = cookie.split("=");
+    list[parts.shift()!.trim()] = decodeURI(parts.join("="));
+  });
+  return list;
+}
 
 // 1. Google Sheets Integration Function
 async function updateGoogleSheet(data: {
@@ -250,6 +268,36 @@ function sanitizeString(str: string): string {
 // REST Backend Route: POST /api/enquiries
 app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
   try {
+    // 1. Session check via cookie
+    const cookies = parseCookies(req.headers.cookie);
+    if (cookies["ff_enquiry_submitted"]) {
+      return res.status(429).json({
+        error: "You have already submitted an enquiry in this session."
+      });
+    }
+
+    // 2. IP address rate limit check
+    const clientIp = (req.headers["x-forwarded-for"] as string || req.ip || "").split(",")[0].trim();
+    if (clientIp) {
+      // Periodic pruning of expired entries to prevent memory leaks
+      if (ipCache.size > 5000) {
+        const now = Date.now();
+        for (const [ip, time] of ipCache.entries()) {
+          if (now - time > RATE_LIMIT_WINDOW_MS) {
+            ipCache.delete(ip);
+          }
+        }
+      }
+
+      const lastSubmission = ipCache.get(clientIp);
+      if (lastSubmission && (Date.now() - lastSubmission) < RATE_LIMIT_WINDOW_MS) {
+        const remainingMin = Math.ceil((RATE_LIMIT_WINDOW_MS - (Date.now() - lastSubmission)) / 60000);
+        return res.status(429).json({
+          error: `Too many submissions. Please wait ${remainingMin} minute(s) before trying again.`
+        });
+      }
+    }
+
     const { name, email, phone, destination, degree } = req.body;
 
     // Validate existence of parameters
@@ -291,6 +339,17 @@ app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
       updateGoogleSheet(newEnquiry),
       sendAdminNotification(newEnquiry),
     ]);
+
+    // 3. Mark session/IP as submitted to prevent multiple submissions
+    if (clientIp) {
+      ipCache.set(clientIp, Date.now());
+    }
+    res.cookie("ff_enquiry_submitted", "true", {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict"
+    });
 
     return res.status(200).json({
       success: true,
