@@ -189,7 +189,7 @@ export default function App() {
 
       {/* 2. Hero Section */}
       <motion.section 
-        className="relative pt-32 pb-20 sm:pt-36 lg:pt-40 xl:pt-44 2xl:pt-52 2xl:pb-32 overflow-hidden" 
+        className="relative pt-20 pb-20 sm:pt-24 lg:pt-28 xl:pt-32 2xl:pt-36 2xl:pb-32 overflow-hidden" 
         id="hero-landing"
         initial={{ opacity: 0, y: 25, scale: 0.97 }}
         animate={isLoading ? { opacity: 0, y: 25, scale: 0.97 } : { opacity: 1, y: 0, scale: 1 }}

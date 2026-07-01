@@ -221,7 +221,7 @@ async function sendAdminNotification(data: {
 
     const info = await transporter.sendMail({
       from: `"Fly & Flourish Admissions" <${process.env.SMTP_USER || adminEmail}>`,
-      to: adminEmail,
+      to: process.env.ADMIN_EMAIL,
       subject: `🚨 Student Admissions Alert: ${data.name} (${data.destination.toUpperCase()})`,
       html: htmlBody,
     });
