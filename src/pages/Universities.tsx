@@ -35,7 +35,8 @@ import {
   DetailedUniversity,
   fetchUniversities,
   fetchCourseAutocomplete,
-  mapApiToDetailedUniversity
+  mapApiToDetailedUniversity,
+  FEATURED_UNIVERSITIES_FALLBACK
 } from '../data/universitiesData';
 import { ROUTES } from '../routes';
 
@@ -78,13 +79,23 @@ export default function Universities() {
   const [pendingMinRanking, setPendingMinRanking] = useState<string>('All');
   
   // API State
-  const [universities, setUniversities] = useState<DetailedUniversity[]>([]);
-  const [totalResults, setTotalResults] = useState(0);
+  const [universities, setUniversities] = useState<DetailedUniversity[]>(() =>
+    FEATURED_UNIVERSITIES_FALLBACK.map(mapApiToDetailedUniversity)
+  );
+  const [totalResults, setTotalResults] = useState(FEATURED_UNIVERSITIES_FALLBACK.length);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [courseOptions, setCourseOptions] = useState<string[]>([]);
   const [isFeatured, setIsFeatured] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
+
+  const handleRetry = () => {
+    setError(null);
+    setRetryTrigger(prev => prev + 1);
+  };
+
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -343,6 +354,11 @@ export default function Universities() {
 
   // Debounced effect to fetch pending count for sidebar button badge
   useEffect(() => {
+    if (!hasUnappliedChanges) {
+      setPendingCount(totalResults);
+      return;
+    }
+
     const timer = setTimeout(async () => {
       const mappedCountries = pendingSelectedCountries.map(c => 
         c === 'UK' ? 'United Kingdom' : c === 'USA' ? 'United States' : c
@@ -397,7 +413,9 @@ export default function Universities() {
     pendingSelectedCourse,
     pendingFeeRange,
     pendingMinRanking,
-    sortBy
+    sortBy,
+    hasUnappliedChanges,
+    totalResults
   ]);
 
   // Load universities when applied filters or page changes
@@ -438,8 +456,10 @@ export default function Universities() {
         setUniversities(mappedUnis);
         setTotalResults(data.total);
         setTotalPages(data.total_pages);
+        setError(null);
       } catch (err) {
         console.error("Failed to load universities:", err);
+        setError("Unable to connect to the database. Please check your internet connection or try again later.");
       } finally {
         setLoading(false);
       }
@@ -457,7 +477,8 @@ export default function Universities() {
     minRanking,
     sortBy,
     currentPage,
-    isFeatured
+    isFeatured,
+    retryTrigger
   ]);
 
   // Active filter helper array for rendering tags
@@ -1050,141 +1071,190 @@ export default function Universities() {
                   </div>
                 )}
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-                  <AnimatePresence mode="popLayout">
-                    {universities.map((uni, idx) => (
-                      <motion.article
-                        key={uni.id || uni.name}
-                        layout
-                        initial={{ opacity: 0, y: 30, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                        transition={{ duration: 0.35, delay: Math.min(idx * 0.05, 0.25) }}
-                        className="bg-white rounded-3xl border border-slate-100/90 hover:border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden relative group"
-                      >
-                        {/* Hover top border gradient glow */}
-                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#FF0000]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+                {error ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col items-center justify-center text-center p-12 bg-white rounded-3xl border border-red-100 shadow-md max-w-lg mx-auto my-8 gap-5"
+                  >
+                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center border border-red-100 text-[#FF0000] shadow-xs">
+                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-lg font-extrabold text-[#001F3F]">Database Connection Offline</h4>
+                      <p className="text-xs text-gray-500 font-medium max-w-sm">
+                        {error}
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleRetry}
+                      className="px-6 py-2.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-300 shadow-md active:scale-97 cursor-pointer"
+                    >
+                      Retry Connection
+                    </button>
+                  </motion.div>
+                ) : universities.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col items-center justify-center text-center p-16 bg-white rounded-3xl border border-slate-100 shadow-xs max-w-md mx-auto my-8 gap-5"
+                  >
+                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 text-slate-400">
+                      <Search className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-lg font-extrabold text-[#001F3F]">No Universities Found</h4>
+                      <p className="text-xs text-gray-500 font-medium max-w-xs">
+                        We couldn't find any campus listings matching your current filter settings. Try adjusting your search query or studies filter.
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleResetFilters}
+                      className="px-6 py-2.5 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-300 active:scale-97 cursor-pointer"
+                    >
+                      Clear All Filters
+                    </button>
+                  </motion.div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+                    <AnimatePresence mode="popLayout">
+                      {universities.map((uni, idx) => (
+                        <motion.article
+                          key={uni.id || uni.name}
+                          layout
+                          initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                          transition={{ duration: 0.35, delay: Math.min(idx * 0.05, 0.25) }}
+                          className="bg-white rounded-3xl border border-slate-100/90 hover:border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden relative group"
+                        >
+                          {/* Hover top border gradient glow */}
+                          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#FF0000]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
 
-                        {/* Header image section */}
-                        <div className="relative h-44 overflow-hidden bg-slate-100 shrink-0">
-                          <img
-                            src={uni.imageUrl}
-                            alt={`${uni.name} Campus`}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                          
-                          {/* QS Ranking Tag top-right overlay */}
-                          <div className="absolute top-4.5 right-4.5 px-3 py-1.5 bg-white/90 backdrop-blur-xs border border-white/30 rounded-xl text-[10px] font-mono font-black text-[#001F3F] shadow-sm select-none">
-                            {uni.ranking}
-                          </div>
-
-                          {/* Location bottom-left overlay */}
-                          <div className="absolute bottom-4 left-5 flex items-center gap-2">
-                            <Flag country={uni.flag} className="w-5.5 h-3.5 rounded shadow-xs shrink-0" />
-                            <span className="text-[10px] text-white font-black uppercase tracking-wider font-mono drop-shadow-sm flex items-center gap-1">
-                              <MapPin size={11} className="text-white/80" />
-                              {uni.country}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Content details section */}
-                        <div className="p-6.5 flex-1 flex flex-col justify-between relative pt-8.5">
-                          
-                          {/* Float-overlapping circular logo */}
-                          <div className="absolute -top-7 left-6.5 w-14 h-14 bg-white rounded-full p-1.5 shadow-md border border-slate-100 flex items-center justify-center overflow-hidden">
+                          {/* Header image section */}
+                          <div className="relative h-44 overflow-hidden bg-slate-100 shrink-0">
                             <img
-                              src={uni.logoUrl}
-                              alt={`${uni.name} Badge`}
-                              className="w-full h-full object-cover rounded-full"
-                              onError={(e) => {
-                                // If image fails, replace with dynamic initial crest
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  const placeholder = document.createElement('div');
-                                  placeholder.className = "w-full h-full rounded-full bg-gradient-to-br from-[#001F3F] to-[#FF0000] flex items-center justify-center text-white text-[11px] font-black font-mono";
-                                  placeholder.textContent = uni.name.split(' ').map(n => n[0]).join('').slice(0, 3);
-                                  parent.appendChild(placeholder);
-                                }
-                              }}
+                              src={uni.imageUrl}
+                              alt={`${uni.name} Campus`}
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                              loading="lazy"
                             />
-                          </div>
-
-                          <div className="space-y-4">
-                            <h3 className="font-extrabold text-[#001F3F] text-base md:text-lg leading-snug tracking-tight hover:text-[#FF0000] transition-colors duration-250 min-h-[48px] flex items-center">
-                              {uni.name}
-                            </h3>
-
-                            {/* Quick Tag Badges (Intake & courses count) */}
-                            <div className="flex flex-wrap gap-2 select-none">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-lg text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
-                                <Calendar size={11} className="text-slate-400" />
-                                {uni.intakes.join('/')} Intake
-                              </span>
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-lg text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
-                                <BookOpen size={11} className="text-slate-400" />
-                                {uni.courseCount} Courses
-                              </span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                            
+                            {/* QS Ranking Tag top-right overlay */}
+                            <div className="absolute top-4.5 right-4.5 px-3 py-1.5 bg-white/90 backdrop-blur-xs border border-white/30 rounded-xl text-[10px] font-mono font-black text-[#001F3F] shadow-sm select-none">
+                              {uni.ranking}
                             </div>
 
-                            {/* Stats specifications table */}
-                            <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 space-y-3">
-                              <div className="flex items-center justify-between text-xs font-medium">
-                                <div className="flex items-center gap-2 text-slate-450">
-                                  <DollarSign size={13.5} strokeWidth={2.5} className="text-slate-400" />
-                                  <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Tuition Fees</span>
-                                </div>
-                                <span className="font-bold text-slate-700">{uni.tuition}</span>
-                              </div>
-                              
-                              <div className="flex items-center justify-between border-t border-slate-100/80 pt-3 text-xs font-medium">
-                                <div className="flex items-center gap-2 text-emerald-500">
-                                  <Award size={13.5} strokeWidth={2.5} />
-                                  <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Scholarships</span>
-                                </div>
-                                <span className="font-black text-emerald-600 bg-emerald-50/90 px-2.5 py-0.5 rounded-lg border border-emerald-100/60">
-                                  {uni.scholarship}
+                            {/* Location bottom-left overlay */}
+                            <div className="absolute bottom-4 left-5 flex items-center gap-2">
+                              <Flag country={uni.flag} className="w-5.5 h-3.5 rounded shadow-xs shrink-0" />
+                              <span className="text-[10px] text-white font-black uppercase tracking-wider font-mono drop-shadow-sm flex items-center gap-1">
+                                <MapPin size={11} className="text-white/80" />
+                                {uni.country}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Content details section */}
+                          <div className="p-6.5 flex-1 flex flex-col justify-between relative pt-8.5">
+                            
+                            {/* Float-overlapping circular logo */}
+                            <div className="absolute -top-7 left-6.5 w-14 h-14 bg-white rounded-full p-1.5 shadow-md border border-slate-100 flex items-center justify-center overflow-hidden">
+                              <img
+                                src={uni.logoUrl}
+                                alt={`${uni.name} Badge`}
+                                className="w-full h-full object-cover rounded-full"
+                                onError={(e) => {
+                                  // If image fails, replace with dynamic initial crest
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    const placeholder = document.createElement('div');
+                                    placeholder.className = "w-full h-full rounded-full bg-gradient-to-br from-[#001F3F] to-[#FF0000] flex items-center justify-center text-white text-[11px] font-black font-mono";
+                                    placeholder.textContent = uni.name.split(' ').map(n => n[0]).join('').slice(0, 3);
+                                    parent.appendChild(placeholder);
+                                  }
+                                }}
+                              />
+                            </div>
+
+                            <div className="space-y-4">
+                              <h3 className="font-extrabold text-[#001F3F] text-base md:text-lg leading-snug tracking-tight hover:text-[#FF0000] transition-colors duration-250 min-h-[48px] flex items-center">
+                                {uni.name}
+                              </h3>
+
+                              {/* Quick Tag Badges (Intake & courses count) */}
+                              <div className="flex flex-wrap gap-2 select-none">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-lg text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                                  <Calendar size={11} className="text-slate-400" />
+                                  {uni.intakes.join('/')} Intake
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-lg text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                                  <BookOpen size={11} className="text-slate-400" />
+                                  {uni.courseCount} Courses
                                 </span>
                               </div>
-                              
-                              <div className="flex items-center justify-between border-t border-slate-100/80 pt-3 text-xs font-medium">
-                                <div className="flex items-center gap-2 text-slate-450">
-                                  <Percent size={13.5} strokeWidth={2.5} className="text-slate-400" />
-                                  <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Acceptance Rate</span>
+
+                              {/* Stats specifications table */}
+                              <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 space-y-3">
+                                <div className="flex items-center justify-between text-xs font-medium">
+                                  <div className="flex items-center gap-2 text-slate-450">
+                                    <DollarSign size={13.5} strokeWidth={2.5} className="text-slate-400" />
+                                    <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Tuition Fees</span>
+                                  </div>
+                                  <span className="font-bold text-slate-700">{uni.tuition}</span>
                                 </div>
-                                <span className="font-bold text-slate-700">{uni.acceptanceRate}</span>
+                                
+                                <div className="flex items-center justify-between border-t border-slate-100/80 pt-3 text-xs font-medium">
+                                  <div className="flex items-center gap-2 text-emerald-500">
+                                    <Award size={13.5} strokeWidth={2.5} />
+                                    <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Scholarships</span>
+                                  </div>
+                                  <span className="font-black text-emerald-600 bg-emerald-50/90 px-2.5 py-0.5 rounded-lg border border-emerald-100/60">
+                                    {uni.scholarship}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex items-center justify-between border-t border-slate-100/80 pt-3 text-xs font-medium">
+                                  <div className="flex items-center gap-2 text-slate-450">
+                                    <Percent size={13.5} strokeWidth={2.5} className="text-slate-400" />
+                                    <span className="text-[10px] font-bold uppercase font-mono tracking-wider">Acceptance Rate</span>
+                                  </div>
+                                  <span className="font-bold text-slate-700">{uni.acceptanceRate}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Actions buttons */}
-                          <div className="grid grid-cols-2 gap-3 mt-6">
-                            <button
-                              onClick={() => handleOpenDetailsModal(uni)}
-                              className="py-3 px-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-97 cursor-pointer text-center flex items-center justify-center gap-1.5"
-                            >
-                              <Info className="w-3.5 h-3.5 text-slate-400" />
-                              <span>Details</span>
-                            </button>
-                            
-                            <button
-                              onClick={() => handleOpenEligibilityModal(uni)}
-                              className="py-3 px-2 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider hover:shadow-lg active:scale-97 transition-all duration-200 cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
-                            >
-                              <GraduationCap className="w-4 h-4" />
-                              <span>Match Profile</span>
-                            </button>
-                          </div>
+                            {/* Actions buttons */}
+                            <div className="grid grid-cols-2 gap-3 mt-6">
+                              <button
+                                onClick={() => handleOpenDetailsModal(uni)}
+                                className="py-3 px-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-97 cursor-pointer text-center flex items-center justify-center gap-1.5"
+                              >
+                                <Info className="w-3.5 h-3.5 text-slate-400" />
+                                <span>Details</span>
+                              </button>
+                              
+                              <Link
+                                to="/"
+                                state={{ scrollTo: 'consultation-hub' }}
+                                className="py-3 px-2 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider hover:shadow-lg active:scale-97 transition-all duration-200 cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
+                              >
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>Apply</span>
+                              </Link>
+                            </div>
 
-                        </div>
-                      </motion.article>
-                    ))}
-                  </AnimatePresence>
-                </div>
+                          </div>
+                        </motion.article>
+                      ))}
+                    </AnimatePresence>
+                  </div>
+                )}
               </div>
 
               {/* PAGINATION CONTROLS */}
@@ -1642,18 +1712,79 @@ export default function Universities() {
                   </div>
                 </div>
 
-                {/* Available programs lists */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-mono font-bold tracking-widest text-[#FF0000] uppercase">Admissions Fields of Study</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {detailsUni.programs.map(prog => (
-                      <span
-                        key={prog}
-                        className="px-3.5 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs font-bold text-slate-700"
-                      >
-                        {prog}
-                      </span>
-                    ))}
+                {/* Available programs lists (Top Programs & Course Details) */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h4 className="text-xs font-mono font-bold tracking-widest text-[#FF0000] uppercase flex items-center gap-1.5">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Top Programs & Course Details</span>
+                  </h4>
+                  <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1.5 custom-scrollbar">
+                    {detailsUni.programs.map((prog, index) => {
+                      // Determine degree level
+                      let degreeLevel = "UG Degree/Bachelors";
+                      if (prog.toLowerCase().includes("master") || prog.toLowerCase().includes("msc") || prog.toLowerCase().includes("meng") || prog.toLowerCase().includes("mba") || prog.toLowerCase().includes("md") || prog.toLowerCase().includes("pg") || prog.toLowerCase().includes("postgraduate")) {
+                        degreeLevel = "PG Degree/Masters";
+                      } else if (prog.toLowerCase().includes("phd") || prog.toLowerCase().includes("dphil") || prog.toLowerCase().includes("doctor")) {
+                        degreeLevel = "Doctorate / PhD";
+                      } else if (prog.toLowerCase().includes("diploma") || prog.toLowerCase().includes("cert")) {
+                        degreeLevel = "PG Diploma / Certificate";
+                      }
+                      
+                      // Determine duration
+                      let duration = "3 years";
+                      const isMaster = degreeLevel.includes("Masters") || degreeLevel.includes("Diploma");
+                      const isPhD = degreeLevel.includes("PhD");
+                      if (isMaster) {
+                        duration = ["UK", "Germany"].includes(detailsUni.country) ? "1 year" : "2 years";
+                      } else if (isPhD) {
+                        duration = "3-4 years";
+                      } else {
+                        duration = ["USA", "Canada"].includes(detailsUni.country) ? "4 years" : "3 years";
+                      }
+
+                      return (
+                        <div key={index} className="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 rounded-2xl p-4.5 transition-all duration-200 space-y-3 group/course">
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <h5 className="font-extrabold text-sm text-[#001F3F] leading-snug group-hover/course:text-[#FF0000] transition-colors">
+                                {prog}
+                              </h5>
+                              <span className="inline-block px-2 py-0.5 bg-[#001F3F]/5 text-[#001F3F] rounded-md text-[9px] font-bold uppercase font-mono tracking-wider">
+                                {degreeLevel}
+                              </span>
+                            </div>
+                            
+                            <Link
+                              to="/"
+                              state={{ scrollTo: 'consultation-hub' }}
+                              className="self-start sm:self-center shrink-0 px-3.5 py-2 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-[9px] font-mono font-bold uppercase tracking-wider transition-colors shadow-xs"
+                            >
+                              Apply Now
+                            </Link>
+                          </div>
+
+                          {/* Course specs table */}
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2.5 border-t border-slate-200/50 text-[11px]">
+                            <div className="space-y-0.5">
+                              <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Course Fees</span>
+                              <span className="font-extrabold text-[#001F3F]">{detailsUni.tuition}</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Duration</span>
+                              <span className="font-bold text-slate-700">{duration}</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Intakes</span>
+                              <span className="font-bold text-slate-700">{detailsUni.intakes.join(' / ')}</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">App Fee</span>
+                              <span className="font-bold text-emerald-600 bg-emerald-50 px-1 rounded border border-emerald-100/50 inline-block text-[9px]">Free</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1678,16 +1809,14 @@ export default function Universities() {
 
                 {/* Action button */}
                 <div className="pt-4 flex gap-3">
-                  <button
-                    onClick={() => {
-                      handleCloseDetailsModal();
-                      handleOpenEligibilityModal(detailsUni);
-                    }}
+                  <Link
+                    to="/"
+                    state={{ scrollTo: 'consultation-hub' }}
                     className="w-full py-4 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-2xl text-xs font-extrabold uppercase tracking-widest active:scale-97 transition-all cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
                   >
-                    <GraduationCap className="w-4 h-4" />
-                    <span>Run Match Evaluation</span>
-                  </button>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Apply for Consultation</span>
+                  </Link>
                 </div>
 
               </div>
