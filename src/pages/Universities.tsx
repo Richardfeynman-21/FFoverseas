@@ -36,7 +36,9 @@ import {
   fetchUniversities,
   fetchCourseAutocomplete,
   mapApiToDetailedUniversity,
-  FEATURED_UNIVERSITIES_FALLBACK
+  FEATURED_UNIVERSITIES_FALLBACK,
+  fetchUniversityCourses,
+  ApiCourse
 } from '../data/universitiesData';
 import { ROUTES } from '../routes';
 
@@ -51,6 +53,14 @@ const COMMON_COURSES = [
   "Finance",
   "Mechanical Engineering"
 ];
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  GBP: '£',
+  USD: '$',
+  CAD: 'CAD $',
+  AUD: 'AUD $',
+  EUR: '€',
+};
 
 export default function Universities() {
   const worldTimeRef = useRef<HTMLSpanElement>(null);
@@ -101,9 +111,11 @@ export default function Universities() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12; // Paginated list from real database
   
-  // Modal & Drawer State
   const [eligibilityUni, setEligibilityUni] = useState<DetailedUniversity | null>(null);
   const [detailsUni, setDetailsUni] = useState<DetailedUniversity | null>(null);
+  const [programFilter, setProgramFilter] = useState<'All' | 'Bachelor' | 'Master'>('All');
+  const [modalCourses, setModalCourses] = useState<ApiCourse[]>([]);
+  const [modalCoursesLoading, setModalCoursesLoading] = useState(false);
   
   // Mobile Filter Sidebar Overlay State
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -331,6 +343,32 @@ export default function Universities() {
       minRanking !== 'All';
   }, [searchQuery, selectedCountries, selectedIntakes, selectedDegreeLevels, selectedCourseTypes, selectedCourse, feeRange, minRanking]);
 
+  // Filter programs inside the details modal dynamically based on 3 filters (Bachelor, Master, All)
+  const filteredPrograms = useMemo(() => {
+    if (!detailsUni) return [];
+    
+    // Fallback: If modalCourses is still loading or empty, use detailsUni.programs as immediate fallback
+    const coursesToFilter = modalCourses.length > 0 
+      ? modalCourses 
+      : detailsUni.programs.map((name, idx) => ({
+          id: idx,
+          course_name: name,
+          degree_level: name.toLowerCase().includes("master") ? "Master" : name.toLowerCase().includes("phd") ? "PhD" : "Bachelor",
+          duration_years: 3,
+          language: "English",
+          tuition_fee: detailsUni.tuitionValue,
+          currency: detailsUni.currency
+        }));
+
+    if (programFilter === 'All') return coursesToFilter;
+    return coursesToFilter.filter(course => {
+      const level = course.degree_level.toLowerCase();
+      if (programFilter === 'Bachelor') return level === 'bachelor';
+      if (programFilter === 'Master') return level === 'master' || level === 'phd';
+      return true;
+    });
+  }, [detailsUni, modalCourses, programFilter]);
+
   // Check if there are changes made in the sidebar filters that haven't been applied yet
   const hasUnappliedChanges = useMemo(() => {
     return pendingSearchQuery !== searchQuery ||
@@ -533,12 +571,34 @@ export default function Universities() {
     setEligibilityUni(null);
   };
 
-  const handleOpenDetailsModal = (uni: DetailedUniversity) => {
+  const handleOpenDetailsModal = async (uni: DetailedUniversity) => {
     setDetailsUni(uni);
+    setProgramFilter('All');
+    setModalCourses([]);
+    setModalCoursesLoading(true);
+    try {
+      const data = await fetchUniversityCourses(uni.id, 1000);
+      setModalCourses(data.courses);
+    } catch (err) {
+      console.error("Failed to load university courses:", err);
+      const fallback = uni.programs.map((name, idx) => ({
+        id: idx,
+        course_name: name,
+        degree_level: name.toLowerCase().includes("master") ? "Master" : name.toLowerCase().includes("phd") ? "PhD" : "Bachelor",
+        duration_years: 3,
+        language: "English",
+        tuition_fee: uni.tuitionValue,
+        currency: uni.currency
+      }));
+      setModalCourses(fallback);
+    } finally {
+      setModalCoursesLoading(false);
+    }
   };
 
   const handleCloseDetailsModal = () => {
     setDetailsUni(null);
+    setModalCourses([]);
   };
 
   // Eligibility Multi-step Form Handlers
@@ -1128,7 +1188,8 @@ export default function Universities() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95, y: 15 }}
                           transition={{ duration: 0.35, delay: Math.min(idx * 0.05, 0.25) }}
-                          className="bg-white rounded-3xl border border-slate-100/90 hover:border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden relative group"
+                          onClick={() => handleOpenDetailsModal(uni)}
+                          className="bg-white rounded-3xl border border-slate-100/90 hover:border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden relative group cursor-pointer"
                         >
                           {/* Hover top border gradient glow */}
                           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#FF0000]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
@@ -1230,22 +1291,14 @@ export default function Universities() {
                             </div>
 
                             {/* Actions buttons */}
-                            <div className="grid grid-cols-2 gap-3 mt-6">
-                              <button
-                                onClick={() => handleOpenDetailsModal(uni)}
-                                className="py-3 px-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 active:scale-97 cursor-pointer text-center flex items-center justify-center gap-1.5"
-                              >
-                                <Info className="w-3.5 h-3.5 text-slate-400" />
-                                <span>Details</span>
-                              </button>
-                              
+                            <div className="mt-6" onClick={(e) => e.stopPropagation()}>
                               <Link
                                 to="/"
                                 state={{ scrollTo: 'consultation-hub' }}
-                                className="py-3 px-2 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider hover:shadow-lg active:scale-97 transition-all duration-200 cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
+                                className="w-full py-3.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider hover:shadow-lg active:scale-97 transition-all duration-200 cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
                               >
                                 <CheckCircle2 className="w-4 h-4" />
-                                <span>Apply</span>
+                                <span>Apply Now</span>
                               </Link>
                             </div>
 
@@ -1656,7 +1709,7 @@ export default function Universities() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', damping: 22, stiffness: 280 }}
-              className="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-2xl overflow-hidden relative z-10 text-left flex flex-col max-h-[90vh]"
+              className="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-6xl overflow-hidden relative z-10 text-left flex flex-col h-[90vh] md:h-[85vh]"
             >
               {/* Banner image with overlay */}
               <div className="relative h-48 overflow-hidden shrink-0">
@@ -1665,16 +1718,16 @@ export default function Universities() {
                   alt={`${detailsUni.name} campus`}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/20" />
                 
                 <button
                   onClick={handleCloseDetailsModal}
-                  className="absolute top-5 right-5 p-2 rounded-xl bg-white/20 hover:bg-white/35 backdrop-blur-xs border border-white/20 text-white transition-all cursor-pointer"
+                  className="absolute top-5 right-5 p-2 rounded-xl bg-white/20 hover:bg-white/35 backdrop-blur-xs border border-white/20 text-white transition-all cursor-pointer z-10"
                 >
                   <X className="w-5 h-5" />
                 </button>
 
-                <div className="absolute bottom-5 left-6 space-y-1.5">
+                <div className="absolute bottom-5 left-6 space-y-1.5 z-10">
                   <div className="flex items-center gap-2">
                     <Flag country={detailsUni.flag} className="w-6 h-4 rounded shadow-xs" />
                     <span className="text-[10px] text-white/80 font-bold uppercase tracking-widest font-mono">
@@ -1687,136 +1740,200 @@ export default function Universities() {
                 </div>
               </div>
 
-              {/* Main scrollable body */}
-              <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar space-y-6">
+              {/* Split screen body */}
+              <div className="flex-1 overflow-hidden flex flex-col md:flex-row gap-0">
                 
-                {/* Highlight Stats grids */}
-                <div className="grid grid-cols-3 gap-4 border-b border-slate-100 pb-5">
-                  <div className="text-center space-y-1">
-                    <span className="text-[9px] font-mono font-bold uppercase text-slate-450 tracking-wider block">QS Ranking</span>
-                    <span className="text-sm font-extrabold text-[#001F3F] bg-slate-50 px-3 py-1 rounded-xl border border-slate-100 block">
-                      {detailsUni.ranking}
-                    </span>
-                  </div>
-                  <div className="text-center space-y-1">
-                    <span className="text-[9px] font-mono font-bold uppercase text-slate-450 tracking-wider block">Total Programs</span>
-                    <span className="text-sm font-extrabold text-[#001F3F] bg-slate-50 px-3 py-1 rounded-xl border border-slate-100 block">
-                      {detailsUni.courseCount} Courses
-                    </span>
-                  </div>
-                  <div className="text-center space-y-1">
-                    <span className="text-[9px] font-mono font-bold uppercase text-slate-450 tracking-wider block">Acceptance</span>
-                    <span className="text-sm font-extrabold text-emerald-600 bg-emerald-50/80 px-3 py-1 rounded-xl border border-emerald-100 block">
-                      {detailsUni.acceptanceRate}
-                    </span>
-                  </div>
-                </div>
+                {/* Left Column: Quick facts, general overview, links (1/3 width) */}
+                <div className="w-full md:w-[32%] p-6 md:p-8 space-y-6 md:border-r md:border-slate-100 overflow-y-auto custom-scrollbar flex flex-col justify-between">
+                  <div className="space-y-6">
+                    {/* Highlight Stats grid */}
+                    <div className="grid grid-cols-3 gap-2 pb-5 border-b border-slate-100">
+                      <div className="text-center space-y-1">
+                        <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">QS Rank</span>
+                        <span className="text-[11px] font-black text-[#001F3F] bg-slate-50 px-1.5 py-1 rounded-xl border border-slate-150 block truncate">
+                          {detailsUni.ranking}
+                        </span>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Programs</span>
+                        <span className="text-[11px] font-black text-[#001F3F] bg-slate-50 px-1.5 py-1 rounded-xl border border-slate-150 block truncate">
+                          {detailsUni.courseCount} Courses
+                        </span>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Acceptance</span>
+                        <span className="text-[11px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-1 rounded-xl border border-emerald-100 block truncate">
+                          {detailsUni.acceptanceRate}
+                        </span>
+                      </div>
+                    </div>
 
-                {/* Available programs lists (Top Programs & Course Details) */}
-                <div className="space-y-4 pt-4 border-t border-slate-100">
-                  <h4 className="text-xs font-mono font-bold tracking-widest text-[#FF0000] uppercase flex items-center gap-1.5">
-                    <BookOpen className="w-4 h-4" />
-                    <span>Top Programs & Course Details</span>
-                  </h4>
-                  <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1.5 custom-scrollbar">
-                    {detailsUni.programs.map((prog, index) => {
-                      // Determine degree level
-                      let degreeLevel = "UG Degree/Bachelors";
-                      if (prog.toLowerCase().includes("master") || prog.toLowerCase().includes("msc") || prog.toLowerCase().includes("meng") || prog.toLowerCase().includes("mba") || prog.toLowerCase().includes("md") || prog.toLowerCase().includes("pg") || prog.toLowerCase().includes("postgraduate")) {
-                        degreeLevel = "PG Degree/Masters";
-                      } else if (prog.toLowerCase().includes("phd") || prog.toLowerCase().includes("dphil") || prog.toLowerCase().includes("doctor")) {
-                        degreeLevel = "Doctorate / PhD";
-                      } else if (prog.toLowerCase().includes("diploma") || prog.toLowerCase().includes("cert")) {
-                        degreeLevel = "PG Diploma / Certificate";
-                      }
+                    {/* Overview Text */}
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] font-mono font-bold tracking-widest text-[#001F3F] uppercase">About University</h4>
+                      <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                        {detailsUni.name} is a premier educational institution located in {detailsUni.country}. Offering comprehensive globally-aligned programs, it caters to international students with world-class facilities and top-tier career placements.
+                      </p>
+                    </div>
+
+                    {/* Destination Overview quick facts */}
+                    <div className="space-y-4 pt-2">
+                      <h4 className="text-[10px] font-mono font-bold tracking-widest text-[#001F3F] uppercase border-b border-slate-100 pb-1.5">Destination Overview</h4>
                       
-                      // Determine duration
-                      let duration = "3 years";
-                      const isMaster = degreeLevel.includes("Masters") || degreeLevel.includes("Diploma");
-                      const isPhD = degreeLevel.includes("PhD");
-                      if (isMaster) {
-                        duration = ["UK", "Germany"].includes(detailsUni.country) ? "1 year" : "2 years";
-                      } else if (isPhD) {
-                        duration = "3-4 years";
-                      } else {
-                        duration = ["USA", "Canada"].includes(detailsUni.country) ? "4 years" : "3 years";
-                      }
+                      <div className="space-y-2.5 text-xs font-medium leading-relaxed text-slate-600">
+                        <p className="flex justify-between"><strong>Tuition Budget:</strong> <span>{detailsUni.tuition}</span></p>
+                        <p className="flex justify-between"><strong>Intake Slots:</strong> <span>{detailsUni.intakes.join(' & ')}</span></p>
+                        <p className="flex justify-between"><strong>Scholarship:</strong> <span className="text-emerald-605 font-bold">{detailsUni.scholarship}</span></p>
+                        <p className="flex justify-between"><strong>Work Visa:</strong> <span>{detailsUni.country === 'UK' ? '2 Years PSW Route' : detailsUni.country === 'USA' ? '12-36 months OPT' : 'Up to 3 years PGWP'}</span></p>
+                        <p className="flex justify-between"><strong>Living Cost:</strong> <span>{detailsUni.country === 'UK' ? '£1,000 - £1,300/mo' : detailsUni.country === 'USA' ? '$1,200 - $1,500/mo' : '€930/mo'}</span></p>
+                        <p className="flex justify-between"><strong>Housing:</strong> <span>Guaranteed allotment</span></p>
+                      </div>
+                    </div>
+                  </div>
 
-                      return (
-                        <div key={index} className="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 rounded-2xl p-4.5 transition-all duration-200 space-y-3 group/course">
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                            <div className="space-y-1">
-                              <h5 className="font-extrabold text-sm text-[#001F3F] leading-snug group-hover/course:text-[#FF0000] transition-colors">
-                                {prog}
-                              </h5>
-                              <span className="inline-block px-2 py-0.5 bg-[#001F3F]/5 text-[#001F3F] rounded-md text-[9px] font-bold uppercase font-mono tracking-wider">
-                                {degreeLevel}
-                              </span>
-                            </div>
-                            
-                            <Link
-                              to="/"
-                              state={{ scrollTo: 'consultation-hub' }}
-                              className="self-start sm:self-center shrink-0 px-3.5 py-2 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-[9px] font-mono font-bold uppercase tracking-wider transition-colors shadow-xs"
-                            >
-                              Apply Now
-                            </Link>
-                          </div>
-
-                          {/* Course specs table */}
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2.5 border-t border-slate-200/50 text-[11px]">
-                            <div className="space-y-0.5">
-                              <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Course Fees</span>
-                              <span className="font-extrabold text-[#001F3F]">{detailsUni.tuition}</span>
-                            </div>
-                            <div className="space-y-0.5">
-                              <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Duration</span>
-                              <span className="font-bold text-slate-700">{duration}</span>
-                            </div>
-                            <div className="space-y-0.5">
-                              <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Intakes</span>
-                              <span className="font-bold text-slate-700">{detailsUni.intakes.join(' / ')}</span>
-                            </div>
-                            <div className="space-y-0.5">
-                              <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">App Fee</span>
-                              <span className="font-bold text-emerald-600 bg-emerald-50 px-1 rounded border border-emerald-100/50 inline-block text-[9px]">Free</span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  {/* Action button */}
+                  <div className="pt-4 border-t border-slate-100">
+                    <Link
+                      to="/"
+                      state={{ scrollTo: 'consultation-hub' }}
+                      onClick={handleCloseDetailsModal}
+                      className="w-full py-3.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-2xl text-xs font-extrabold uppercase tracking-widest active:scale-97 transition-all cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Apply for Consultation</span>
+                    </Link>
                   </div>
                 </div>
 
-                {/* General facts specs */}
-                <div className="space-y-4 pt-2">
-                  <h4 className="text-xs font-mono font-bold tracking-widest text-[#001F3F] uppercase border-b border-slate-100 pb-1.5">Destination Overview</h4>
+                {/* Right Column: Top Programs List with 3 Filters (2/3 width) */}
+                <div className="w-full md:w-[68%] p-6 md:p-8 flex flex-col space-y-4 overflow-hidden bg-slate-50/20">
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-medium leading-relaxed">
-                    <div className="space-y-2.5">
-                      <p><strong>Tuition Budget:</strong> {detailsUni.tuition}</p>
-                      <p><strong>Intake Slots:</strong> {detailsUni.intakes.join(' & ')}</p>
-                      <p><strong>Scholarship Availability:</strong> {detailsUni.scholarship}</p>
-                    </div>
-
-                    <div className="space-y-2.5">
-                      <p><strong>Post-Study Work Visa:</strong> {detailsUni.country === 'UK' ? '2 Years Graduate Route (PSW)' : detailsUni.country === 'USA' ? '12 - 36 months OPT (STEM)' : 'Up to 3 years PGWP'}</p>
-                      <p><strong>Estimate Living Cost:</strong> {detailsUni.country === 'UK' ? '£1,000 - £1,300/month' : detailsUni.country === 'USA' ? '$1,200 - $1,500/month' : '€930/month (German Blocked)'}</p>
-                      <p><strong>Dorm Housing:</strong> Guaranteed university hall allotments.</p>
+                  {/* The 3 Filters (Bachelor, Master, All) */}
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0 flex-wrap gap-2">
+                    <h4 className="text-xs font-mono font-bold tracking-widest text-[#FF0000] uppercase flex items-center gap-1.5">
+                      <BookOpen className="w-4 h-4" />
+                      <span>Top Programs ({filteredPrograms.length})</span>
+                    </h4>
+                    
+                    {/* Buttons Group */}
+                    <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/60 p-1 rounded-2xl shrink-0 select-none">
+                      {(['Bachelor', 'Master', 'All'] as const).map(filterTab => (
+                        <button
+                          key={filterTab}
+                          onClick={() => setProgramFilter(filterTab)}
+                          className={`px-4 py-1.5 rounded-xl text-[10px] font-mono font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                            programFilter === filterTab
+                              ? 'bg-[#001F3F] text-white shadow-sm'
+                              : 'text-slate-450 hover:text-[#001F3F]'
+                          }`}
+                        >
+                          {filterTab}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                </div>
 
-                {/* Action button */}
-                <div className="pt-4 flex gap-3">
-                  <Link
-                    to="/"
-                    state={{ scrollTo: 'consultation-hub' }}
-                    className="w-full py-4 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-2xl text-xs font-extrabold uppercase tracking-widest active:scale-97 transition-all cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Apply for Consultation</span>
-                  </Link>
+                  {/* Scrollable Course Tiles List (Tiling style exactly matching Azent) */}
+                  <div className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+                    {modalCoursesLoading ? (
+                      <div className="flex flex-col items-center justify-center py-20 space-y-3">
+                        <div className="w-8 h-8 border-4 border-[#001F3F]/10 border-t-[#FF0000] rounded-full animate-spin" />
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-450 animate-pulse">Loading all programs...</span>
+                      </div>
+                    ) : filteredPrograms.length === 0 ? (
+                      <div className="text-center py-16 text-slate-400 font-medium text-xs">
+                        No {programFilter !== 'All' ? programFilter : ''} courses listed for this university.
+                      </div>
+                    ) : (
+                      filteredPrograms.map((course, index) => {
+                        // Determine degree level
+                        let degreeLevel = "UG Degree/Bachelors";
+                        if (course.degree_level.toLowerCase() === 'master') {
+                          degreeLevel = "PG Degree/Masters";
+                        } else if (course.degree_level.toLowerCase() === 'phd') {
+                          degreeLevel = "Doctorate / PhD";
+                        } else if (course.course_name.toLowerCase().includes("diploma") || course.course_name.toLowerCase().includes("cert")) {
+                          degreeLevel = "PG Diploma / Certificate";
+                        }
+                        
+                        // Determine tuition fee
+                        const currencySymbol = CURRENCY_SYMBOLS[course.currency || ''] || course.currency || detailsUni.currency || '$';
+                        const tuitionDisplay = course.tuition_fee !== null && course.tuition_fee !== undefined
+                          ? (course.tuition_fee === 0 ? 'Free' : `${currencySymbol}${Math.round(Number(course.tuition_fee)).toLocaleString('en-US')}/yr`)
+                          : detailsUni.tuition;
+
+                        // Determine duration
+                        const duration = course.duration_years > 0 
+                          ? `${course.duration_years} year${course.duration_years > 1 ? 's' : ''}`
+                          : (['Bachelor'].includes(course.degree_level) ? "3-4 years" : "1-2 years");
+
+                        return (
+                          <div 
+                            key={course.id || index} 
+                            className="bg-white hover:bg-slate-50 border border-slate-200/60 rounded-3xl p-5.5 transition-all duration-200 flex flex-col justify-between gap-4 group/course shadow-sm hover:shadow-md"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                              
+                              {/* Left Logo / Icon Section */}
+                              <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 bg-white border border-slate-100 rounded-2xl flex items-center justify-center p-2.5 shadow-xs shrink-0 select-none">
+                                  {/* Dynamic logo initials placeholder */}
+                                  <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#001F3F] to-[#FF0000] flex items-center justify-center text-white text-[9px] font-black font-mono">
+                                    {detailsUni.name.split(' ').map(n => n[0]).join('').slice(0, 3)}
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-1 text-left">
+                                  <h5 className="font-extrabold text-sm text-[#001F3F] leading-snug group-hover/course:text-[#FF0000] transition-colors">
+                                    {course.course_name}
+                                  </h5>
+                                  <span className="inline-block px-2.5 py-0.5 bg-[#001F3F]/5 text-[#001F3F] rounded-md text-[9px] font-bold uppercase font-mono tracking-wider">
+                                    {degreeLevel}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <Link
+                                to="/"
+                                state={{ scrollTo: 'consultation-hub' }}
+                                onClick={handleCloseDetailsModal}
+                                className="self-start sm:self-center shrink-0 px-4 py-2.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-xl text-[10px] font-mono font-bold uppercase tracking-wider transition-colors shadow-sm text-center font-semibold"
+                              >
+                                Apply Now
+                              </Link>
+
+                            </div>
+
+                            {/* Tiling grid values (Matches Azent: Course Fees, Intakes, Application Fees, Duration, CRICOS/Alternative) */}
+                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-4 border-t border-slate-100 text-[11px] text-left">
+                              <div className="space-y-0.5">
+                                <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Course Fees</span>
+                                <span className="font-extrabold text-[#001F3F]">{tuitionDisplay}</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Intakes</span>
+                                <span className="font-bold text-slate-705">{detailsUni.intakes.join(' / ')}</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Application Fees</span>
+                                <span className="font-bold text-slate-500">-</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">Duration</span>
+                                <span className="font-bold text-slate-705">{duration}</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[8px] font-mono font-bold uppercase text-slate-400 tracking-wider block">CRICOS Code</span>
+                                <span className="font-bold text-slate-500">-</span>
+                              </div>
+                            </div>
+
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
                 </div>
 
               </div>

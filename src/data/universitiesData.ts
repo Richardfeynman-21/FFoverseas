@@ -395,3 +395,21 @@ export async function fetchCourseAutocomplete(query: string): Promise<string[]> 
   }
   return response.json();
 }
+
+export interface ApiCourse {
+  id: number;
+  course_name: string;
+  degree_level: string;
+  duration_years: number;
+  language: string;
+  tuition_fee: number | null;
+  currency: string | null;
+}
+
+export async function fetchUniversityCourses(universityId: number, pageSize: number = 1000): Promise<{ courses: ApiCourse[], total: number }> {
+  const response = await fetch(`/api/universities/${universityId}/courses?page_size=${pageSize}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch university courses: ${response.status} ${response.statusText}`);
+  }
+  return response.json();
+}
