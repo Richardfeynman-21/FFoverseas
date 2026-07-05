@@ -74,17 +74,16 @@ export default function LoadingScreen({ onComplete, assetsReady = false }: Loadi
   useEffect(() => {
     let flightAnimation: { stop: () => void } | null = null;
     
-    // Deliberate starting delay for loading initialization effect
+    // Trigger cap and text animations immediately (simultaneously with flight)
+    setSuccess(true);
+    setPhase('reveal-text');
+
     const delayTimer = setTimeout(() => {
       flightAnimation = animate(tMotion, 1, {
-        duration: 2.5,
+        duration: 1.2, // Speeded up from 2.5s
         ease: [0.76, 0, 0.175, 1], // Extra smooth, gradual deceleration curve
-        onComplete: () => {
-          setSuccess(true);
-          setPhase('reveal-text');
-        }
       });
-    }, 200);
+    }, 50); // Shorter starting delay (50ms instead of 200ms)
 
     return () => {
       clearTimeout(delayTimer);
@@ -294,7 +293,7 @@ export default function LoadingScreen({ onComplete, assetsReady = false }: Loadi
                 stiffness: 100,
                 damping: 11,
                 mass: 0.7,
-                delay: 0.15,
+                delay: 0.1,
               }}
               
               style={{ pointerEvents: 'none' }}
@@ -312,7 +311,7 @@ export default function LoadingScreen({ onComplete, assetsReady = false }: Loadi
                     ? { opacity: 1, y: 0 }
                     : { opacity: 0, y: 8 }
                 }
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
               />
 
               {/* Overseas Consultants */}
@@ -325,7 +324,7 @@ export default function LoadingScreen({ onComplete, assetsReady = false }: Loadi
                     ? { opacity: 1, y: 0 }
                     : { opacity: 0, y: 8 }
                 }
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
               />
 
               {/* Tagline: Your Vision, Our Mission */}
@@ -338,7 +337,7 @@ export default function LoadingScreen({ onComplete, assetsReady = false }: Loadi
                     ? { opacity: 1, y: 0 }
                     : { opacity: 0, y: 8 }
                 }
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.85 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
                 onAnimationComplete={() => {
                   if (phase === 'reveal-text') {
                     setPhase('done');
