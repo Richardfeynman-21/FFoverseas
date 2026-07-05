@@ -60,6 +60,13 @@ export default function App() {
   const location = useLocation();
   const worldTimeRef = React.useRef<HTMLSpanElement>(null);
 
+  // If redirecting to scroll to a specific section (e.g. from Universities page), skip loading screen
+  const state = location.state as { scrollTo?: string } | null;
+  const shouldSkipLoader = !!state?.scrollTo;
+  if (shouldSkipLoader) {
+    hasLoadedOnce = true;
+  }
+
   const [isLoading, setIsLoading] = useState(!hasLoadedOnce);
   const [selectedDestId, setSelectedDestId] = useState<string>('usa');
 

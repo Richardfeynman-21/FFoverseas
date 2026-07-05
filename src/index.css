@@ -98,17 +98,6 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
-/* ── Performance: GPU-accelerate heavy sections ── */
-/* Allow browser to skip layout/paint for off-screen content */
-#about-us,
-#showcase-destinations,
-#roadmap-flow,
-#stories-drift,
-#consultation-hub {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 800px;
-}
-
 /* GPU layer promotion for elements that animate frequently */
 #hero-3d-sculpture canvas,
 #liquid-glass-cursor-canvas {
