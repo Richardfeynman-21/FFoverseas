@@ -116,6 +116,7 @@ export default function Universities() {
   const [programFilter, setProgramFilter] = useState<'All' | 'Bachelor' | 'Master'>('All');
   const [modalCourses, setModalCourses] = useState<ApiCourse[]>([]);
   const [modalCoursesLoading, setModalCoursesLoading] = useState(false);
+  const [modalSearchQuery, setModalSearchQuery] = useState('');
   
   // Mobile Filter Sidebar Overlay State
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -343,7 +344,7 @@ export default function Universities() {
       minRanking !== 'All';
   }, [searchQuery, selectedCountries, selectedIntakes, selectedDegreeLevels, selectedCourseTypes, selectedCourse, feeRange, minRanking]);
 
-  // Filter programs inside the details modal dynamically based on 3 filters (Bachelor, Master, All)
+  // Filter programs inside the details modal dynamically based on 3 filters (Bachelor, Master, All) + course search query
   const filteredPrograms = useMemo(() => {
     if (!detailsUni) return [];
     
@@ -360,14 +361,28 @@ export default function Universities() {
           currency: detailsUni.currency
         }));
 
-    if (programFilter === 'All') return coursesToFilter;
-    return coursesToFilter.filter(course => {
-      const level = course.degree_level.toLowerCase();
-      if (programFilter === 'Bachelor') return level === 'bachelor';
-      if (programFilter === 'Master') return level === 'master' || level === 'phd';
-      return true;
-    });
-  }, [detailsUni, modalCourses, programFilter]);
+    let result = coursesToFilter;
+
+    // Apply degree level tab filter
+    if (programFilter !== 'All') {
+      result = result.filter(course => {
+        const level = course.degree_level.toLowerCase();
+        if (programFilter === 'Bachelor') return level === 'bachelor';
+        if (programFilter === 'Master') return level === 'master' || level === 'phd';
+        return true;
+      });
+    }
+
+    // Apply modal search query filter
+    if (modalSearchQuery.trim() !== '') {
+      const q = modalSearchQuery.toLowerCase();
+      result = result.filter(course => 
+        course.course_name.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }, [detailsUni, modalCourses, programFilter, modalSearchQuery]);
 
   // Check if there are changes made in the sidebar filters that haven't been applied yet
   const hasUnappliedChanges = useMemo(() => {
@@ -574,6 +589,7 @@ export default function Universities() {
   const handleOpenDetailsModal = async (uni: DetailedUniversity) => {
     setDetailsUni(uni);
     setProgramFilter('All');
+    setModalSearchQuery('');
     setModalCourses([]);
     setModalCoursesLoading(true);
     try {
@@ -599,6 +615,7 @@ export default function Universities() {
   const handleCloseDetailsModal = () => {
     setDetailsUni(null);
     setModalCourses([]);
+    setModalSearchQuery('');
   };
 
   // Eligibility Multi-step Form Handlers
@@ -1808,12 +1825,32 @@ export default function Universities() {
                 {/* Right Column: Top Programs List with 3 Filters (2/3 width) */}
                 <div className="w-full md:w-[68%] p-6 md:p-8 flex flex-col space-y-4 overflow-hidden bg-slate-50/20">
                   
-                  {/* The 3 Filters (Bachelor, Master, All) */}
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0 flex-wrap gap-2">
+                  {/* The Filters (Search input + Bachelor, Master, All tabs) */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 shrink-0 gap-3">
                     <h4 className="text-xs font-mono font-bold tracking-widest text-[#FF0000] uppercase flex items-center gap-1.5">
                       <BookOpen className="w-4 h-4" />
-                      <span>Top Programs ({filteredPrograms.length})</span>
+                      <span>Programs ({filteredPrograms.length})</span>
                     </h4>
+                    
+                    {/* Course Search Bar */}
+                    <div className="relative flex items-center bg-slate-50/70 border border-slate-200 focus-within:border-[#FF0000]/40 rounded-xl px-2.5 py-1.5 w-full sm:w-60 transition-all">
+                      <Search className="w-3.5 h-3.5 text-slate-400 mr-1.5 shrink-0" />
+                      <input
+                        type="text"
+                        placeholder="Search courses..."
+                        value={modalSearchQuery}
+                        onChange={(e) => setModalSearchQuery(e.target.value)}
+                        className="w-full text-[10px] font-semibold text-[#001F3F] placeholder-slate-400 focus:outline-none bg-transparent"
+                      />
+                      {modalSearchQuery && (
+                        <button
+                          onClick={() => setModalSearchQuery('')}
+                          className="p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-[#001F3F] cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
                     
                     {/* Buttons Group */}
                     <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/60 p-1 rounded-2xl shrink-0 select-none">
