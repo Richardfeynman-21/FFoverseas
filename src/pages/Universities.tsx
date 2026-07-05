@@ -1226,8 +1226,8 @@ export default function Universities() {
                               {uni.ranking}
                             </div>
 
-                            {/* Location bottom-left overlay */}
-                            <div className="absolute bottom-4 left-5 flex items-center gap-2">
+                            {/* Location bottom-right overlay */}
+                            <div className="absolute bottom-4 right-5 flex items-center gap-2">
                               <Flag country={uni.flag} className="w-5.5 h-3.5 rounded shadow-xs shrink-0" />
                               <span className="text-[10px] text-white font-black uppercase tracking-wider font-mono drop-shadow-sm flex items-center gap-1">
                                 <MapPin size={11} className="text-white/80" />
