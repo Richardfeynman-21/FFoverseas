@@ -1208,9 +1208,6 @@ export default function Universities() {
                           onClick={() => handleOpenDetailsModal(uni)}
                           className="bg-white rounded-3xl border border-slate-100/90 hover:border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden relative group cursor-pointer"
                         >
-                          {/* Hover top border gradient glow */}
-                          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#FF0000]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
-
                           {/* Header image section */}
                           <div className="relative h-44 overflow-hidden bg-slate-100 shrink-0">
                             <img
