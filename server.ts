@@ -379,8 +379,9 @@ app.use(
         fixRequestBody(proxyReq, req);
         
         // Inject shared API Key for FastAPI backend authorization
-        if (process.env.FRONTEND_API_KEY) {
-          proxyReq.setHeader("X-ORBIT-API-KEY", process.env.FRONTEND_API_KEY);
+        const apiKey = process.env.BACKEND_API_KEY || process.env.FRONTEND_API_KEY;
+        if (apiKey) {
+          proxyReq.setHeader("X-ORBIT-API-KEY", apiKey);
         }
       },
       error: (err, req, res: any) => {
