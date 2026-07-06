@@ -3,7 +3,6 @@ import path from "path";
 import { google } from "googleapis";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import { createProxyMiddleware, fixRequestBody } from "http-proxy-middleware";
 
 // Load environment variables
 dotenv.config();
