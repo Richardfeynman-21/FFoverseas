@@ -14,6 +14,23 @@ const PORT = 3000;
 // Trust Vercel's reverse proxy for correct req.ip / headers
 app.set("trust proxy", true);
 
+// Enable CORS for allowed origins to prevent redirect blocks
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = ["https://ffoverseas.in", "https://www.ffoverseas.in"];
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-ORBIT-API-KEY");
+  
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // Ensure JSON parsing
 app.use(express.json());
 
