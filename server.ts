@@ -364,40 +364,68 @@ app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
   }
 });
 
-// Proxy other /api calls to FastAPI backend on port 8000
+// Proxy other /api calls to FastAPI backend using native fetch (Serverless friendly)
 const BACKEND_TARGET = process.env.BACKEND_API_URL || "http://127.0.0.1:8000";
 console.log(`Configured backend proxy target: ${BACKEND_TARGET}`);
 
-app.use(
-  createProxyMiddleware({
-    target: BACKEND_TARGET,
-    changeOrigin: true,
-    pathFilter: "/api",
-    on: {
-      proxyReq: (proxyReq, req, res) => {
-        // Fix the request body if it was parsed by express.json()
-        fixRequestBody(proxyReq, req);
-        
-        // Inject shared API Key for FastAPI backend authorization
-        const apiKey = process.env.BACKEND_API_KEY || process.env.FRONTEND_API_KEY;
-        if (apiKey) {
-          proxyReq.setHeader("X-ORBIT-API-KEY", apiKey);
-        }
-      },
-      error: (err, req, res: any) => {
-        console.error("Proxy error occurred connecting to target:", BACKEND_TARGET, err);
-        res.writeHead(502, {
-          "Content-Type": "application/json",
-        });
-        res.end(JSON.stringify({ 
-          error: "Bad Gateway", 
-          message: `Failed to connect to the backend API service at ${BACKEND_TARGET}.`, 
-          detail: err.message 
-        }));
+app.all("/api/*", async (req, res) => {
+  const targetUrl = `${BACKEND_TARGET}${req.originalUrl}`;
+  const apiKey = process.env.BACKEND_API_KEY || process.env.FRONTEND_API_KEY;
+  
+  const headers: Record<string, string> = {};
+  
+  // Forward incoming headers (except host and content-length)
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (value && key !== "host" && key !== "content-length" && key !== "connection") {
+      headers[key] = Array.isArray(value) ? value.join(", ") : value;
+    }
+  }
+
+  // Inject shared API Key for FastAPI backend authorization
+  if (apiKey) {
+    headers["x-orbit-api-key"] = apiKey;
+  }
+
+  try {
+    const fetchOptions: RequestInit = {
+      method: req.method,
+      headers: headers,
+    };
+
+    // Forward parsed JSON body for writing requests
+    if (["POST", "PUT", "PATCH"].includes(req.method) && req.body) {
+      fetchOptions.body = JSON.stringify(req.body);
+      headers["content-type"] = "application/json";
+    }
+
+    const response = await fetch(targetUrl, fetchOptions);
+    const contentType = response.headers.get("content-type") || "";
+
+    // Set response headers
+    response.headers.forEach((value, key) => {
+      if (key !== "content-encoding" && key !== "transfer-encoding") {
+        res.setHeader(key, value);
       }
-    },
-  })
-);
+    });
+
+    res.status(response.status);
+
+    if (contentType.includes("application/json")) {
+      const data = await response.json();
+      return res.json(data);
+    } else {
+      const text = await response.text();
+      return res.send(text);
+    }
+  } catch (err: any) {
+    console.error(`Proxy fetch error connecting to ${targetUrl}:`, err);
+    return res.status(502).json({
+      error: "Bad Gateway",
+      message: `Failed to connect to the backend API service at ${BACKEND_TARGET}.`,
+      detail: err.message
+    });
+  }
+});
 
 // Setup Vite Development and Production Middleware
 async function serveViteApp() {
