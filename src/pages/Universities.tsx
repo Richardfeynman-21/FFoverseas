@@ -769,23 +769,19 @@ export default function Universities() {
       <Navbar />
 
       {/* 1. HERO HEADER HEADER */}
-      <section className="relative pt-36 pb-12 z-20">
+      <section className="relative pt-24 pb-12 z-20">
         <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#001F3F]/5 border border-[#001F3F]/12 rounded-full text-xs text-[#001F3F] font-mono font-semibold shadow-xs backdrop-blur-xs">
-            <Sparkles className="w-4 h-4 text-[#FF0000] animate-pulse" />
-            <span>AI-POWERED GLOBAL COURSE MATCHING</span>
-          </div>
           
           <h1 className="text-4xl md:text-6xl font-black text-[#001F3F] tracking-tight leading-none">
             Find & Match Your <br className="hidden sm:inline" />
             <span className="text-[#FF0000] relative inline-block">
-              Dream UK & Global University
+              Dream GLOBAL University With Us
               <span className="absolute -bottom-2.5 left-0 right-0 h-1 bg-[#FF0000]/20 rounded-full" />
             </span>
           </h1>
           
           <p className="text-gray-500 text-sm md:text-base leading-relaxed max-w-2xl mx-auto font-medium">
-            Explore 150,000+ course programs across prestigious UK and international partner campuses. Run instant eligibility evaluations, verify rankings, and lock in direct counselor advisories.
+            Explore 150,000+ course programs across prestigious international partner campuses. Run instant eligibility evaluations, verify rankings, and lock in direct counselor advisories.
           </p>
 
           {/* Large Hero Search Widget */}
