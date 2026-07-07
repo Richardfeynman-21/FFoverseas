@@ -775,7 +775,7 @@ export default function Universities() {
           <h1 className="text-4xl md:text-6xl font-black text-[#001F3F] tracking-tight leading-none">
             Find & Match Your <br className="hidden sm:inline" />
             <span className="text-[#FF0000] relative inline-block">
-              Dream GLOBAL University With Us
+              Dream University With Us
               <span className="absolute -bottom-2.5 left-0 right-0 h-1 bg-[#FF0000]/20 rounded-full" />
             </span>
           </h1>
