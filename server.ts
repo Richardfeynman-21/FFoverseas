@@ -384,6 +384,17 @@ app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
 
 // Proxy other /api calls to FastAPI backend using native fetch (Serverless friendly)
 app.all("/api/*", async (req, res) => {
+  // Prevent direct browser bar navigation (Open Relay mitigation)
+  const fetchMode = req.headers["sec-fetch-mode"];
+  const fetchSite = req.headers["sec-fetch-site"];
+  
+  if (fetchMode === "navigate" || fetchSite === "none") {
+    return res.status(403).json({
+      error: "Access Forbidden",
+      message: "Direct API access is restricted. Requests must originate from the client application."
+    });
+  }
+
   const targetUrl = `${BACKEND_TARGET}${req.originalUrl}`;
   const apiKey = process.env.BACKEND_API_KEY || process.env.FRONTEND_API_KEY;
   
