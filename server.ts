@@ -380,6 +380,16 @@ app.post(/^\/api\/(enquiries|index(\.ts|\.js)?)$/, async (req, res) => {
   }
 });
 
+// Debug route to check configuration values on Vercel
+app.get("/api/debug-config", (req, res) => {
+  return res.json({
+    BACKEND_API_URL: process.env.BACKEND_API_URL || "NOT SET",
+    FRONTEND_API_KEY_PRESENT: !!process.env.FRONTEND_API_KEY,
+    BACKEND_API_KEY_PRESENT: !!process.env.BACKEND_API_KEY,
+    BACKEND_TARGET: BACKEND_TARGET
+  });
+});
+
 // Proxy other /api calls to FastAPI backend using native fetch (Serverless friendly)
 app.all("/api/*", async (req, res) => {
   const targetUrl = `${BACKEND_TARGET}${req.originalUrl}`;
