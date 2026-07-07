@@ -7,6 +7,8 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
+const BACKEND_TARGET = process.env.BACKEND_API_URL || "http://127.0.0.1:8000";
+
 // Initialize express app
 const app = express();
 const PORT = 3000;
