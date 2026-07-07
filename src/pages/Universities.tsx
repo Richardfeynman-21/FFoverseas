@@ -64,6 +64,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 
 export default function Universities() {
   const worldTimeRef = useRef<HTMLSpanElement>(null);
+  const paginationRef = useRef<HTMLDivElement>(null);
   
   // Active Filter States (applied to the main list)
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +88,9 @@ export default function Universities() {
   const [pendingIsCourseDropdownOpen, setPendingIsCourseDropdownOpen] = useState<boolean>(false);
   const [pendingFeeRange, setPendingFeeRange] = useState<string>('All');
   const [pendingMinRanking, setPendingMinRanking] = useState<string>('All');
+
+  // Desktop custom dropdown state
+  const [activeDropdown, setActiveDropdown] = useState<'destination' | 'intake' | 'type' | 'level' | 'program' | 'fees' | 'ranking' | null>(null);
   
   // API State
   const [universities, setUniversities] = useState<DetailedUniversity[]>(() =>
@@ -194,6 +198,23 @@ export default function Universities() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
+  // Center the active page button in the scrollable pagination container
+  useEffect(() => {
+    if (paginationRef.current) {
+      const container = paginationRef.current;
+      const activeBtn = container.querySelector('[data-active="true"]');
+      if (activeBtn) {
+        const containerWidth = container.offsetWidth;
+        const buttonLeft = (activeBtn as HTMLElement).offsetLeft;
+        const buttonWidth = (activeBtn as HTMLElement).offsetWidth;
+        container.scrollTo({
+          left: buttonLeft - containerWidth / 2 + buttonWidth / 2,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [currentPage]);
+
   // Handle individual filter toggle in pending states
   const toggleCountry = (country: string) => {
     setPendingSelectedCountries(prev => 
@@ -239,6 +260,7 @@ export default function Universities() {
     setFeeRange(pendingFeeRange);
     setMinRanking(pendingMinRanking);
     setCurrentPage(1);
+    setActiveDropdown(null);
   };
 
   const handleResetFilters = () => {
@@ -264,6 +286,7 @@ export default function Universities() {
     setPendingMinRanking('All');
 
     setCurrentPage(1);
+    setActiveDropdown(null);
   };
 
   // Remove specific active filter tag (instantly clears both active and pending filter states)
@@ -343,6 +366,29 @@ export default function Universities() {
       feeRange !== 'All' || 
       minRanking !== 'All';
   }, [searchQuery, selectedCountries, selectedIntakes, selectedDegreeLevels, selectedCourseTypes, selectedCourse, feeRange, minRanking]);
+
+  // Check if any filter is selected (applied OR pending)
+  const hasAnyFiltersSelected = useMemo(() => {
+    return hasActiveFilters || 
+      pendingSearchQuery !== '' || 
+      pendingSelectedCountries.length > 0 || 
+      pendingSelectedIntakes.length > 0 || 
+      pendingSelectedDegreeLevels.length > 0 || 
+      pendingSelectedCourseTypes.length > 0 || 
+      pendingSelectedCourse !== '' || 
+      pendingFeeRange !== 'All' || 
+      pendingMinRanking !== 'All';
+  }, [
+    hasActiveFilters,
+    pendingSearchQuery,
+    pendingSelectedCountries,
+    pendingSelectedIntakes,
+    pendingSelectedDegreeLevels,
+    pendingSelectedCourseTypes,
+    pendingSelectedCourse,
+    pendingFeeRange,
+    pendingMinRanking
+  ]);
 
   // Filter programs inside the details modal dynamically based on 3 filters (Bachelor, Master, All) + course search query
   const filteredPrograms = useMemo(() => {
@@ -723,7 +769,7 @@ export default function Universities() {
       <Navbar />
 
       {/* 1. HERO HEADER HEADER */}
-      <section className="relative pt-36 pb-12 overflow-hidden">
+      <section className="relative pt-36 pb-12 z-20">
         <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#001F3F]/5 border border-[#001F3F]/12 rounded-full text-xs text-[#001F3F] font-mono font-semibold shadow-xs backdrop-blur-xs">
             <Sparkles className="w-4 h-4 text-[#FF0000] animate-pulse" />
@@ -780,6 +826,418 @@ export default function Universities() {
                 </button>
               </div>
             </div>
+
+            {activeDropdown && (
+              <div 
+                className="fixed inset-0 z-20 cursor-default bg-transparent" 
+                onClick={() => setActiveDropdown(null)} 
+              />
+            )}
+          </div>
+
+          {/* Desktop Custom Horizontal Filters */}
+          <div className="hidden lg:flex flex-wrap items-center justify-center gap-3 max-w-6xl mx-auto pt-5 relative z-35">
+            {/* 1. Destination Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'destination' ? null : 'destination')}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                  pendingSelectedCountries.length > 0
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                {pendingSelectedCountries.length > 0 ? (
+                  <Flag country={pendingSelectedCountries[0]} className="w-3.5 h-2.5 rounded shrink-0 inline-block" />
+                ) : (
+                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                )}
+                <span>
+                  {pendingSelectedCountries.length === 0
+                    ? 'Destinations'
+                    : pendingSelectedCountries.length === 1
+                    ? pendingSelectedCountries[0]
+                    : `Destinations (${pendingSelectedCountries.length})`}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'destination' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'destination' && (
+                <div className="absolute left-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-xl p-4 min-w-[240px] z-45 space-y-2 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block mb-1">Study Destination</label>
+                  {['UK', 'USA', 'Canada', 'Australia', 'Germany'].map(country => (
+                    <button
+                      key={country}
+                      onClick={() => toggleCountry(country)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        pendingSelectedCountries.includes(country)
+                          ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                          : 'border-slate-100 hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Flag country={country} className="w-4 h-2.5 rounded" />
+                        <span>{country === 'UK' ? 'United Kingdom (UK)' : country === 'USA' ? 'United States (USA)' : country}</span>
+                      </div>
+                      {pendingSelectedCountries.includes(country) && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 2. Target Intake Period Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'intake' ? null : 'intake')}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                  pendingSelectedIntakes.length > 0
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                <span>
+                  {pendingSelectedIntakes.length === 0
+                    ? 'Intakes'
+                    : pendingSelectedIntakes.length === 1
+                    ? pendingSelectedIntakes[0]
+                    : `Intakes (${pendingSelectedIntakes.length})`}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'intake' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'intake' && (
+                <div className="absolute left-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-xl p-4 min-w-[200px] z-45 space-y-2 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block mb-1">Target Intake</label>
+                  {['September', 'January', 'May'].map(intake => (
+                    <button
+                      key={intake}
+                      onClick={() => toggleIntake(intake)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        pendingSelectedIntakes.includes(intake)
+                          ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                          : 'border-slate-100 hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      <span>{intake}</span>
+                      {pendingSelectedIntakes.includes(intake) && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 3. Course Type Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'type' ? null : 'type')}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                  pendingSelectedCourseTypes.length > 0
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                <span>
+                  {pendingSelectedCourseTypes.length === 0
+                    ? 'Course Types'
+                    : pendingSelectedCourseTypes.length === 1
+                    ? pendingSelectedCourseTypes[0]
+                    : `Types (${pendingSelectedCourseTypes.length})`}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'type' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'type' && (
+                <div className="absolute left-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-xl p-4 min-w-[240px] z-45 space-y-2 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block mb-1">Course Type</label>
+                  {['STEM', 'Business', 'Arts', 'Medicine'].map(type => (
+                    <button
+                      key={type}
+                      onClick={() => toggleCourseType(type)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        pendingSelectedCourseTypes.includes(type)
+                          ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                          : 'border-slate-100 hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      <span>{type === 'STEM' ? 'STEM & Technology' : type === 'Business' ? 'Business & Management' : type === 'Arts' ? 'Arts, Humanities & Law' : 'Health & Medicine'}</span>
+                      {pendingSelectedCourseTypes.includes(type) && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 4. Course Level Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'level' ? null : 'level')}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                  pendingSelectedDegreeLevels.length > 0
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                <span>
+                  {pendingSelectedDegreeLevels.length === 0
+                    ? 'Levels'
+                    : pendingSelectedDegreeLevels.length === 1
+                    ? pendingSelectedDegreeLevels[0]
+                    : `Levels (${pendingSelectedDegreeLevels.length})`}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'level' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'level' && (
+                <div className="absolute left-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-xl p-4 min-w-[200px] z-45 space-y-2 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block mb-1">Course Level</label>
+                  {["Bachelor's", "Master's", "PG Diploma", "PhD"].map(level => (
+                    <button
+                      key={level}
+                      onClick={() => toggleDegreeLevel(level)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        pendingSelectedDegreeLevels.includes(level)
+                          ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                          : 'border-slate-100 hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      <span>{level}</span>
+                      {pendingSelectedDegreeLevels.includes(level) && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 5. Course Program (Searchable dropdown) */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveDropdown(activeDropdown === 'program' ? null : 'program');
+                }}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                  pendingSelectedCourse !== ''
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                <Search className="w-3.5 h-3.5 text-slate-400" />
+                <span className="truncate max-w-[120px]">
+                  {pendingSelectedCourse === '' ? 'Program' : pendingSelectedCourse}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'program' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'program' && (
+                <div className="absolute left-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-xl p-4.5 min-w-[280px] max-w-sm z-45 space-y-3 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block">Course Program</label>
+                  
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
+                    <input
+                      type="text"
+                      placeholder="Search or select course..."
+                      value={pendingCourseInput}
+                      onChange={(e) => {
+                        setPendingCourseInput(e.target.value);
+                        setPendingSelectedCourse(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          setActiveDropdown(null);
+                          handleApplyFilters();
+                        }
+                      }}
+                      className="w-full pl-8.5 pr-8 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-[#001F3F] placeholder-slate-400 focus:outline-none focus:border-[#FF0000]/40 bg-slate-50 focus:bg-white transition-all"
+                    />
+                    {pendingCourseInput && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPendingCourseInput('');
+                          setPendingSelectedCourse('');
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#001F3F]"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="border border-slate-100 rounded-xl bg-white p-1 space-y-0.5">
+                    {courseOptions.length === 0 ? (
+                      <div className="text-[10px] text-slate-400 text-center py-3">
+                        No courses match
+                      </div>
+                    ) : (
+                      courseOptions.slice(0, 10).map(course => {
+                        const isSelected = pendingSelectedCourse === course;
+                        return (
+                          <button
+                            key={course}
+                            type="button"
+                            onClick={() => {
+                              setPendingCourseInput(course);
+                              setPendingSelectedCourse(course);
+                              setActiveDropdown(null);
+                            }}
+                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left cursor-pointer ${
+                              isSelected 
+                                ? 'bg-[#001F3F]/5 text-[#001F3F] border-l-2 border-[#FF0000]'
+                                : 'hover:bg-slate-50 text-slate-700'
+                            }`}
+                          >
+                            <span className="truncate pr-2">{course}</span>
+                            {isSelected && <Check className="w-3 h-3 text-[#001F3F] shrink-0" />}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 6. Tuition Fees Range Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'fees' ? null : 'fees')}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                  pendingFeeRange !== 'All'
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+                <span>
+                  {pendingFeeRange === 'All'
+                    ? 'Fees'
+                    : pendingFeeRange === 'under18k'
+                    ? 'Under £18k'
+                    : pendingFeeRange === '18kto35k'
+                    ? '£18k - £35k'
+                    : pendingFeeRange === '35kto55k'
+                    ? '£35k - £55k'
+                    : 'Over £55k'}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'fees' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'fees' && (
+                <div className="absolute left-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-xl p-4 min-w-[220px] z-45 space-y-1.5 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block mb-1">Annual Tuition Fees</label>
+                  {[
+                    { val: 'All', label: 'Show All Fees' },
+                    { val: 'under18k', label: 'Under £18,000 / $20,000' },
+                    { val: '18kto35k', label: '£18,000 - £35,000 / $20k - $35k' },
+                    { val: '35kto55k', label: '£35,000 - £55,000 / $35k - $55k' },
+                    { val: 'over55k', label: 'Over £55,000 / $55,000' }
+                  ].map(option => {
+                    const isSelected = pendingFeeRange === option.val;
+                    return (
+                      <button
+                        key={option.val}
+                        onClick={() => {
+                          setPendingFeeRange(option.val);
+                          setActiveDropdown(null);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#001F3F]/5 text-[#001F3F] border-l-2 border-[#FF0000]'
+                            : 'hover:bg-slate-50 text-slate-600'
+                        }`}
+                      >
+                        <span>{option.label}</span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#001F3F]" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* 7. QS Ranking Range Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'ranking' ? null : 'ranking')}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                  pendingMinRanking !== 'All'
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                <Award className="w-3.5 h-3.5 text-slate-400" />
+                <span>
+                  {pendingMinRanking === 'All'
+                    ? 'Rankings'
+                    : pendingMinRanking === 'top10'
+                    ? 'Top 10'
+                    : pendingMinRanking === 'top50'
+                    ? 'Top 50'
+                    : pendingMinRanking === 'top100'
+                    ? 'Top 100'
+                    : 'Top 500'}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'ranking' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'ranking' && (
+                <div className="absolute left-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-xl p-4 min-w-[220px] z-45 space-y-1.5 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block mb-1">QS / Global Ranking</label>
+                  {[
+                    { val: 'All', label: 'Show All Ranks' },
+                    { val: 'top10', label: 'Top 10 Global' },
+                    { val: 'top50', label: 'Top 50 Global' },
+                    { val: 'top100', label: 'Top 100 Global' },
+                    { val: 'top500', label: 'Top 500 Global' }
+                  ].map(option => {
+                    const isSelected = pendingMinRanking === option.val;
+                    return (
+                      <button
+                        key={option.val}
+                        onClick={() => {
+                          setPendingMinRanking(option.val);
+                          setActiveDropdown(null);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#001F3F]/5 text-[#001F3F] border-l-2 border-[#FF0000]'
+                            : 'hover:bg-slate-50 text-slate-600'
+                        }`}
+                      >
+                        <span>{option.label}</span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#001F3F]" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Apply Filters Button */}
+            <button
+              onClick={handleApplyFilters}
+              className={`px-4 py-2.5 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-300 active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-md shrink-0 ${
+                hasUnappliedChanges
+                  ? 'bg-[#FF0000] hover:bg-[#FF0000]/90 shadow-lg shadow-red-500/20'
+                  : 'bg-[#001F3F] hover:bg-[#001F3F]/90'
+              }`}
+            >
+              <Filter className="w-3.5 h-3.5" />
+              <span>Apply Filters</span>
+            </button>
+
+
           </div>
         </div>
       </section>
@@ -788,244 +1246,11 @@ export default function Universities() {
       <section className="relative pb-24 z-10">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           
-          {/* Main layout grid: Sidebar on left (desktop), Content on right */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-            
-            {/* LEFT SIDEBAR FILTERS (Desktop Only) */}
-            <aside className="hidden lg:block bg-white rounded-3xl p-6.5 border border-slate-100 shadow-md space-y-7 sticky top-28">
-              
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-2">
-                  <ListFilter className="w-4 h-4 text-[#001F3F]" />
-                  <h3 className="font-extrabold text-[#001F3F] text-xs font-mono uppercase tracking-wider">Search Filters</h3>
-                </div>
-                <button
-                  onClick={handleResetFilters}
-                  disabled={!hasActiveFilters}
-                  className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-[#FF0000] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>RESET</span>
-                </button>
-              </div>
-
-              {/* Country Selection */}
-              <div className="space-y-3">
-                <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block">Study Destination</label>
-                <div className="space-y-2 text-left">
-                  {['UK', 'USA', 'Canada', 'Australia', 'Germany'].map(country => (
-                    <button
-                      key={country}
-                      onClick={() => toggleCountry(country)}
-                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
-                        pendingSelectedCountries.includes(country)
-                          ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F] shadow-xs'
-                          : 'border-slate-200/80 hover:bg-slate-50 text-slate-600'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Flag country={country} className="w-4 h-2.5 rounded" />
-                        <span>{country === 'UK' ? 'United Kingdom (UK)' : country === 'USA' ? 'United States (USA)' : country}</span>
-                      </div>
-                      {pendingSelectedCountries.includes(country) && <Check className="w-4 h-4 text-[#001F3F] stroke-[2.5]" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Course Intake */}
-              <div className="space-y-3">
-                <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block">Target Intake Period</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {['September', 'January', 'May'].map(intake => (
-                    <button
-                      key={intake}
-                      onClick={() => toggleIntake(intake)}
-                      className={`px-3 py-2.5 rounded-xl border text-[11px] font-bold text-center transition-all duration-200 cursor-pointer ${
-                        pendingSelectedIntakes.includes(intake)
-                          ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
-                          : 'border-slate-200/80 hover:bg-slate-50 text-slate-500'
-                      }`}
-                    >
-                      {intake}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Course Type */}
-              <div className="space-y-3">
-                <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block">Course Type</label>
-                <div className="space-y-2 text-left">
-                  {['STEM', 'Business', 'Arts', 'Medicine'].map(type => (
-                    <button
-                      key={type}
-                      onClick={() => toggleCourseType(type)}
-                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
-                        pendingSelectedCourseTypes.includes(type)
-                          ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
-                          : 'border-slate-200/80 hover:bg-slate-50 text-slate-650'
-                      }`}
-                    >
-                      <span>{type === 'STEM' ? 'STEM & Technology' : type === 'Business' ? 'Business & Management' : type === 'Arts' ? 'Arts, Humanities & Law' : 'Health & Medicine'}</span>
-                      {pendingSelectedCourseTypes.includes(type) && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Search & Select Course Searchable Dropdown */}
-              <div className="space-y-3 relative">
-                <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block">Course Program</label>
-                
-                <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Type or select a course..."
-                    value={pendingCourseInput}
-                    onFocus={() => setPendingIsCourseDropdownOpen(true)}
-                    onChange={(e) => {
-                      setPendingCourseInput(e.target.value);
-                      setPendingSelectedCourse(e.target.value);
-                      setPendingIsCourseDropdownOpen(true);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        setPendingIsCourseDropdownOpen(false);
-                        handleApplyFilters();
-                      }
-                    }}
-                    className="w-full pl-9.5 pr-10 py-3 border border-slate-200/90 rounded-xl text-xs font-semibold text-[#001F3F] placeholder-slate-400 focus:outline-none focus:border-[#FF0000]/40 bg-slate-50/50 focus:bg-white transition-all font-medium"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setPendingIsCourseDropdownOpen(!pendingIsCourseDropdownOpen)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#001F3F] p-1 rounded-lg cursor-pointer"
-                  >
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${pendingIsCourseDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                </div>
-
-                {pendingIsCourseDropdownOpen && (
-                  <>
-                    {/* Backdrop to close dropdown on click outside */}
-                    <div className="fixed inset-0 z-20 cursor-default" onClick={() => setPendingIsCourseDropdownOpen(false)} />
-                    
-                    {/* Dropdown Options List */}
-                    <div className="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto border border-slate-150 rounded-2xl bg-white shadow-xl z-35 p-2 space-y-1 custom-scrollbar text-left">
-                      {courseOptions.length === 0 ? (
-                        <div className="text-[11px] text-slate-400 text-center py-4 font-medium">
-                          No courses match your search
-                        </div>
-                      ) : (
-                        courseOptions.map(course => {
-                          const isSelected = pendingSelectedCourse === course;
-                          return (
-                            <button
-                              key={course}
-                              type="button"
-                              onClick={() => {
-                                setPendingCourseInput(course);
-                                setPendingSelectedCourse(course);
-                                setPendingIsCourseDropdownOpen(false);
-                              }}
-                              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
-                                isSelected 
-                                  ? 'bg-[#001F3F]/5 text-[#001F3F] border-l-2 border-[#FF0000]'
-                                  : 'hover:bg-slate-50 text-slate-700'
-                              }`}
-                            >
-                              <span>{course}</span>
-                              {isSelected && <Check className="w-3.5 h-3.5 text-[#001F3F]" />}
-                            </button>
-                          );
-                        })
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Course Level / Degree */}
-              <div className="space-y-3">
-                <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block">Course Level</label>
-                <div className="space-y-2 text-left">
-                  {["Bachelor's", "Master's", "PG Diploma", "PhD"].map(level => (
-                    <button
-                      key={level}
-                      onClick={() => toggleDegreeLevel(level)}
-                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
-                        pendingSelectedDegreeLevels.includes(level)
-                          ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
-                          : 'border-slate-200/80 hover:bg-slate-50 text-slate-600'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4 text-slate-400" />
-                        <span>{level}</span>
-                      </div>
-                      {pendingSelectedDegreeLevels.includes(level) && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tuition Fees Range */}
-              <div className="space-y-3">
-                <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block">Annual Tuition Fees</label>
-                <select
-                  value={pendingFeeRange}
-                  onChange={(e) => {
-                    setPendingFeeRange(e.target.value);
-                  }}
-                  className="w-full px-3.5 py-3 border border-slate-200/90 rounded-xl text-xs font-bold text-[#001F3F] focus:outline-none focus:border-[#FF0000]/40 cursor-pointer bg-slate-50/50"
-                >
-                  <option value="All">Show All Fees</option>
-                  <option value="under18k">Under £18,000 / $20,000</option>
-                  <option value="18kto35k">£18,000 - £35,000 / $20k - $35k</option>
-                  <option value="35kto55k">£35,000 - £55,000 / $35k - $55k</option>
-                  <option value="over55k">Over £55,000 / $55,000</option>
-                </select>
-              </div>
-
-              {/* Ranking Range */}
-              <div className="space-y-3">
-                <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase block">QS / Global Ranking</label>
-                <select
-                  value={pendingMinRanking}
-                  onChange={(e) => {
-                    setPendingMinRanking(e.target.value);
-                  }}
-                  className="w-full px-3.5 py-3 border border-slate-200/90 rounded-xl text-xs font-bold text-[#001F3F] focus:outline-none focus:border-[#FF0000]/40 cursor-pointer bg-slate-50/50"
-                >
-                  <option value="All">Show All Ranks</option>
-                  <option value="top10">Top 10 Global Universities</option>
-                  <option value="top50">Top 50 Global Universities</option>
-                  <option value="top100">Top 100 Global Universities</option>
-                  <option value="top500">Top 500 Global Universities</option>
-                </select>
-              </div>
-
-              {/* Desktop Apply Filters Button */}
-              <div className="pt-2 border-t border-slate-100/80">
-                <button
-                  onClick={handleApplyFilters}
-                  className={`w-full py-4 text-white rounded-2xl text-xs font-extrabold uppercase tracking-widest transition-all duration-300 active:scale-97 cursor-pointer text-center flex items-center justify-center gap-1.5 shadow-md ${
-                    hasUnappliedChanges
-                      ? 'bg-[#FF0000] hover:bg-[#FF0000]/90 hover:shadow-red-500/25 shadow-lg animate-pulse'
-                      : 'bg-[#001F3F] hover:bg-[#001F3F]/90'
-                  }`}
-                >
-                   <Filter className="w-4 h-4" />
-                   <span>Apply Filters ({pendingCount})</span>
-                </button>
-              </div>
-
-            </aside>
+          {/* Main layout: Full-width catalog content */}
+          <div className="w-full">
 
             {/* RIGHT MAIN CATALOG CONTENT AREA */}
-            <main className="col-span-1 lg:col-span-3 space-y-6 text-left">
+            <main className="w-full space-y-6 text-left">
               
               {/* Dynamic Header Controls Bar */}
               <div className="bg-white rounded-3xl p-5 border border-slate-100/90 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -1195,7 +1420,7 @@ export default function Universities() {
                     </button>
                   </motion.div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
                     <AnimatePresence mode="popLayout">
                       {universities.map((uni, idx) => (
                         <motion.article
@@ -1335,32 +1560,39 @@ export default function Universities() {
                     <button
                       onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-350 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:border-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed"
+                      className="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-350 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:border-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed shrink-0"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                     
-                    {Array.from({ length: totalPages }).map((_, i) => {
-                      const pageNum = i + 1;
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={`w-9.5 h-9.5 rounded-xl text-xs font-extrabold transition-all duration-200 cursor-pointer flex items-center justify-center border ${
-                            currentPage === pageNum
-                              ? 'bg-[#001F3F] border-[#001F3F] text-white shadow-md'
-                              : 'border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-600'
-                          }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
+                    {/* Viewport container */}
+                    <div 
+                      ref={paginationRef}
+                      className="w-[126px] sm:w-[214px] overflow-x-auto flex items-center gap-1.5 custom-scrollbar scroll-smooth px-0.5 pb-2 pt-1"
+                    >
+                      {Array.from({ length: totalPages }).map((_, i) => {
+                        const pageNum = i + 1;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            data-active={currentPage === pageNum}
+                            className={`w-9.5 h-9.5 rounded-xl text-xs font-extrabold transition-all duration-200 cursor-pointer flex items-center justify-center border shrink-0 ${
+                              currentPage === pageNum
+                                ? 'bg-[#001F3F] border-[#001F3F] text-white shadow-md'
+                                : 'border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-600'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
                     
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-350 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:border-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed"
+                      className="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-350 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:border-slate-200 transition-all cursor-pointer disabled:cursor-not-allowed shrink-0"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -2199,7 +2431,7 @@ export default function Universities() {
                 }}
                 className="w-full py-4.5 bg-[#001F3F] hover:bg-[#FF0000] text-white rounded-2xl text-xs font-extrabold uppercase tracking-widest cursor-pointer shadow-md text-center shrink-0"
               >
-                Apply Filters ({pendingCount} Results)
+                Apply Filters
               </button>
             </motion.div>
           </div>
