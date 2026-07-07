@@ -428,6 +428,11 @@ app.all("/api/*", async (req, res) => {
 
     res.status(response.status);
 
+    // Bypass body reading for empty body responses (e.g. 304 Not Modified, 204 No Content)
+    if (response.status === 304 || response.status === 204) {
+      return res.end();
+    }
+
     if (contentType.includes("application/json")) {
       const data = await response.json();
       return res.json(data);
