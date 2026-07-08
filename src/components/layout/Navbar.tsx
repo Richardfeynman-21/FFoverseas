@@ -109,18 +109,6 @@ export default function Navbar() {
               >
                 Home
               </a>
-              <a
-                href="#about-us"
-                className="text-[clamp(0.72rem,0.65rem+0.15vw,0.88rem)] font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
-              >
-                About us
-              </a>
-              <a
-                href="#showcase-destinations"
-                className="text-[clamp(0.72rem,0.65rem+0.15vw,0.88rem)] font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
-              >
-                Study Destinations
-              </a>
             </>
           ) : (
             <>
@@ -130,19 +118,32 @@ export default function Navbar() {
               >
                 Home
               </Link>
-              <Link
-                href="/?scrollTo=about-us"
-                className="text-[clamp(0.72rem,0.65rem+0.15vw,0.88rem)] font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
-              >
-                About us
-              </Link>
-              <Link
-                href="/?scrollTo=showcase-destinations"
-                className="text-[clamp(0.72rem,0.65rem+0.15vw,0.88rem)] font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
-              >
-                Study Destinations
-              </Link>
             </>
+          )}
+          <Link
+            href="/aboutus"
+            className={`${
+              pathname === '/aboutus'
+                ? 'text-[#FF0000] font-bold'
+                : 'text-gray-500 font-semibold'
+            } text-[clamp(0.72rem,0.65rem+0.15vw,0.88rem)] hover:text-[#001F3F] tracking-wider transition-colors uppercase`}
+          >
+            About us
+          </Link>
+          {isHomePage ? (
+            <a
+              href="#showcase-destinations"
+              className="text-[clamp(0.72rem,0.65rem+0.15vw,0.88rem)] font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
+            >
+              Study Destinations
+            </a>
+          ) : (
+            <Link
+              href="/?scrollTo=showcase-destinations"
+              className="text-[clamp(0.72rem,0.65rem+0.15vw,0.88rem)] font-semibold text-gray-500 hover:text-[#001F3F] tracking-wider transition-colors uppercase"
+            >
+              Study Destinations
+            </Link>
           )}
           <Link
             href="/universities"
@@ -214,20 +215,6 @@ export default function Navbar() {
                   >
                     Home
                   </a>
-                  <a
-                    href="#about-us"
-                    onClick={() => setIsOpen(false)}
-                    className="text-sm font-bold text-gray-600 hover:text-[#001F3F] py-2 border-b border-slate-100/60 transition-colors block"
-                  >
-                    About us
-                  </a>
-                  <a
-                    href="#showcase-destinations"
-                    onClick={() => setIsOpen(false)}
-                    className="text-sm font-bold text-gray-600 hover:text-[#001F3F] py-2 border-b border-slate-100/60 transition-colors block"
-                  >
-                    Study Destinations
-                  </a>
                 </>
               ) : (
                 <>
@@ -238,21 +225,33 @@ export default function Navbar() {
                   >
                     Home
                   </Link>
-                  <Link
-                    href="/?scrollTo=about-us"
-                    onClick={() => setIsOpen(false)}
-                    className="text-sm font-bold text-gray-600 hover:text-[#001F3F] py-2 border-b border-slate-100/60 transition-colors block"
-                  >
-                    About us
-                  </Link>
-                  <Link
-                    href="/?scrollTo=showcase-destinations"
-                    onClick={() => setIsOpen(false)}
-                    className="text-sm font-bold text-gray-600 hover:text-[#001F3F] py-2 border-b border-slate-100/60 transition-colors block"
-                  >
-                    Study Destinations
-                  </Link>
                 </>
+              )}
+              <Link
+                href="/aboutus"
+                onClick={() => setIsOpen(false)}
+                className={`text-sm font-bold ${
+                  pathname === '/aboutus' ? 'text-[#FF0000]' : 'text-gray-600'
+                } hover:text-[#001F3F] py-2 border-b border-slate-100/60 transition-colors block`}
+              >
+                About us
+              </Link>
+              {isHomePage ? (
+                <a
+                  href="#showcase-destinations"
+                  onClick={() => setIsOpen(false)}
+                  className="text-sm font-bold text-gray-600 hover:text-[#001F3F] py-2 border-b border-slate-100/60 transition-colors block"
+                >
+                  Study Destinations
+                </a>
+              ) : (
+                <Link
+                  href="/?scrollTo=showcase-destinations"
+                  onClick={() => setIsOpen(false)}
+                  className="text-sm font-bold text-gray-600 hover:text-[#001F3F] py-2 border-b border-slate-100/60 transition-colors block"
+                >
+                  Study Destinations
+                </Link>
               )}
               <Link
                 href="/universities"

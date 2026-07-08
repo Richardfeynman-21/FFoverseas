@@ -74,6 +74,7 @@ export default function Footer() {
             <h4 className="text-xs font-mono font-bold tracking-widest text-[#FF0000] uppercase">Strategic Portals</h4>
             <ul className="space-y-2.5 text-xs text-white/70 font-semibold font-medium">
               <li><Link href="/" className="hover:text-white transition-colors">Candidate Hub</Link></li>
+              <li><Link href="/aboutus" className="hover:text-white transition-colors">About Us</Link></li>
               <li><Link href="/universities" className="hover:text-white transition-colors">Campuses Directory</Link></li>
               <li><a href="https://student.ffoverseas.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Applicant Login</a></li>
               <li><a href="https://admin.ffoverseas.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Counselor Console</a></li>
