@@ -35,6 +35,11 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: 'Fly & Flourish Overseas',
   description: 'Fly & Flourish Overseas - Leading educational consultants offering ultra-precise admissions profiling, Ivy League matches, and high-success visa consulting.',
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
 };
 
 export default function RootLayout({

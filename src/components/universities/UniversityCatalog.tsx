@@ -33,6 +33,37 @@ const isArrayEqual = (a: string[], b: string[]) => {
   return sortedA.every((v, i) => v === sortedB[i]);
 };
 
+const CardSkeleton = () => (
+  <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between overflow-hidden relative animate-pulse select-none min-h-[400px]">
+    {/* Image section skeleton */}
+    <div className="relative h-44 bg-slate-100 w-full overflow-hidden shrink-0 flex items-center justify-center">
+      <div className="w-12 h-12 bg-slate-200/70 rounded-full" />
+    </div>
+    
+    {/* Content details section skeleton */}
+    <div className="p-6.5 flex-1 flex flex-col justify-between relative pt-8.5 space-y-4">
+      <div className="space-y-2">
+        {/* Title */}
+        <div className="h-5 bg-slate-200/80 rounded-xl w-5/6" />
+        <div className="h-5 bg-slate-200/80 rounded-xl w-3/5" />
+      </div>
+      
+      {/* Location */}
+      <div className="h-3.5 bg-slate-200/60 rounded-xl w-2/5" />
+      
+      {/* Key stats row */}
+      <div className="grid grid-cols-3 gap-2 pt-2">
+        <div className="h-10 bg-slate-50 rounded-xl border border-slate-200/40" />
+        <div className="h-10 bg-slate-50 rounded-xl border border-slate-200/40" />
+        <div className="h-10 bg-slate-50 rounded-xl border border-slate-200/40" />
+      </div>
+      
+      {/* Button */}
+      <div className="h-12 bg-slate-200/80 rounded-xl w-full mt-4" />
+    </div>
+  </div>
+);
+
 export default function UniversityCatalog({ initialUniversities, initialTotal }: UniversityCatalogProps) {
   const paginationRef = useRef<HTMLDivElement>(null);
   const isFirstMount = useRef(true);
@@ -917,15 +948,6 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
 
               {/* CATALOG GRID */}
               <div className="relative min-h-[400px]">
-                {loading && (
-                  <div className="absolute inset-0 bg-white/60 backdrop-blur-xs flex items-center justify-center z-20 rounded-3xl">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-10 h-10 border-4 border-[#001F3F] border-t-[#FF0000] rounded-full animate-spin" />
-                      <span className="text-xs font-mono font-bold text-[#001F3F] tracking-widest uppercase animate-pulse">Syncing catalog...</span>
-                    </div>
-                  </div>
-                )}
-                
                 {error ? (
                   <div className="flex flex-col items-center justify-center text-center p-12 bg-white rounded-3xl border border-red-100 shadow-md max-w-lg mx-auto my-8 gap-5">
                     <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center border border-red-100 text-[#FF0000] shadow-xs">
@@ -946,6 +968,12 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
                       Retry Connection
                     </button>
                   </div>
+                ) : loading && universities.length === 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+                    {Array.from({ length: 6 }).map((_, idx) => (
+                      <CardSkeleton key={idx} />
+                    ))}
+                  </div>
                 ) : universities.length === 0 ? (
                   <div className="flex flex-col items-center justify-center text-center p-16 bg-white rounded-3xl border border-slate-100 shadow-xs max-w-md mx-auto my-8 gap-5">
                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 text-slate-400">
@@ -965,7 +993,15 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 relative">
+                    {loading && (
+                      <div className="absolute inset-0 bg-white/40 backdrop-blur-3xs flex items-center justify-center z-20 rounded-3xl animate-in fade-in duration-200">
+                        <div className="flex flex-col items-center gap-3 bg-white/80 p-5 rounded-2xl shadow-lg border border-slate-100">
+                          <div className="w-8 h-8 border-4 border-[#001F3F] border-t-[#FF0000] rounded-full animate-spin" />
+                          <span className="text-[10px] font-mono font-bold text-[#001F3F] tracking-widest uppercase animate-pulse">Updating...</span>
+                        </div>
+                      </div>
+                    )}
                     <AnimatePresence mode="popLayout">
                       {universities.map((uni, idx) => (
                         <UniversityCard

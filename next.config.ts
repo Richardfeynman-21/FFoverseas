@@ -5,9 +5,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   // Server-only packages — prevent bundler from tracing into these
   serverExternalPackages: ['googleapis', 'nodemailer'],
   experimental: {
