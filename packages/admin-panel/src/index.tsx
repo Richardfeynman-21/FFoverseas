@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutDashboard,
@@ -166,7 +166,7 @@ interface AdminPanelProps {
 }
 
 export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // Layout Tab State
   const [activeTab, setActiveTab] = useState<'overview' | 'journey' | 'applications' | 'documents' | 'universities' | 'leads' | 'chat' | 'health'>('overview');

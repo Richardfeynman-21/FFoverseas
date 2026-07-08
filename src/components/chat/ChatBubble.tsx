@@ -1,16 +1,24 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import FlyFlourishLogo from '../FlyFlourishLogo';
+import FlyFlourishLogo from '../ui/FlyFlourishLogo';
 
 interface ChatBubbleProps {
   role: 'user' | 'assistant';
   content: string;
+  timestamp?: string;
 }
 
 const NAVY = '#001F3F';
 
-const ChatBubble: React.FC<ChatBubbleProps> = ({ role, content }) => {
+const ChatBubble: React.FC<ChatBubbleProps> = ({ role, content, timestamp }) => {
   const isUser = role === 'user';
+  const [timeStr, setTimeStr] = useState('');
+
+  useEffect(() => {
+    setTimeStr(timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  }, [timestamp]);
   
   return (
     <motion.div
@@ -44,7 +52,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ role, content }) => {
           </p>
         </div>
         <p className="text-[9px] font-mono mt-1.5 m-0" style={{ color: '#cbd5e1' }}>
-          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {timeStr}
         </p>
       </div>
     </motion.div>

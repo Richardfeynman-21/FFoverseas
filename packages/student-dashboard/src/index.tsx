@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutDashboard, GraduationCap, BarChart3, MessageCircle,
@@ -98,7 +98,7 @@ const NAV_ITEMS: { key: TabKey; label: string; icon: React.ElementType }[] = [
 ];
 
 export default function StudentDashboard() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [student, setStudent] = useState<{ name: string; email: string; id: string } | null>(null);
@@ -142,13 +142,13 @@ export default function StudentDashboard() {
     const token = localStorage.getItem('ff_student_token');
     const storedStudent = localStorage.getItem('ff_student');
     if (!token) {
-      navigate('/student/login');
+      router.push('/student/login');
       return;
     }
     if (storedStudent) {
-      try { setStudent(JSON.parse(storedStudent)); } catch { navigate('/student/login'); }
+      try { setStudent(JSON.parse(storedStudent)); } catch { router.push('/student/login'); }
     }
-  }, [navigate]);
+  }, [router]);
 
   // Auto-scroll chat
   useEffect(() => {
@@ -173,7 +173,7 @@ export default function StudentDashboard() {
     localStorage.removeItem('ff_student_token');
     localStorage.removeItem('ff_student_refresh_token');
     localStorage.removeItem('ff_student');
-    navigate('/student/login');
+    router.push('/student/login');
   };
 
   const getInitials = (name: string) => {
@@ -274,7 +274,7 @@ export default function StudentDashboard() {
         {/* Admin Simulation & Logout */}
         <div className="px-3 pb-6 space-y-1">
           <button
-            onClick={() => navigate('/admin')}
+            onClick={() => router.push('/admin')}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-[13px] font-semibold cursor-pointer"
           >
             <Settings size={18} />

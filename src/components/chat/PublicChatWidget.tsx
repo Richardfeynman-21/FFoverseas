@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Send, Globe, Plane } from 'lucide-react';
 import ChatBubble from './ChatBubble';
 import AuthPromptCard from './AuthPromptCard';
-import FlyFlourishLogo from '../FlyFlourishLogo';
+import FlyFlourishLogo from '../ui/FlyFlourishLogo';
 
 const NAVY = '#001F3F';
 const RED   = '#CC1E1E';
@@ -58,7 +60,7 @@ export default function PublicChatWidget() {
 
     try {
       const token = localStorage.getItem('ff_student_token');
-      const backendUrl = import.meta.env.VITE_PUBLIC_CHAT_API_URL || '/api/public-chat';
+      const backendUrl = process.env.NEXT_PUBLIC_CHAT_API_URL || '/api/public-chat';
       const endpoint = token ? RAG_ENDPOINT : backendUrl;
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       

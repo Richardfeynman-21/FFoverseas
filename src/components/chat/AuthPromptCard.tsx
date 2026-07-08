@@ -1,10 +1,12 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'motion/react';
 import { LogIn, UserPlus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 export default function AuthPromptCard() {
-  const navigate = useNavigate();
+  const router = useRouter();
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -16,14 +18,14 @@ export default function AuthPromptCard() {
       </p>
       <div className="flex gap-2">
         <button
-          onClick={() => navigate('/student/login')}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#001F3F] text-white text-[12px] font-semibold transition-transform hover:scale-[1.02]"
+          onClick={() => router.push('/student/login')}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#001F3F] text-white text-[12px] font-semibold transition-transform hover:scale-[1.02] cursor-pointer"
         >
           <UserPlus size={14} /> Sign Up
         </button>
         <button
-          onClick={() => navigate('/student/login')}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-[#001F3F] border border-[#001F3F] text-[12px] font-semibold transition-transform hover:scale-[1.02]"
+          onClick={() => router.push('/student/login')}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-[#001F3F] border border-[#001F3F] text-[12px] font-semibold transition-transform hover:scale-[1.02] cursor-pointer"
         >
           <LogIn size={14} /> Log In
         </button>
