@@ -296,82 +296,6 @@ export default function HomeClient() {
         </div>
       </motion.section>
 
-      {/* 2.5 About Us Section */}
-      <motion.section 
-        className="relative py-24 bg-[#fdfdfd]" 
-        id="about-us"
-        variants={revealVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.12 }}
-      >
-        <div className="absolute top-1/4 left-1/10 w-72 h-72 rounded-full bg-[#001F3F]/5 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/10 w-80 h-80 rounded-full bg-[#FF0000]/3 blur-3xl pointer-events-none" />
-
-        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20 2xl:gap-28 items-center">
-            
-            {/* Left side: Official Brand Seal */}
-            <div className="lg:col-span-5 aspect-square flex flex-col items-center justify-center bg-white/40 backdrop-blur-md p-8 rounded-full border border-white/60 shadow-xl relative overflow-hidden group max-w-[280px] sm:max-w-[340px] 2xl:max-w-[400px] mx-auto w-full select-none">
-              <div className="absolute inset-0 bg-radial from-[#001F3F]/2 to-transparent opacity-60 rounded-full pointer-events-none" />
-              <div className="relative w-full max-w-[140px] xs:max-w-[170px] md:max-w-[200px] aspect-square transition-transform duration-700 group-hover:scale-[1.03]">
-                <FlyFlourishLogo showGlobeBg={true} size="100%" />
-              </div>
-              <p className="text-[9px] text-gray-400 font-mono tracking-wider uppercase mt-3 z-10">OFFICIAL BRAND SEAL</p>
-            </div>
-
-            {/* Right side: Editorial text copy and values details */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#001F3F]/5 border border-[#001F3F]/15 rounded-full text-xs text-[#001F3F] font-mono shadow-xs backdrop-blur-xs">
-                  <span className="text-[#FF0000]">✈️</span>
-                  <span>WHO WE ARE</span>
-                </div>
-                
-                <h2 className="text-fluid-5xl font-black text-[#001F3F] tracking-tight leading-tight md:leading-none">
-                  Sovereign Guidance for <br />
-                  <span className="text-[#FF0000] relative inline-block">
-                    Your Academic Flight Path
-                    <span className="absolute -bottom-1 left-0 right-0 h-1 bg-[#FF0000]/20 rounded-full" />
-                  </span>
-                </h2>
-              </div>
-
-              <p className="text-fluid-base text-gray-500 leading-relaxed font-medium">
-                At <strong>Fly & Flourish</strong>, we are more than educational advisors. We are architects of global human potential, pioneering strategic admissions blueprints that bridge elite ambitious talents with world-tier universities across the United States, United Kingdom, Canada, and beyond.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
-                <div className="space-y-2 bg-white/45 p-5 rounded-2xl border border-white/50 backdrop-blur-xs shadow-xs">
-                  <div className="w-9 h-9 rounded-xl bg-[#001F3F]/5 flex items-center justify-center text-[#001F3F] font-bold">1</div>
-                  <h4 className="font-bold text-[#001F3F] text-sm">Targeted Profiles</h4>
-                  <p className="text-xs text-gray-400 leading-relaxed font-medium">Precision diagnostics matching your distinct academic GPA, transcripts, and aspirations with the absolute highest probability admissions orbits.</p>
-                </div>
-
-                <div className="space-y-2 bg-white/45 p-5 rounded-2xl border border-white/50 backdrop-blur-xs shadow-xs">
-                  <div className="w-9 h-9 rounded-xl bg-[#FF0000]/5 flex items-center justify-center text-[#FF0000] font-bold">2</div>
-                  <h4 className="font-bold text-[#001F3F] text-sm">Ironclad Visa Dossier</h4>
-                  <p className="text-xs text-gray-400 leading-relaxed font-medium">Our elite, zero-friction pre-visa vetting protocols secure a 98.4% success rate under stringent international immigration filters.</p>
-                </div>
-              </div>
-
-              <div className="pt-4 flex items-center gap-4 border-t border-slate-100">
-                <div className="flex -space-x-2.5">
-                  <div className="w-9 h-9 rounded-full bg-[#001F3F] text-white flex items-center justify-center text-xs font-mono font-bold border-2 border-white">US</div>
-                  <div className="w-9 h-9 rounded-full bg-[#FF0000] text-white flex items-center justify-center text-xs font-mono font-bold border-2 border-white">UK</div>
-                  <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-mono font-bold border-2 border-white">CA</div>
-                  <div className="w-9 h-9 rounded-full bg-indigo-900 text-white flex items-center justify-center text-xs font-mono font-bold border-2 border-white">EU</div>
-                </div>
-                <p className="text-xs text-gray-400 font-medium">
-                  Direct channels established to over <strong>200+ partner universities</strong> and ivy circles.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      </motion.section>
 
       {/* 4. Admissions Roadmap blueprint */}
       <motion.section 
@@ -478,7 +402,7 @@ export default function HomeClient() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/?scrollTo=about-us" className="hover:text-white transition-colors">
+                  <Link href="/aboutus" className="hover:text-white transition-colors">
                     About us
                   </Link>
                 </li>
