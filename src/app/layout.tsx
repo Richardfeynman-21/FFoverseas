@@ -36,9 +36,15 @@ export const metadata: Metadata = {
   title: 'Fly & Flourish Overseas',
   description: 'Fly & Flourish Overseas - Leading educational consultants offering ultra-precise admissions profiling, Ivy League matches, and high-success visa consulting.',
   icons: {
-    icon: '/logo.svg',
-    shortcut: '/logo.svg',
-    apple: '/logo.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-48.png', type: 'image/png', sizes: '48x48' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
   },
 };
 
