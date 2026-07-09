@@ -6,7 +6,7 @@ const svgPath = path.resolve('FFlogo-icon-only.svg');
 const publicDir = path.resolve('public');
 
 async function createFavicon(size) {
-  const logoSize = Math.round(size * 0.88); // 88% logo size to make it prominent with comfortable padding
+  const logoSize = Math.round(size * 0.96); // 96% logo size for maximum prominence inside squarcle
   const padding = Math.round((size - logoSize) / 2);
   
   // Render the logo SVG to target size (transparent)
