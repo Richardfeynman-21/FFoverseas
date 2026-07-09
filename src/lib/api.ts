@@ -16,6 +16,7 @@ export function mapApiToDetailedUniversity(api: ApiUniversity): DetailedUniversi
   const currencySymbol = CURRENCY_SYMBOLS[api.currency || ''] || (api.currency || '$');
   const fee = api.avg_tuition_fee || 0;
   const rankStr = api.qs_rank_2026;
+  const nationalRank = api.national_rank;
   const rankNum = rankStr ? parseInt(rankStr.replace(/[^0-9]/g, ''), 10) : 99999;
 
   let tuitionDisplay: string;
@@ -31,7 +32,7 @@ export function mapApiToDetailedUniversity(api: ApiUniversity): DetailedUniversi
     country: shortCountry,
     code: api.alpha_two_code,
     flag: api.alpha_two_code,
-    ranking: rankStr ? `QS #${rankStr}` : 'Unranked',
+    ranking: rankStr ? `QS #${rankStr}` : (nationalRank ? `National #${nationalRank}` : 'Unranked'),
     rankValue: isNaN(rankNum) ? 99999 : rankNum,
     tuition: tuitionDisplay,
     tuitionValue: fee,
@@ -157,6 +158,7 @@ export function mapApiDetailToDetailedUniversity(data: { university: ApiUniversi
   const avgFee = validFees.length > 0 ? (validFees.reduce((a, b) => a + b, 0) / validFees.length) : (api.avg_tuition_fee || 0);
   
   const rankStr = data.rankings?.qs_rank_2026 || api.qs_rank_2026 || null;
+  const nationalRank = data.rankings?.national_rank || api.national_rank || null;
   const rankNum = rankStr ? parseInt(rankStr.replace(/[^0-9]/g, ''), 10) : 99999;
 
   let tuitionDisplay: string;
@@ -172,7 +174,7 @@ export function mapApiDetailToDetailedUniversity(data: { university: ApiUniversi
     country: shortCountry,
     code: api.alpha_two_code,
     flag: api.alpha_two_code,
-    ranking: rankStr ? `QS #${rankStr}` : 'Unranked',
+    ranking: rankStr ? `QS #${rankStr}` : (nationalRank ? `National #${nationalRank}` : 'Unranked'),
     rankValue: isNaN(rankNum) ? 99999 : rankNum,
     tuition: tuitionDisplay,
     tuitionValue: avgFee,
