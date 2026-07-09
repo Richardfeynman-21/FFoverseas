@@ -992,15 +992,7 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 relative">
-                    {loading && (
-                      <div className="absolute inset-0 bg-white/40 backdrop-blur-3xs flex items-center justify-center z-20 rounded-3xl animate-in fade-in duration-200">
-                        <div className="flex flex-col items-center gap-3 bg-white/80 p-5 rounded-2xl shadow-lg border border-slate-100">
-                          <div className="w-8 h-8 border-4 border-[#001F3F] border-t-[#FF0000] rounded-full animate-spin" />
-                          <span className="text-[10px] font-mono font-bold text-[#001F3F] tracking-widest uppercase animate-pulse">Updating...</span>
-                        </div>
-                      </div>
-                    )}
+                  <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 relative transition-opacity duration-300 ${loading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
                     <AnimatePresence mode="popLayout">
                       {universities.map((uni, idx) => (
                         <UniversityCard

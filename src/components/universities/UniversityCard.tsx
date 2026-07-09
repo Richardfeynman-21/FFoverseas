@@ -28,6 +28,8 @@ const UniversityCardComponent = React.forwardRef<HTMLElement, UniversityCardProp
   handleOpenDetailsModal,
 }, ref) => {
   const [logoError, setLogoError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
   const router = useRouter();
 
   return (
@@ -50,11 +52,14 @@ const UniversityCardComponent = React.forwardRef<HTMLElement, UniversityCardProp
     >
       
       {/* Editorial Banner */}
-      <div className="relative h-44 w-full overflow-hidden select-none bg-slate-100 shrink-0">
+      <div className="relative h-44 w-full overflow-hidden select-none bg-slate-100/50 shrink-0">
         <img
           src={uni.imageUrl}
           alt={`${uni.name} Campus`}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          onLoad={() => setImageLoaded(true)}
+          className={`w-full h-full object-cover transition-all duration-700 ${
+            imageLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-102 blur-xs'
+          } group-hover:scale-105`}
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
@@ -87,7 +92,10 @@ const UniversityCardComponent = React.forwardRef<HTMLElement, UniversityCardProp
             <img
               src={uni.logoUrl}
               alt={`${uni.name} Badge`}
-              className="w-full h-full object-cover rounded-full"
+              onLoad={() => setLogoLoaded(true)}
+              className={`w-full h-full object-cover rounded-full transition-all duration-500 ${
+                logoLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+              }`}
               onError={() => setLogoError(true)}
             />
           )}
