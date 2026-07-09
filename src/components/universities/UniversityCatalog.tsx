@@ -841,10 +841,11 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
             <main className="w-full space-y-6 text-left">
               
               {/* Dynamic Header Controls Bar */}
-              <div className="bg-white rounded-3xl p-5 border border-slate-100/90 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+              <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-100/90 shadow-sm flex flex-col gap-3 sm:gap-4">
                 
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                  <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 text-center md:text-left shrink-0">
+                {/* Row 1: Result count + Featured/All toggle */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full">
+                  <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 text-center sm:text-left w-full sm:w-auto">
                     {totalResults === 0 ? (
                       <span className="text-red-500 font-mono">0 match results found</span>
                     ) : (
@@ -855,7 +856,7 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
                   </div>
 
                   {!hasActiveFilters && sortBy === 'rank' && (
-                    <div className="flex items-center gap-1 bg-slate-50 p-1.5 rounded-2xl border border-slate-100 shrink-0">
+                    <div className="flex items-center gap-1 bg-slate-50 p-1.5 rounded-2xl border border-slate-100 shrink-0 w-full sm:w-auto justify-center sm:justify-start">
                       <button
                         onClick={() => {
                           setIsFeatured(true);
@@ -886,17 +887,18 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                {/* Row 2: Filter button + Sort dropdown */}
+                <div className="flex items-center gap-3 w-full sm:w-auto sm:justify-end">
                   <button
                     onClick={() => setMobileFiltersOpen(true)}
-                    className="lg:hidden px-4.5 py-3 bg-[#001F3F] hover:bg-[#001F3F]/90 text-white rounded-2xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-md w-full sm:w-auto justify-center"
+                    className="lg:hidden flex-1 sm:flex-none px-4 py-2.5 bg-[#001F3F] hover:bg-[#001F3F]/90 text-white rounded-2xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-md justify-center"
                   >
                     <Filter className="w-4 h-4" />
                     <span>FILTERS ({activeFilterTags.length})</span>
                   </button>
 
-                  <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
-                    <span className="text-xs font-extrabold text-slate-400 font-mono hidden sm:inline">SORTBY:</span>
+                  <div className="flex items-center gap-2 flex-1 sm:flex-none justify-end min-w-0">
+                    <span className="text-xs font-extrabold text-slate-400 font-mono hidden sm:inline shrink-0">SORTBY:</span>
                     <select
                       value={sortBy}
                       onChange={(e) => {
@@ -907,12 +909,12 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
                         }
                         setCurrentPage(1);
                       }}
-                      className="px-4 py-3 border border-slate-200 rounded-xl text-xs font-bold text-[#001F3F] focus:outline-none focus:border-[#FF0000]/40 cursor-pointer bg-slate-50/50"
+                      className="w-full sm:w-auto px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-200 rounded-xl text-[11px] sm:text-xs font-bold text-[#001F3F] focus:outline-none focus:border-[#FF0000]/40 cursor-pointer bg-slate-50/50"
                     >
-                      <option value="rank">QS Ranking (High to Low)</option>
-                      <option value="courseCount">Courses Count (High to Low)</option>
-                      <option value="tuitionAsc">Tuition Cost (Low to High)</option>
-                      <option value="acceptanceDesc">Acceptance Rate (High to Low)</option>
+                      <option value="rank">QS Ranking</option>
+                      <option value="courseCount">Courses Count</option>
+                      <option value="tuitionAsc">Tuition (Low→High)</option>
+                      <option value="acceptanceDesc">Acceptance Rate</option>
                     </select>
                   </div>
                 </div>
