@@ -14,7 +14,6 @@ import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import UniversityCard from './UniversityCard';
 import UniversityFilters from './UniversityFilters';
-import DetailsModal from './DetailsModal';
 import EligibilityModal from './EligibilityModal';
 
 import { DetailedUniversity, ApiCourse } from '../../lib/types';
@@ -1008,7 +1007,6 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
                           key={uni.id || uni.name}
                           uni={uni}
                           idx={idx}
-                          handleOpenDetailsModal={handleOpenDetailsModal}
                         />
                       ))}
                     </AnimatePresence>
@@ -1092,21 +1090,7 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {detailsUni && (
-          <DetailsModal
-            detailsUni={detailsUni}
-            modalCoursesLoading={modalCoursesLoading}
-            filteredPrograms={filteredPrograms}
-            modalSearchQuery={modalSearchQuery}
-            setModalSearchQuery={setModalSearchQuery}
-            programFilter={programFilter}
-            setProgramFilter={setProgramFilter}
-            handleCloseDetailsModal={handleCloseDetailsModal}
-            currencySymbols={CURRENCY_SYMBOLS}
-          />
-        )}
-      </AnimatePresence>
+
 
       <Footer />
     </div>

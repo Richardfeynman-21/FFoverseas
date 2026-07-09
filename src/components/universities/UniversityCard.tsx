@@ -12,13 +12,14 @@ import {
   Percent, 
   CheckCircle2 
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Flag } from '../ui/Flag';
 import { DetailedUniversity } from '../../lib/types';
 
 interface UniversityCardProps {
   uni: DetailedUniversity;
   idx: number;
-  handleOpenDetailsModal: (uni: DetailedUniversity) => void;
+  handleOpenDetailsModal?: (uni: DetailedUniversity) => void;
 }
 
 const UniversityCardComponent = React.forwardRef<HTMLElement, UniversityCardProps>(({
@@ -27,6 +28,7 @@ const UniversityCardComponent = React.forwardRef<HTMLElement, UniversityCardProp
   handleOpenDetailsModal,
 }, ref) => {
   const [logoError, setLogoError] = useState(false);
+  const router = useRouter();
 
   return (
     <motion.article
@@ -42,7 +44,7 @@ const UniversityCardComponent = React.forwardRef<HTMLElement, UniversityCardProp
         mass: 0.8,
         delay: Math.min(idx * 0.05, 0.25)
       }}
-      onClick={() => handleOpenDetailsModal(uni)}
+      onClick={() => router.push(`/universities/${uni.id}`)}
       className="group bg-white/70 backdrop-blur-md border border-slate-200 hover:border-[#001F3F]/35 hover:bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-350 flex flex-col cursor-pointer"
       style={{ willChange: 'transform' }}
     >
