@@ -240,13 +240,20 @@ export default function HomeClient() {
 
               {/* High-Contrast Interactive CTA button pairing */}
               <div className="flex flex-wrap gap-4 items-center">
-                <Link
-                  href="/universities"
-                  className="px-7 py-3.5 bg-gradient-to-r from-[#001F3F] to-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-widest shadow-lg hover:shadow-red-500/20 active:scale-97 transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  <span>APPLY TO YOUR UNIVERSITY</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
+                <div className="relative flex items-center justify-center overflow-visible">
+                  <motion.span
+                    className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-r from-[#001F3F] to-[#FF0000] -z-10"
+                    animate={{ scale: [1, 1.18, 1.18], opacity: [0.55, 0, 0] }}
+                    transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }}
+                  />
+                  <Link
+                    href="/universities"
+                    className="px-7 py-3.5 bg-gradient-to-r from-[#001F3F] to-[#FF0000] text-white rounded-xl text-xs font-extrabold uppercase tracking-widest shadow-lg hover:shadow-red-500/20 active:scale-97 transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <span>APPLY TO YOUR UNIVERSITY</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
 
                 <a
                   href="#showcase-destinations"
