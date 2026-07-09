@@ -16,22 +16,22 @@ import Footer from '../../components/layout/Footer';
 // Leaders details preserved for company consistency
 const leaders = [
   {
-    name: 'S Abhinover Reddy',
+    name: 'S Abhinove Reddy',
     role: 'CEO & Chairman',
     avatar: 'AR',
     bio: 'Pioneering global education access with dynamic matching tech and strategic institutional partnerships.',
-  },
-  {
-    name: 'S Aakanksha Reddy',
-    role: 'Managing Director',
-    avatar: 'AK',
-    bio: 'Orchestrating operational excellence and building trusted networks of counselors across global markets.',
   },
   {
     name: 'S Abhilash Redy',
     role: 'Co-Founder',
     avatar: 'AB',
     bio: 'Designing cutting-edge EdTech frameworks to simplify and optimize student admissions workflows.',
+  },
+  {
+    name: 'S Aakanksha Reddy',
+    role: 'Managing Director',
+    avatar: 'AK',
+    bio: 'Orchestrating operational excellence and building trusted networks of counselors across global markets.',
   },
   {
     name: 'Bothsa Durga Prasad',
