@@ -23,7 +23,7 @@ import { Flag } from '../ui/Flag';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import { DetailedUniversity, ApiCourse, ApiUniversity } from '../../lib/types';
-import { fetchUniversityDetail, mapApiDetailToDetailedUniversity, mapApiToDetailedUniversity } from '../../lib/api';
+import { fetchUniversityDetail, fetchUniversityCourses, mapApiDetailToDetailedUniversity, mapApiToDetailedUniversity } from '../../lib/api';
 import { CURRENCY_SYMBOLS, FEATURED_UNIVERSITIES_FALLBACK } from '../../lib/constants';
 
 interface UniversityDetailClientProps {
@@ -45,8 +45,17 @@ export default function UniversityDetailClient({ universityId }: UniversityDetai
       try {
         const data = await fetchUniversityDetail(universityId);
         const mapped = mapApiDetailToDetailedUniversity(data);
+        
+        // Fetch full course catalog (up to 1000 courses) to ensure Masters/PhDs are loaded
+        try {
+          const coursesData = await fetchUniversityCourses(universityId, 1000);
+          setCourses(coursesData.courses || []);
+        } catch (cErr) {
+          console.warn("Failed to load full course catalog, using detail sample:", cErr);
+          setCourses(data.courses || []);
+        }
+
         setUni(mapped);
-        setCourses(data.courses || []);
         setError(null);
       } catch (err) {
         console.warn("Failed to load live university details, falling back to local static catalog:", err);
