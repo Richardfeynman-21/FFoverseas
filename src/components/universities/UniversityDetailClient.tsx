@@ -424,12 +424,12 @@ export default function UniversityDetailClient({ universityId }: UniversityDetai
                                 <span className="font-black text-[#001F3F]">{tuitionDisplay}</span>
                               </div>
                               
-                              <div className="flex justify-between items-center text-left">
-                                <span className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-widest flex items-center gap-1.5">
+                              <div className="flex justify-between items-center text-left gap-4">
+                                <span className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-widest flex items-center gap-1.5 shrink-0">
                                   <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                   <span>Intakes</span>
                                 </span>
-                                <span className="font-extrabold text-slate-600 truncate max-w-[120px]">
+                                <span className="font-extrabold text-slate-600 text-right">
                                   {uni.intakes.join(' / ')}
                                 </span>
                               </div>
