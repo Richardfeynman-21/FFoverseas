@@ -22,7 +22,7 @@ const leaders = [
     bio: 'Pioneering global education access with dynamic matching tech and strategic institutional partnerships.',
   },
   {
-    name: 'S Abhilash Redy',
+    name: 'S Abhilash Reddy',
     role: 'Co-Founder',
     avatar: 'AB',
     bio: 'Designing cutting-edge EdTech frameworks to simplify and optimize student admissions workflows.',
