@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { TabKey, Student, ApplicationStage, StudentApplication } from '../types';
+import { TabKey, Student, ApplicationStage, StudentApplication } from './types';
 
 interface DashboardTabProps {
   student: Student;

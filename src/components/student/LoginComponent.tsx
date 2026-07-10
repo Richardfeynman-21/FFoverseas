@@ -180,7 +180,7 @@ export default function Login() {
       const token = localStorage.getItem('ff_admin_token');
       if (token) router.replace('/admin');
     }
-  }, [navigate, portalMode]);
+  }, [router, portalMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

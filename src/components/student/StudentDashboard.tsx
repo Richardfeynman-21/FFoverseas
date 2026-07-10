@@ -44,12 +44,14 @@ export default function StudentDashboard() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>(() => {
-    const saved = localStorage.getItem('ff_uploaded_docs');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_uploaded_docs');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     // Default mock files for documents that are marked as uploaded by default
@@ -151,12 +153,14 @@ export default function StudentDashboard() {
   }, [docChecks]);
 
   const [applications, setApplications] = useState<StudentApplication[]>(() => {
-    const saved = localStorage.getItem('ff_student_applications');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_student_applications');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_APPLICATIONS;
@@ -167,9 +171,11 @@ export default function StudentDashboard() {
   }, [applications]);
 
   const [activeApplicationId, setActiveApplicationId] = useState<string>(() => {
-    const saved = localStorage.getItem('ff_active_application_id');
-    if (saved && DEFAULT_APPLICATIONS.some(a => a.id === saved)) {
-      return saved;
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_active_application_id');
+      if (saved && DEFAULT_APPLICATIONS.some(a => a.id === saved)) {
+        return saved;
+      }
     }
     return DEFAULT_APPLICATIONS[0]?.id || '';
   });
@@ -184,12 +190,14 @@ export default function StudentDashboard() {
     if (activeApplication) {
       return activeApplication.stages;
     }
-    const saved = localStorage.getItem('ff_application_stages');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_application_stages');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_APPLICATION_STAGES;
@@ -308,7 +316,7 @@ export default function StudentDashboard() {
     } else {
       router.push('/student/login');
     }
-  }, [navigate]);
+  }, [router]);
 
   // Auto-scroll chat
   useEffect(() => {

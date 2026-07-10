@@ -196,12 +196,14 @@ const DEFAULT_PROFILE_DATA: ProfileData = {
 export const ProfileTab: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<'general' | 'education' | 'scores' | 'visa'>('general');
   const [profile, setProfile] = useState<ProfileData>(() => {
-    const saved = localStorage.getItem('ff_profile_data');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_profile_data');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_PROFILE_DATA;

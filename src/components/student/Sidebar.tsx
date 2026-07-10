@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { TabKey, Student } from '../types';
+import { TabKey, Student } from './types';
 
 interface SidebarProps {
   activeTab: TabKey;

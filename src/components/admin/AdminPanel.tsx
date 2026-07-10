@@ -171,48 +171,56 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
 
   // Database States loaded from localStorage
   const [students, setStudents] = useState<StudentRecord[]>(() => {
-    const saved = localStorage.getItem('ff_students_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_students_db');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_STUDENTS;
   });
 
   const [applications, setApplications] = useState<ApplicationRecord[]>(() => {
-    const saved = localStorage.getItem('ff_applications_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_applications_db');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_APPLICATIONS;
   });
 
   const [documents, setDocuments] = useState<DocumentRecord[]>(() => {
-    const saved = localStorage.getItem('ff_documents_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_documents_db');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_DOCUMENTS;
   });
 
   const [universities, setUniversities] = useState<UniversityRecord[]>(() => {
-    const saved = localStorage.getItem('ff_universities_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_universities_db');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_UNIVERSITIES;

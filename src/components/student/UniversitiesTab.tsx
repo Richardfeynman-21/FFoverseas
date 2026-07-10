@@ -3,8 +3,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Filter, DollarSign, Award, Users, ExternalLink, GraduationCap, MapPin } from 'lucide-react';
-import { University } from '../types';
-import { Flag } from '../Flag';
+import { University } from './types';
+import { Flag } from './Flag';
 
 interface UniversitiesTabProps {
   countryFilter: string;
