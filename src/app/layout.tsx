@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Outfit, Space_Grotesk, JetBrains_Mono, Playfair_Display } from 'next/font/google';
+import { Outfit, Space_Grotesk, JetBrains_Mono, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 
 const outfit = Outfit({
@@ -32,6 +32,13 @@ const playfairDisplay = Playfair_Display({
   display: 'swap',
 });
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-plus-jakarta-sans',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: 'Fly & Flourish Overseas',
   description: 'Fly & Flourish Overseas - Leading educational consultants offering ultra-precise admissions profiling, Ivy League matches, and high-success visa consulting.',
@@ -54,7 +61,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${playfairDisplay.variable}`}>
+    <html lang="en" className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${playfairDisplay.variable} ${plusJakartaSans.variable}`}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+      </head>
       <body>
         <div id="root">
           {children}

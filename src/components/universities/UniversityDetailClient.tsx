@@ -404,42 +404,42 @@ export default function UniversityDetailClient({ universityId }: UniversityDetai
                                 <GraduationCap className="w-5 h-5" />
                               </div>
                               
-                              <span className={`px-2.5 py-0.5 rounded-md text-[9px] font-extrabold uppercase font-mono tracking-wider ${levelColorClass}`}>
+                              <span className={`px-2.5 py-0.5 rounded-md text-[9px] font-semibold uppercase font-mono tracking-wider ${levelColorClass}`}>
                                 {degreeLevel.split('/')[1] || degreeLevel}
                               </span>
                             </div>
 
                             {/* Title */}
-                            <h5 className="font-extrabold text-sm text-[#001F3F] leading-snug group-hover:text-[#FF0000] transition-colors line-clamp-2 tracking-tight min-h-[40px] flex items-center">
+                            <h5 className="font-semibold text-sm text-[#001F3F] leading-snug group-hover:text-[#FF0000] transition-colors line-clamp-2 tracking-tight min-h-[40px] flex items-center">
                               {course.course_name}
                             </h5>
 
                             {/* Details Container */}
                             <div className="bg-slate-50/60 border border-slate-100/80 rounded-2xl p-4 space-y-3 mt-4 text-[11px]">
                               <div className="flex justify-between items-center text-left">
-                                <span className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-widest flex items-center gap-1.5">
+                                <span className="text-[9px] font-mono font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                                   <DollarSign className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                   <span>Tuition</span>
                                 </span>
-                                <span className="font-black text-[#001F3F]">{tuitionDisplay}</span>
+                                <span className="font-semibold text-[#001F3F]">{tuitionDisplay}</span>
                               </div>
                               
                               <div className="flex justify-between items-center text-left gap-4">
-                                <span className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-widest flex items-center gap-1.5 shrink-0">
+                                <span className="text-[9px] font-mono font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5 shrink-0">
                                   <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                   <span>Intakes</span>
                                 </span>
-                                <span className="font-extrabold text-slate-600 text-right">
+                                <span className="font-medium text-slate-600 text-right">
                                   {uni.intakes.join(' / ')}
                                 </span>
                               </div>
                               
                               <div className="flex justify-between items-center text-left">
-                                <span className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-widest flex items-center gap-1.5">
+                                <span className="text-[9px] font-mono font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                                   <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                   <span>Duration</span>
                                 </span>
-                                <span className="font-extrabold text-slate-600">{duration}</span>
+                                <span className="font-medium text-slate-600">{duration}</span>
                               </div>
                             </div>
                           </div>
@@ -447,7 +447,7 @@ export default function UniversityDetailClient({ universityId }: UniversityDetai
                           {/* Footer CTA Button */}
                           <Link
                             href="/?scrollTo=consultation-hub"
-                            className="w-full mt-6 py-3.5 bg-[#001F3F] group-hover:bg-[#FF0000] text-white rounded-xl text-[10px] font-mono font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-1.5 shadow-sm active:scale-97 cursor-pointer text-center"
+                            className="w-full mt-6 py-3 bg-[#001F3F] group-hover:bg-[#FF0000] text-white rounded-xl text-[10px] font-mono font-semibold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 shadow-sm active:scale-97 cursor-pointer text-center"
                           >
                             <span>Apply Now</span>
                             <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />

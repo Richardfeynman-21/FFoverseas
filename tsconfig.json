@@ -18,12 +18,6 @@
     "paths": {
       "@/*": [
         "./*"
-      ],
-      "@ffoverseas/admin-panel": [
-        "./packages/admin-panel/src/index.tsx"
-      ],
-      "@ffoverseas/student-dashboard": [
-        "./packages/student-dashboard/src/index.tsx"
       ]
     },
     "allowImportingTsExtensions": true,

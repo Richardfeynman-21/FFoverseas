@@ -1,7 +1,6 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@ffoverseas/admin-panel', '@ffoverseas/student-dashboard'],
   typescript: {
     ignoreBuildErrors: true,
   },

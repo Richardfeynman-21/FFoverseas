@@ -303,42 +303,42 @@ export default function DetailsModal({
                             <GraduationCap className="w-5 h-5" />
                           </div>
                           
-                          <span className="px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[9px] font-extrabold uppercase font-mono tracking-wider">
+                          <span className="px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[9px] font-semibold uppercase font-mono tracking-wider">
                             {degreeLevel.split('/')[1] || degreeLevel}
                           </span>
                         </div>
 
                         {/* Title */}
-                        <h5 className="font-extrabold text-sm text-[#001F3F] leading-snug group-hover:text-[#FF0000] transition-colors line-clamp-2">
+                        <h5 className="font-semibold text-sm text-[#001F3F] leading-snug group-hover:text-[#FF0000] transition-colors line-clamp-2">
                           {course.course_name}
                         </h5>
 
                         {/* Details Table */}
                         <div className="space-y-2 border-t border-slate-100 pt-4 text-[11px]">
                           <div className="flex justify-between items-center text-left">
-                            <span className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                            <span className="text-[9px] font-mono font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                               <DollarSign className="w-3.5 h-3.5 text-[#001F3F]" />
                               <span>Tuition</span>
                             </span>
-                            <span className="font-black text-[#001F3F]">{tuitionDisplay}</span>
+                            <span className="font-semibold text-[#001F3F]">{tuitionDisplay}</span>
                           </div>
                           
                           <div className="flex justify-between items-center text-left">
-                            <span className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                            <span className="text-[9px] font-mono font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                               <Calendar className="w-3.5 h-3.5 text-[#001F3F]" />
                               <span>Intakes</span>
                             </span>
-                            <span className="font-bold text-slate-600 truncate max-w-[120px]">
+                            <span className="font-medium text-slate-600 truncate max-w-[120px]">
                               {detailsUni.intakes.join(' / ')}
                             </span>
                           </div>
                           
                           <div className="flex justify-between items-center text-left">
-                            <span className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                            <span className="text-[9px] font-mono font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                               <Clock className="w-3.5 h-3.5 text-[#001F3F]" />
                               <span>Duration</span>
                             </span>
-                            <span className="font-bold text-slate-600">{duration}</span>
+                            <span className="font-medium text-slate-600">{duration}</span>
                           </div>
                         </div>
                       </div>
@@ -347,7 +347,7 @@ export default function DetailsModal({
                       <Link
                         href="/?scrollTo=consultation-hub"
                         onClick={handleCloseDetailsModal}
-                        className="w-full mt-6 py-3 bg-[#001F3F] group-hover:bg-[#FF0000] text-white rounded-xl text-[10px] font-mono font-black uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 shadow-sm active:scale-97 cursor-pointer"
+                        className="w-full mt-6 py-3 bg-[#001F3F] group-hover:bg-[#FF0000] text-white rounded-xl text-[10px] font-mono font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 shadow-sm active:scale-97 cursor-pointer"
                       >
                         <span>Apply Now</span>
                         <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
