@@ -469,6 +469,7 @@ export default function StudentDashboard() {
                 countryFilter={countryFilter}
                 setCountryFilter={setCountryFilter}
                 filteredUniversities={filteredUniversities}
+                setActiveTab={setActiveTab}
               />
             )}
 
