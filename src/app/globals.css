@@ -1,0 +1,307 @@
+@import "tailwindcss";
+
+@utility text-fluid-xs {
+  font-size: clamp(0.65rem, 0.6rem + 0.15vw, 0.75rem);
+}
+@utility text-fluid-sm {
+  font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
+}
+@utility text-fluid-base {
+  font-size: clamp(0.85rem, 0.8rem + 0.25vw, 1rem);
+}
+@utility text-fluid-lg {
+  font-size: clamp(0.9rem, 0.85rem + 0.3vw, 1.1rem);
+}
+@utility text-fluid-xl {
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+}
+@utility text-fluid-2xl {
+  font-size: clamp(1.1rem, 0.95rem + 0.75vw, 1.5rem);
+}
+@utility text-fluid-3xl {
+  font-size: clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+@utility text-fluid-4xl {
+  font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2.5rem);
+}
+@utility text-fluid-5xl {
+  font-size: clamp(1.75rem, 1.25rem + 2vw, 3rem);
+}
+@utility text-fluid-6xl {
+  font-size: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+}
+
+:root {
+  --font-sans: var(--font-outfit), var(--font-space-grotesk), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --color-brand-navy: #001F3F;
+  --color-brand-red: #FF0000;
+}
+
+/* Custom scrollbar and smooth scroll */
+html {
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fdfdfd;
+  color: #001F3F;
+  overflow-x: hidden;
+}
+
+/* Elite Frosted 3D Glassmorphism Panel styles */
+.frosted-glass {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 40px -10px rgba(0, 31, 63, 0.05), inset 0 2px 12px rgba(255, 255, 255, 0.9);
+}
+
+.frosted-glass-heavy {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(40px) saturate(140%);
+  -webkit-backdrop-filter: blur(40px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 40px 100px rgba(0, 31, 63, 0.08), inset 0 2px 15px rgba(255, 255, 255, 0.95);
+}
+
+.frosted-white {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-active {
+  animation: shimmer 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Fluid scroll behavior adjustments */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* GPU layer promotion for elements that animate frequently */
+#hero-3d-sculpture canvas,
+#liquid-glass-cursor-canvas {
+  will-change: transform, opacity;
+}
+
+/* Respect prefers-reduced-motion — disable heavy animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Premium thin scrollbar for scrollable panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 31, 63, 0.1);
+  border-radius: 99px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 0, 0, 0.3);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 31, 63, 0.1) transparent;
+}
+
+/* ================================================= */
+
+.marquee{
+display:flex;
+gap:32px;
+width:max-content;
+animation:marquee 45s linear infinite;
+will-change:transform;
+}
+
+.marquee-reverse{
+animation:marqueeReverse 45s linear infinite;
+}
+
+.marquee:hover,
+.marquee-reverse:hover{
+animation-play-state:paused;
+}
+
+@keyframes marquee{
+
+0%{
+transform:translateX(0);
+}
+
+100%{
+transform:translateX(-50%);
+}
+
+}
+
+@keyframes marqueeReverse{
+
+0%{
+transform:translateX(-50%);
+}
+
+100%{
+transform:translateX(0);
+}
+
+}
+
+.fade-left{
+position:absolute;
+left:0;
+top:0;
+bottom:0;
+width:140px;
+z-index:5;
+background:linear-gradient(to right,#FCFCFD 0%,transparent 100%);
+pointer-events:none;
+}
+
+.fade-right{
+position:absolute;
+right:0;
+top:0;
+bottom:0;
+width:140px;
+z-index:5;
+background:linear-gradient(to left,#FCFCFD 0%,transparent 100%);
+pointer-events:none;
+}
+
+@media(max-width:768px){
+
+.fade-left,
+.fade-right{
+width:50px;
+}
+
+.marquee{
+gap:18px;
+}
+
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* ================================================= */
+/* Fly & Flourish Student Dashboard & Admin Custom styles */
+.font-portal {
+  font-family: var(--font-plus-jakarta-sans), var(--font-sans);
+}
+.font-display {
+  font-family: var(--font-playfair), serif;
+}
+.font-label-caps {
+  font-family: var(--font-plus-jakarta-sans), var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+.font-label-mono {
+  font-family: var(--font-mono);
+}
+
+.bg-surface {
+  background-color: #fcfdfe;
+}
+.text-on-surface {
+  color: #0f172a;
+}
+.text-on-surface-variant {
+  color: #64748b;
+}
+.text-primary {
+  color: #0f172a;
+}
+.bg-primary {
+  background-color: #0f172a;
+}
+.bg-primary-container {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+.text-secondary {
+  color: #bc0100;
+}
+.bg-secondary {
+  background-color: #bc0100;
+}
+.text-error {
+  color: #e11d48;
+}
+.border-outline {
+  border-color: #e2e8f0;
+}
+.border-outline-variant {
+  border-color: #f1f5f9;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px -4px rgba(15, 23, 42, 0.04);
+}
+.bento-card {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bento-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px -8px rgba(15, 23, 42, 0.08);
+}
+.nav-item-active {
+  position: relative;
+}
+.nav-item-active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 3px;
+  background-color: #bc0100;
+  border-radius: 4px 0 0 4px;
+}
+.progress-ring {
+  transition: stroke-dashoffset 1s ease-in-out;
+}
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}

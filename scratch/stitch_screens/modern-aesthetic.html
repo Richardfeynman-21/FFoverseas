@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>About Us | FF Overseas Global Education</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#2f486a",
+                        "inverse-on-surface": "#f0f1f1",
+                        "on-surface": "#1a1c1c",
+                        "background": "#f9f9f9",
+                        "tertiary-fixed-dim": "#fdb69a",
+                        "surface-dim": "#dadada",
+                        "secondary-fixed-dim": "#ffb4a8",
+                        "on-tertiary-container": "#b5785f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#6b3a25",
+                        "outline-variant": "#c4c6cf",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#6f88ad",
+                        "tertiary": "#110200",
+                        "on-secondary-container": "#fffbff",
+                        "on-secondary-fixed-variant": "#930100",
+                        "secondary": "#bc0100",
+                        "secondary-fixed": "#ffdad4",
+                        "ink-black": "#000A14",
+                        "surface-tint": "#476083",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#43474e",
+                        "primary-fixed-dim": "#afc8f0",
+                        "inverse-primary": "#afc8f0",
+                        "inverse-surface": "#2f3131",
+                        "paper-white": "#FDFDFD",
+                        "primary": "#000613",
+                        "deep-navy": "#001F3F",
+                        "tertiary-fixed": "#ffdbce",
+                        "surface-container-high": "#e8e8e8",
+                        "alert-red": "#FF0000",
+                        "outline": "#74777f",
+                        "tertiary-container": "#391303",
+                        "secondary-container": "#eb0000",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-variant": "#e2e2e2",
+                        "error-container": "#ffdad6",
+                        "surface": "#f9f9f9",
+                        "surface-bright": "#f9f9f9",
+                        "on-tertiary-fixed": "#351002",
+                        "primary-container": "#001f3f",
+                        "surface-container": "#eeeeee",
+                        "steel-gray": "#E2E8F0",
+                        "on-background": "#1a1c1c",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#410000",
+                        "on-primary-fixed": "#001c3a",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#d4e3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "gutter": "24px",
+                        "xs": "8px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "sm": "16px",
+                        "xl": "64px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Outfit"],
+                        "label-mono": ["JetBrains Mono"],
+                        "label-sm-mono": ["JetBrains Mono"],
+                        "title-md": ["Outfit"],
+                        "headline-lg-mobile": ["Outfit"],
+                        "headline-lg": ["Outfit"],
+                        "display-lg": ["Outfit"],
+                        "body-md": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "label-sm-mono": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        .hero-gradient {
+            background: linear-gradient(to bottom, rgba(0, 31, 63, 0.2), rgba(0, 31, 63, 0.6));
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-on-scroll.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .hover-subtle {
+            transition: all 0.3s ease;
+        }
+        .hover-subtle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -10px rgba(0, 31, 63, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-paper-white text-on-surface font-body-md selection:bg-secondary selection:text-white">
+<!-- Navigation -->
+<header class="w-full fixed top-0 z-50 glass-nav border-b border-steel-gray/30">
+<nav class="max-w-container-max mx-auto px-gutter flex justify-between items-center h-20">
+<div class="font-display-lg text-2xl font-bold tracking-tight text-deep-navy">FF Overseas</div>
+<div class="hidden md:flex items-center space-x-lg">
+<a class="text-on-surface-variant/80 hover:text-secondary transition-colors duration-300 font-medium text-sm tracking-wide" href="#">HOME</a>
+<a class="text-secondary font-bold text-sm tracking-wide relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-secondary" href="#">ABOUT US</a>
+<a class="text-on-surface-variant/80 hover:text-secondary transition-colors duration-300 font-medium text-sm tracking-wide" href="#">SERVICES</a>
+<a class="text-on-surface-variant/80 hover:text-secondary transition-colors duration-300 font-medium text-sm tracking-wide" href="#">ADMISSIONS</a>
+<a class="text-on-surface-variant/80 hover:text-secondary transition-colors duration-300 font-medium text-sm tracking-wide" href="#">CONTACT</a>
+</div>
+<button class="bg-primary text-paper-white px-md py-2.5 rounded-full font-title-md text-sm hover:bg-secondary transition-all duration-500 shadow-sm hover:shadow-md">
+            Book Consultation
+        </button>
+</nav>
+</header>
+<main class="overflow-hidden">
+<!-- Sophisticated Hero Section -->
+<section class="relative min-h-[90vh] flex items-center pt-20">
+<div class="absolute inset-0 z-0">
+<img alt="Students on campus" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtNczN2LkDlO6rzZPGr5PYRiVmOU7fIv2r06Mmk-_6tifnVCIuCmAdrfCuCN8V_GF0ay1lf3-L8ofn890erF04dFR8c3ybk8UAs59PtpzpZJKpOf10-owH6NOQ2-1PimMjHDSozVyHEfTdVHlw9mNksq2TeGB-S9PjyfnPhtEYP4LRlxBGehttLJuuRxL6KtFqUd3RtGpM0BNPFa1aYYIYsI8Semdm63baK1MKscSZ6hPL-pNtbjsgAdw"/>
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="absolute inset-0 bg-deep-navy/10 backdrop-grayscale-[0.2]"></div>
+</div>
+<div class="relative z-10 max-w-container-max mx-auto px-gutter w-full text-center md:text-left">
+<div class="max-w-3xl reveal-on-scroll">
+<div class="inline-block mb-sm">
+<span class="flex items-center gap-xs text-paper-white font-label-mono text-xs tracking-[0.3em] uppercase opacity-90">
+<span class="w-12 h-px bg-paper-white/50"></span>
+                        Since 2012
+                    </span>
+</div>
+<h1 class="font-display-lg text-5xl md:text-7xl text-paper-white leading-[1.1] mb-lg drop-shadow-sm">
+                    Shaping Global <br/><span class="italic font-light">Academic Futures</span>
+</h1>
+<p class="font-body-lg text-lg md:text-xl text-paper-white/80 mb-xl max-w-2xl leading-relaxed">
+                    Empowering ambitious minds to navigate the complex pathways of international education with precision, integrity, and expert guidance.
+                </p>
+<div class="flex flex-col sm:flex-row gap-md justify-center md:justify-start">
+<button class="bg-paper-white text-deep-navy px-xl py-4 rounded-full font-semibold hover:bg-secondary hover:text-white transition-all duration-500 shadow-xl">
+                        Our Success Stories
+                    </button>
+<button class="backdrop-blur-md border border-white/30 text-white px-xl py-4 rounded-full font-semibold hover:bg-white/10 transition-all duration-500">
+                        Speak to an Advisor
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Refined Our Story Section -->
+<section class="py-xl md:py-32 bg-white">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="grid lg:grid-cols-2 gap-xl lg:gap-32 items-center">
+<div class="reveal-on-scroll">
+<h2 class="font-display-lg text-4xl md:text-5xl text-deep-navy mb-lg leading-tight">A Decade of Excellence in <span class="text-secondary">Study Abroad</span> Consultancy</h2>
+<div class="font-body-md text-lg text-on-surface-variant space-y-md leading-relaxed">
+<p>Founded with a singular vision to bridge the gap between local talent and global opportunities, FF Overseas has evolved into a premier authority in international education consultancy. We don't just process applications; we curate life-changing academic journeys.</p>
+<p class="border-l-4 border-secondary/20 pl-md italic py-2">"Our mission is to ensure that no boundary—geographical or administrative—stands in the way of a student's academic potential."</p>
+<p>With a network spanning 40+ countries and thousands of successful placements in top-tier institutions, our data-driven methodology combined with personalized care sets us apart in the global education landscape.</p>
+</div>
+<div class="grid grid-cols-2 gap-xl mt-xl">
+<div class="group">
+<div class="font-display-lg text-4xl text-secondary mb-1">500+</div>
+<div class="font-label-mono text-[10px] tracking-widest text-on-surface-variant uppercase font-bold group-hover:text-deep-navy transition-colors">University Partners</div>
+</div>
+<div class="group">
+<div class="font-display-lg text-4xl text-secondary mb-1">12k+</div>
+<div class="font-label-mono text-[10px] tracking-widest text-on-surface-variant uppercase font-bold group-hover:text-deep-navy transition-colors">Successful Placements</div>
+</div>
+</div>
+</div>
+<div class="relative reveal-on-scroll">
+<div class="aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl relative z-10">
+<img alt="Consultation" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida/AP1WRLtyrADCH6C0MBEwdaY9g4tE42wyQUNL-x5z4tMyb9gjtCWkjYY49rOeLAI2TDJLmeZjRmFuu7T5AwtICMJFQV4pRCFBCZXpZQLcMhzul2U0sOVGJPheQdjrG_HdKgIc5dfiIum3X4Ok2NfLp3Eh3km45GC4f1drxhZ8JTBVhawMWjaZhxoX-1q6FV59pDzEvU9y09wD1OlEqZLtenfMxxaiuaFZikKlHJRC72ZQDWM-LOtGCtCObkMoxb4"/>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -top-12 -right-12 w-48 h-48 bg-secondary/5 rounded-full -z-10 blur-3xl"></div>
+<div class="absolute -bottom-12 -left-12 w-64 h-64 bg-deep-navy/5 rounded-full -z-10 blur-3xl"></div>
+<div class="absolute bottom-8 right-[-20px] glass-card p-6 rounded-xl max-w-[200px] shadow-lg z-20">
+<p class="text-xs font-medium text-deep-navy italic mb-2">"Their attention to detail and university network is unmatched."</p>
+<div class="flex gap-1 text-secondary">
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Modernized Core Values -->
+<section class="py-xl md:py-32 bg-background relative overflow-hidden">
+<div class="max-w-container-max mx-auto px-gutter relative z-10">
+<div class="text-center mb-24 reveal-on-scroll">
+<span class="text-secondary font-bold tracking-[0.4em] text-[10px] uppercase mb-4 block">Our DNA</span>
+<h2 class="font-display-lg text-4xl md:text-5xl text-deep-navy mb-6">Guiding Principles</h2>
+<div class="w-20 h-1 bg-secondary mx-auto mb-8"></div>
+<p class="font-body-md text-on-surface-variant max-w-2xl mx-auto text-lg">We operate at the intersection of professional expertise and genuine student-centric care.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-lg">
+<!-- Value 1 -->
+<div class="glass-card p-xl rounded-2xl hover-subtle reveal-on-scroll">
+<div class="w-14 h-14 bg-white/80 rounded-2xl flex items-center justify-center mb-lg shadow-sm border border-steel-gray/50">
+<span class="material-symbols-outlined text-secondary text-3xl">verified_user</span>
+</div>
+<h3 class="font-title-md text-2xl text-deep-navy mb-md">Radical Integrity</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">In an industry built on promises, we build on proof. Transparent processes and ethical advisory form the bedrock of every consultation.</p>
+</div>
+<!-- Value 2 -->
+<div class="glass-card p-xl rounded-2xl hover-subtle reveal-on-scroll" style="transition-delay: 100ms;">
+<div class="w-14 h-14 bg-white/80 rounded-2xl flex items-center justify-center mb-lg shadow-sm border border-steel-gray/50">
+<span class="material-symbols-outlined text-secondary text-3xl">public</span>
+</div>
+<h3 class="font-title-md text-2xl text-deep-navy mb-md">Global Fluency</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">Understanding global curriculum standards and evolving immigration landscapes allows us to provide a truly international competitive advantage.</p>
+</div>
+<!-- Value 3 -->
+<div class="glass-card p-xl rounded-2xl hover-subtle reveal-on-scroll" style="transition-delay: 200ms;">
+<div class="w-14 h-14 bg-white/80 rounded-2xl flex items-center justify-center mb-lg shadow-sm border border-steel-gray/50">
+<span class="material-symbols-outlined text-secondary text-3xl">psychology</span>
+</div>
+<h3 class="font-title-md text-2xl text-deep-navy mb-md">Strategic Insight</h3>
+<p class="font-body-md text-on-surface-variant leading-relaxed">We leverage deep institutional relationships to offer insights that go beyond brochures, maximizing admission success for every candidate.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Contemporary Leadership Section -->
+<section class="py-xl md:py-32 bg-white">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-md reveal-on-scroll">
+<div class="max-w-2xl">
+<span class="text-secondary font-bold tracking-[0.4em] text-[10px] uppercase mb-4 block">The Experts</span>
+<h2 class="font-display-lg text-4xl md:text-5xl text-deep-navy mb-6">Executive Stewardship</h2>
+<p class="font-body-md text-lg text-on-surface-variant leading-relaxed">Our leadership brings decades of collective experience from top-tier academic institutions and international policy boards.</p>
+</div>
+<a class="group flex items-center gap-2 text-deep-navy font-bold tracking-wider text-sm hover:text-secondary transition-colors pb-2 border-b-2 border-transparent hover:border-secondary" href="#">
+                    COUNSELING TEAM <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform">east</span>
+</a>
+</div>
+<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-xl">
+<!-- Leader 1 -->
+<div class="group reveal-on-scroll">
+<div class="aspect-[3/4] rounded-2xl overflow-hidden mb-6 relative">
+<img alt="Jonathan Vance" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaV8ATaqZXAaapOohCMu7bKg_1QBucKa2hi-Zq1bwWmoSnp6HI9eqAoBy0kSmvi5ssG3zNLNvhxpaH-AmXKifE57-YrnMcyJDQcwLiUfBd1Gc3JZh4M63d-jhQ3Anm75xOvh0rdTg_0Qj8S978-C9LWmVUMvfahg4u3CUSRt0NnwCOyNgoHk7YV0nYdHA3rGfzKzHIsEj_HD_eIF7H8w2Tls6XASESVWI7RptU5nTOC20HH2oGfsFM"/>
+</div>
+<h4 class="font-display-lg text-xl text-deep-navy group-hover:text-secondary transition-colors">Jonathan Vance</h4>
+<p class="font-label-mono text-[10px] tracking-widest text-secondary font-bold uppercase mb-4">Chief Academic Officer</p>
+<p class="text-on-surface-variant text-sm leading-relaxed opacity-80">Overseeing strategic partnerships with ivy-league and Russell Group institutions.</p>
+</div>
+<!-- Leader 2 -->
+<div class="group reveal-on-scroll" style="transition-delay: 100ms;">
+<div class="aspect-[3/4] rounded-2xl overflow-hidden mb-6 relative">
+<img alt="Elena Rossi" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3izHD0O6Lg12y5X8r2pix_3sQNRV-TLQpzjutkw5zASy8kqBshGt7GStQ8Jv1znmiuz17BwITr1D3ulHmAUQj_z0EIGC-ZUPgvUr_yGI6GghB-5CVh0JqDhIr-8c02ybObcKuh3YOR0Z_5SnCkVGQR-YQtDNlgGuC4-nINTIaDRnNOJVBJw1AW6aTzDtBpUabinHMrqCJpKFgAMduCpeAZ75OZtu16RmuhZX0Bk9nUvx-Reh01V6e"/>
+</div>
+<h4 class="font-display-lg text-xl text-deep-navy group-hover:text-secondary transition-colors">Elena Rossi</h4>
+<p class="font-label-mono text-[10px] tracking-widest text-secondary font-bold uppercase mb-4">Head of Global Admissions</p>
+<p class="text-on-surface-variant text-sm leading-relaxed opacity-80">Leading our expert team of counselors across 12 international hubs.</p>
+</div>
+<!-- Leader 3 -->
+<div class="group reveal-on-scroll" style="transition-delay: 200ms;">
+<div class="aspect-[3/4] rounded-2xl overflow-hidden mb-6 relative">
+<img alt="Marcus Chen" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHlEDP1JHY1nf_LdxVccM4GmyG7UAXTlsFLparDuGptHyFtM-1KCP1XKq13rkiydCoR6t7WICTncYTjIVZQGZ2R_RRpbYejz6b9IMwHq2vH0LKWq3K38ewYDuh5OPsobxIIaq2kUkvvPm_jlnxYzKRKi0gSgDhq3wLD3l-_W4NdKIS9wEtJfqfDOmet7I2Q85Iew4JnIqXRn0M_z3cocjwSRglFHXZdxOariU0rIckXCI-gNm3ywwi"/>
+</div>
+<h4 class="font-display-lg text-xl text-deep-navy group-hover:text-secondary transition-colors">Marcus Chen</h4>
+<p class="font-label-mono text-[10px] tracking-widest text-secondary font-bold uppercase mb-4">Director of Student Services</p>
+<p class="text-on-surface-variant text-sm leading-relaxed opacity-80">Ensuring post-admission success and seamless international integration.</p>
+</div>
+<!-- Leader 4 -->
+<div class="group reveal-on-scroll" style="transition-delay: 300ms;">
+<div class="aspect-[3/4] rounded-2xl overflow-hidden mb-6 relative">
+<img alt="Sarah Jenkins" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGXp8Vsm8ugpqbAmo4ZAJvV4qx8WIiPSiF231mOV9fU2ccgUqvhODr-RMGsI7iLu-lmQvJbBtM3335Bu69uBvfebsNV2ylmVwu4lOOcFqtqrtxoBH-wBi7u4RdZEIDYE8YSf2MAeca-NYSANqyT0s1gwiaeGdS5R3rLz3K23K364I1M65hSciGIee5ACI2AnWwcuJf1FzKSEaCfrfqwJkx_3KgFH9ivv_PtsbzrKLRvA-OtfFImvqs"/>
+</div>
+<h4 class="font-display-lg text-xl text-deep-navy group-hover:text-secondary transition-colors">Sarah Jenkins</h4>
+<p class="font-label-mono text-[10px] tracking-widest text-secondary font-bold uppercase mb-4">CFO &amp; Strategy</p>
+<p class="text-on-surface-variant text-sm leading-relaxed opacity-80">Expert in international education funding and merit-based scholarships.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Enhanced CTA Section -->
+<section class="py-32 md:py-48 bg-deep-navy relative overflow-hidden">
+<!-- Abstract Background Circles -->
+<div class="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+<div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/20 rounded-full blur-[100px] -ml-48 -mb-48"></div>
+<div class="max-w-container-max mx-auto px-gutter text-center relative z-10 reveal-on-scroll">
+<h2 class="font-display-lg text-4xl md:text-6xl text-white mb-8 max-w-4xl mx-auto leading-tight">
+                Your <span class="text-secondary italic font-light">Global Future</span> Awaits. <br/>Let's Plan It Together.
+            </h2>
+<p class="font-body-lg text-lg text-white/60 mb-12 max-w-2xl mx-auto leading-relaxed">
+                Join over 12,000 students who have successfully navigated their way to the world's most prestigious universities with FF Overseas.
+            </p>
+<div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+<button class="bg-secondary text-white px-xl py-5 rounded-full font-bold text-lg hover:bg-white hover:text-secondary transition-all duration-500 shadow-2xl w-full sm:w-auto">
+                    Start Your Application
+                </button>
+<button class="bg-white/5 border border-white/20 text-white px-xl py-5 rounded-full font-bold text-lg hover:bg-white/10 transition-all duration-500 w-full sm:w-auto">
+                    Free Consultation
+                </button>
+</div>
+<div class="mt-20 pt-12 border-t border-white/10 flex flex-wrap justify-center gap-12 opacity-40 grayscale">
+<!-- Trust logos would go here -->
+<div class="text-white font-display-lg text-xl">Trusted Excellence</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Modern Footer -->
+<footer class="w-full bg-paper-white border-t border-steel-gray pt-20 pb-10">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="grid md:grid-cols-4 gap-xl mb-20">
+<div class="md:col-span-2">
+<div class="font-display-lg text-2xl font-bold text-deep-navy mb-6">FF Overseas</div>
+<p class="font-body-md text-on-surface-variant max-w-md leading-relaxed mb-8">
+                    An ISO-certified global education consultancy specializing in end-to-end admissions support for top-tier universities worldwide.
+                </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-steel-gray flex items-center justify-center hover:bg-deep-navy hover:text-white transition-all" href="#"><span class="material-symbols-outlined text-sm">public</span></a>
+<a class="w-10 h-10 rounded-full border border-steel-gray flex items-center justify-center hover:bg-deep-navy hover:text-white transition-all" href="#"><span class="material-symbols-outlined text-sm">mail</span></a>
+<a class="w-10 h-10 rounded-full border border-steel-gray flex items-center justify-center hover:bg-deep-navy hover:text-white transition-all" href="#"><span class="material-symbols-outlined text-sm">call</span></a>
+</div>
+</div>
+<div>
+<h5 class="font-bold text-deep-navy mb-6 text-sm tracking-widest uppercase">Expertise</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm">
+<li><a class="hover:text-secondary transition-colors" href="#">University Selection</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Visa Counseling</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Scholarship Guidance</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Test Preparation</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-deep-navy mb-6 text-sm tracking-widest uppercase">Company</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm">
+<li><a class="hover:text-secondary transition-colors" href="#">Our Story</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Careers</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Contact Us</a></li>
+</ul>
+</div>
+</div>
+<div class="pt-10 border-t border-steel-gray flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="text-on-surface-variant text-[11px] font-medium tracking-widest uppercase">
+                © 2024 FF OVERSEAS EDUCATION. ALL RIGHTS RESERVED.
+            </div>
+<div class="flex gap-lg">
+<a class="text-[11px] font-medium tracking-widest text-on-surface-variant hover:text-secondary uppercase" href="#">Cookie Policy</a>
+<a class="text-[11px] font-medium tracking-widest text-on-surface-variant hover:text-secondary uppercase" href="#">Terms of Use</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+    // Reveal interaction logic
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('header');
+        if (window.scrollY > 50) {
+            header.classList.add('py-2', 'shadow-sm');
+            header.classList.remove('h-20');
+        } else {
+            header.classList.remove('py-2', 'shadow-sm');
+            header.classList.add('h-20');
+        }
+    });
+</script>
+</body></html>
