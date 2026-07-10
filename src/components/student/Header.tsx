@@ -6,6 +6,7 @@ import { TabKey, Student } from './types';
 interface HeaderProps {
   activeTab: TabKey;
   setSidebarOpen?: (open: boolean) => void;
+  sidebarOpen?: boolean;
   student: Student;
   getInitials: (name: string) => string;
 }
@@ -13,10 +14,20 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   student,
   getInitials,
+  setSidebarOpen,
+  sidebarOpen,
 }) => {
   return (
     <header className="flex justify-between items-center px-3 sm:px-6 md:px-margin-desktop w-full sticky top-0 z-50 bg-white/60 backdrop-blur-xl border-b border-outline-variant h-14 sm:h-16 lg:h-[4.5rem]">
-      <div className="flex items-center gap-3 sm:gap-12 min-w-0">
+      <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+        {setSidebarOpen && (
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="material-symbols-outlined hidden lg:block p-1.5 sm:p-2 text-on-surface-variant hover:bg-slate-50/80 hover:shadow-sm transition-all rounded-full cursor-pointer active:scale-95 border border-transparent hover:border-outline text-lg sm:text-xl lg:text-2xl shrink-0"
+          >
+            {sidebarOpen ? 'menu_open' : 'menu'}
+          </button>
+        )}
         <span className="text-base sm:text-lg lg:text-xl font-display font-bold tracking-tight text-primary whitespace-nowrap">Fly &amp; Flourish</span>
       </div>
       

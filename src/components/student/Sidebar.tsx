@@ -16,7 +16,11 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
+  sidebarOpen,
+  setSidebarOpen,
+  student,
   handleLogout,
+  getInitials,
 }) => {
   const menuItems = [
     { key: 'dashboard' as TabKey, label: 'Dashboard Overview', icon: 'dashboard' },
@@ -29,7 +33,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <nav className="hidden lg:flex w-56 xl:w-72 2xl:w-80 flex-col py-4 xl:py-6 bg-white border-r border-outline-variant overflow-y-auto scrollbar-hide shrink-0">
+    <nav className={`hidden lg:flex flex-col py-4 xl:py-6 bg-white border-r border-outline-variant overflow-y-auto scrollbar-hide shrink-0 transition-all duration-300 ${
+      sidebarOpen ? 'w-56 xl:w-72 2xl:w-80' : 'w-0 !border-r-0 !py-0 !px-0 overflow-hidden'
+    }`}>
       {/* Menu items - scrollable area */}
       <div className="flex flex-col gap-1 px-3 xl:px-4 min-h-0 flex-1">
         {menuItems.map((item, index) => {

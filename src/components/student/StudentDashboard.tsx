@@ -23,11 +23,12 @@ import { ProgressTab } from './ProgressTab';
 import { VaultTab } from './VaultTab';
 import { ProfileTab } from './ProfileTab';
 import { ChatTab } from './ChatTab';
+import { VisaTab } from './VisaTab';
 
 export default function StudentDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [student, setStudent] = useState<Student | null>(null);
   const [countryFilter, setCountryFilter] = useState('All');
@@ -427,6 +428,8 @@ export default function StudentDashboard() {
         activeTab={activeTab}
         student={student}
         getInitials={getInitials}
+        setSidebarOpen={setSidebarOpen}
+        sidebarOpen={sidebarOpen}
       />
 
       <div className="flex flex-1 min-h-0 relative overflow-hidden">
@@ -469,7 +472,7 @@ export default function StudentDashboard() {
               />
             )}
 
-            {(activeTab === 'progress' || activeTab === 'visa') && (
+            {activeTab === 'progress' && (
               <ProgressTab
                 progressPercent={progressPercent}
                 stages={stages}
@@ -478,6 +481,13 @@ export default function StudentDashboard() {
                 applications={applications}
                 activeApplicationId={activeApplicationId}
                 setActiveApplicationId={setActiveApplicationId}
+              />
+            )}
+
+            {activeTab === 'visa' && (
+              <VisaTab
+                student={student}
+                setActiveTab={setActiveTab}
               />
             )}
 
