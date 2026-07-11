@@ -33,11 +33,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <nav className={`hidden lg:flex flex-col py-4 xl:py-6 bg-white border-r border-outline-variant overflow-y-auto scrollbar-hide shrink-0 transition-all duration-300 ${
+    <nav className={`hidden lg:flex flex-col py-4 xl:py-6 bg-white border-r border-outline-variant shrink-0 transition-all duration-300 ${
       sidebarOpen ? 'w-56 xl:w-72 2xl:w-80' : 'w-0 !border-r-0 !py-0 !px-0 overflow-hidden'
     }`}>
       {/* Menu items - scrollable area */}
-      <div className="flex flex-col gap-1 px-3 xl:px-4 min-h-0 flex-1">
+      <div className="flex flex-col gap-1 px-3 xl:px-4 min-h-0 flex-1 overflow-y-auto custom-scrollbar">
         {menuItems.map((item, index) => {
           const isReallyActive = activeTab === item.key;
 
@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={`${item.key}-${index}`}
               onClick={() => setActiveTab(item.key)}
-              className={`relative flex items-center gap-3 xl:gap-4 px-4 xl:px-5 py-2.5 xl:py-3 rounded-xl font-medium transition duration-200 ease-out active:scale-98 w-full text-left cursor-pointer ${
+              className={`relative flex items-center gap-3 xl:gap-4 px-4 xl:px-5 py-2.5 xl:py-3 rounded-xl font-medium transition duration-200 ease-out active:scale-95 w-full text-left cursor-pointer ${
                 isReallyActive
                   ? 'shadow-sm bg-primary text-white font-semibold'
                   : 'text-on-surface-variant hover:bg-slate-50 hover:text-primary'
