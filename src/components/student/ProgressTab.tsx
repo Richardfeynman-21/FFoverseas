@@ -3,8 +3,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, Clock, Circle, ChevronUp, ChevronDown } from 'lucide-react';
-import { ApplicationStage, StudentApplication } from '../types';
-import { NAVY, RED } from '../constants';
+import { ApplicationStage, StudentApplication } from './types';
+import { NAVY, RED } from './constants';
 
 interface ProgressTabProps {
   progressPercent: number;

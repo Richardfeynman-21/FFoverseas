@@ -112,7 +112,7 @@ export default function DetailsModal({
               <div className="flex items-center gap-4 pb-5 border-b border-slate-100">
                 <div className="w-16 h-16 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-center p-2.5 shadow-sm shrink-0">
                   <img
-                    src={detailsUni.logo}
+                    src={detailsUni.logoUrl}
                     alt={detailsUni.name}
                     className="w-full h-full object-contain"
                   />

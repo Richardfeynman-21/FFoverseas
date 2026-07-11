@@ -1,4 +1,4 @@
-import { Destination, RoadmapStep, Testimonial } from './types';
+import { Destination, RoadmapStep, Testimonial } from '../lib/types';
 
 export const DESTINATIONS: Destination[] = [
   {

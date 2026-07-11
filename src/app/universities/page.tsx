@@ -6,6 +6,7 @@ import {
   mapApiToDetailedUniversity 
 } from '../../lib/api';
 import { FEATURED_UNIVERSITIES_FALLBACK } from '../../lib/constants';
+import { DetailedUniversity } from '../../lib/types';
 
 export const metadata: Metadata = {
   title: 'Universities Catalog | Fly & Flourish Overseas',
@@ -13,8 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default async function UniversitiesPage() {
-  let initialUniversities = undefined;
-  let initialTotal = undefined;
+  let initialUniversities: DetailedUniversity[] | undefined = undefined;
+  let initialTotal: number | undefined = undefined;
 
   try {
     // Fetch initial featured universities on the server directly from FastAPI target

@@ -6,8 +6,8 @@ import {
   CheckCircle2, CheckSquare, Square, FileText, Image, FileSpreadsheet, FileCode, 
   Trash2, Eye, UploadCloud, X, Download, AlertCircle, Check
 } from 'lucide-react';
-import { UploadedFile } from '../types';
-import { DOCUMENTS } from '../constants';
+import { UploadedFile } from './types';
+import { DOCUMENTS } from './constants';
 
 interface VaultTabProps {
   docChecks: Record<string, boolean>;

@@ -141,8 +141,7 @@ export default function Login() {
     try {
       return (
         (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
-        (import.meta.env && import.meta.env.DEV) ||
-        false
+        (typeof window !== 'undefined' && window.location.hostname === 'localhost')
       );
     } catch {
       return false;
@@ -180,7 +179,7 @@ export default function Login() {
       const token = localStorage.getItem('ff_admin_token');
       if (token) router.replace('/admin');
     }
-  }, [navigate, portalMode]);
+  }, [router, portalMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

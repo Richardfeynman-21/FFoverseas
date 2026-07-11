@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-type LogoPaths = Record<string, string[]>;
+type LogoPaths = Record<string, string>;
 
 let cachedData: LogoPaths | null = null;
 let fetchPromise: Promise<LogoPaths> | null = null;

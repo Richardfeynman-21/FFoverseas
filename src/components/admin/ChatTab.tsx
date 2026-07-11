@@ -9,7 +9,7 @@ import {
   Send,
   Zap
 } from 'lucide-react';
-import { StudentRecord, ChatMessage } from '../types';
+import { StudentRecord, ChatMessage } from './types';
 
 const staggerItem = {
   hidden: { opacity: 0, y: 12 },

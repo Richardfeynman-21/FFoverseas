@@ -109,3 +109,24 @@ export interface ApiCourse {
   tuition_fee: number | null;
   currency: string | null;
 }
+
+export interface ApiScholarship {
+  id: number;
+  name: string;
+  type: string;
+  amount: string;
+  coverage: string;
+  eligibility: string | null;
+  target_degree_level: string;
+  country: string | null;
+  provider: string;
+  currency: string | null;
+  deadline: string | null;
+  application_url: string | null;
+  description: string | null;
+  renewable: boolean | null;
+  min_gpa: string | null;
+  field_of_study: string | null;
+  number_of_awards: string | null;
+}
+

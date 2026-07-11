@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, LayoutGrid, List } from 'lucide-react';
-import { ApplicationRecord } from '../types';
+import { ApplicationRecord } from './types';
 
 const staggerItem = {
   hidden: { opacity: 0, y: 12 },

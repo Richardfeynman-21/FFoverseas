@@ -6,8 +6,8 @@ import {
   Send, Trash2, HelpCircle, Phone, MessageSquare, Check, AlertCircle, 
   UploadCloud, Sparkles, Compass, Plus, PanelLeft, X, Mail, ChevronRight, CheckCheck, Clock
 } from 'lucide-react';
-import { ChatMessage, TabKey } from '../types';
-import { NAVY, RED, DOCUMENTS } from '../constants';
+import { ChatMessage, TabKey } from './types';
+import { NAVY, RED, DOCUMENTS } from './constants';
 
 interface ChatTabProps {
   chatMessages: ChatMessage[];

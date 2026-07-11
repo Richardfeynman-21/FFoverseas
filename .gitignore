@@ -8,3 +8,7 @@ coverage/
 .antigravitycli/
 .next/
 .next
+*.tsbuildinfo
+scratch/
+
+

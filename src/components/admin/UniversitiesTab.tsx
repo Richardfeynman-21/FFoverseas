@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Search, Building2, Trash2, X, Sparkles } from 'lucide-react';
-import { UniversityRecord } from '../types';
+import { UniversityRecord } from './types';
 
 const staggerItem = {
   hidden: { opacity: 0, y: 12 },

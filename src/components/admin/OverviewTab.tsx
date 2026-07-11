@@ -12,7 +12,7 @@ import {
   Activity,
   FileCheck
 } from 'lucide-react';
-import { StudentRecord, ApplicationRecord, DocumentRecord } from '../types';
+import { StudentRecord, ApplicationRecord, DocumentRecord } from './types';
 
 const staggerItem = {
   hidden: { opacity: 0, y: 12 },

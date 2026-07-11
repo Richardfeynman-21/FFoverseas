@@ -308,7 +308,7 @@ export default function StudentDashboard() {
     } else {
       router.push('/student/login');
     }
-  }, [navigate]);
+  }, [router]);
 
   // Auto-scroll chat
   useEffect(() => {

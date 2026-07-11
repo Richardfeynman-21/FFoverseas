@@ -19,7 +19,7 @@ import {
   Sparkles,
   Bookmark
 } from 'lucide-react';
-import { StudentRecord, PipelineStage } from '../types';
+import { StudentRecord, PipelineStage } from './types';
 
 const staggerItem = {
   hidden: { opacity: 0, y: 12 },
