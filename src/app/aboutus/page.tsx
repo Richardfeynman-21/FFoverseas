@@ -472,11 +472,11 @@ export default function AboutUs() {
                     </div>
 
                     {/* Card Content Details */}
-                    <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end min-h-[50%] transition-transform duration-500 translate-y-[28%] group-hover:translate-y-0">
+                    <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end min-h-[40%] bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pt-12">
                       
                       {/* Name & Role */}
-                      <div className="space-y-1">
-                        <span className="text-[9px] font-mono font-bold tracking-widest text-[#FF0000] uppercase bg-[#FF0000]/10 px-2.5 py-0.5 rounded-full border border-[#FF0000]/25 w-fit block mb-1">
+                      <div className="space-y-1.5">
+                        <span className="text-[9px] font-mono font-bold tracking-widest text-white bg-[#bc0100] px-2.5 py-0.5 rounded-full shadow-sm w-fit block mb-1.5">
                           {leader.role}
                         </span>
                         <h4 className="text-lg md:text-xl font-bold text-white tracking-tight leading-tight">
@@ -484,29 +484,33 @@ export default function AboutUs() {
                         </h4>
                       </div>
 
-                      {/* Bio revealed on hover */}
-                      <p className="text-[11px] text-slate-300 font-medium leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 mt-4 line-clamp-4">
-                        {leader.bio}
-                      </p>
+                      {/* Bio revealed on hover using smooth grid-rows transition */}
+                      <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-out">
+                        <div className="overflow-hidden">
+                          <p className="text-[11px] text-slate-300 font-medium leading-relaxed mt-3 line-clamp-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
+                            {leader.bio}
+                          </p>
 
-                      {/* Social Actions / Connections */}
-                      <div className="flex gap-2.5 mt-5 pt-3.5 border-t border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-300 delay-150 transform translate-y-2 group-hover:translate-y-0">
-                        <a 
-                          href="#" 
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#FF0000] border border-white/10 hover:border-transparent transition-all duration-300 flex items-center justify-center text-white"
-                          title="LinkedIn Profile"
-                        >
-                          <Linkedin className="w-3.5 h-3.5" />
-                        </a>
-                        <a 
-                          href={`mailto:contact@ffoverseas.com?subject=Inquiry to ${leader.name}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#FF0000] border border-white/10 hover:border-transparent transition-all duration-300 flex items-center justify-center text-white"
-                          title="Contact Executive"
-                        >
-                          <Mail className="w-3.5 h-3.5" />
-                        </a>
+                          {/* Social Actions / Connections */}
+                          <div className="flex gap-2.5 mt-4 pt-3 border-t border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-300 delay-100 transform translate-y-2 group-hover:translate-y-0">
+                            <a 
+                              href="#" 
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#FF0000] border border-white/10 hover:border-transparent transition-all duration-300 flex items-center justify-center text-white"
+                              title="LinkedIn Profile"
+                            >
+                              <Linkedin className="w-3.5 h-3.5" />
+                            </a>
+                            <a 
+                              href={`mailto:contact@ffoverseas.com?subject=Inquiry to ${leader.name}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#FF0000] border border-white/10 hover:border-transparent transition-all duration-300 flex items-center justify-center text-white"
+                              title="Contact Executive"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        </div>
                       </div>
 
                     </div>
