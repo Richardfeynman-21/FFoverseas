@@ -39,7 +39,7 @@ const leaders = [
     initials: 'AB'
   },
   {
-    name: 'Aakanksha Reddy Survi',
+    name: 'Aakanksha Reddy',
     role: 'Managing Director',
     image: '/images/Aakanksha.jpeg',
     bio: 'Orchestrating operational excellence and building trusted networks of counselors across global markets. Ensuring student success through quality support.',
