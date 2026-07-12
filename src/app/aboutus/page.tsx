@@ -25,28 +25,28 @@ import Footer from '../../components/layout/Footer';
 // Leaders details with real image paths and detailed biographies
 const leaders = [
   {
-    name: 'S Abhinove Reddy',
+    name: 'Abhinove Reddy Survi',
     role: 'CEO & Chairman',
     image: '/images/Abhinove.jpeg',
     bio: 'Pioneering global education access with dynamic matching tech and strategic institutional partnerships. Driving the vision to make international education borderless.',
     initials: 'AR'
   },
   {
-    name: 'S Abhilash Reddy',
+    name: 'Abhilash Reddy Survi',
     role: 'Co-Founder',
     image: '/images/Abhilash.jpeg',
     bio: 'Designing cutting-edge EdTech frameworks to simplify and optimize student admissions workflows. Leading the technological innovations that empower counselors.',
     initials: 'AB'
   },
   {
-    name: 'S Aakanksha Reddy',
+    name: 'Aakanksha Reddy Survi',
     role: 'Managing Director',
     image: '/images/Aakanksha.jpeg',
     bio: 'Orchestrating operational excellence and building trusted networks of counselors across global markets. Ensuring student success through quality support.',
     initials: 'AK'
   },
   {
-    name: 'Bothsa Durga Prasad',
+    name: 'Durga Prasad Bothsa',
     role: 'Executive Director',
     image: '/images/Durga%20Prasad.jpeg',
     bio: 'Strengthening university ties and streamlining compliance across key destinations globally. Navigating international regulations to secure student futures.',
