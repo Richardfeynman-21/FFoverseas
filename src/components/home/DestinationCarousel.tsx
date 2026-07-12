@@ -102,7 +102,7 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
 
                   <div className="flex items-center space-x-2 relative z-10">
                     <div className="flex flex-col items-end">
-                      <span className="text-[11px] font-mono font-bold text-[#001F3F] opacity-75 group-hover:opacity-100 group-hover:text-[#FF0000] transition-colors leading-none">
+                      <span className="text-[11px] font-mono font-bold text-[#001F3F] opacity-75 group-hover:opacity-100 group-hover:text-emerald-500 transition-colors leading-none">
                         {dest.visaSuccessRate}
                       </span>
                       <span className="text-[8px] font-mono text-gray-400 leading-none mt-0.5">VISA SUCCESS</span>
@@ -148,11 +148,11 @@ export default function DestinationCarousel({ selectedDestId: controlledDestId, 
                     </div>
                   </div>
  
-                   <div className="bg-[#001F3F]/5 hover:bg-[#001F3F]/8 border border-[#001F3F]/10 px-4 py-2 rounded-2xl flex items-center gap-2 backdrop-blur-sm">
-                     <ShieldCheck className="w-4 h-4 text-[#FF0000]" />
+                   <div className="bg-emerald-500/5 border border-emerald-500/15 px-4 py-2 rounded-2xl flex items-center gap-2 backdrop-blur-sm shadow-xs transition-colors duration-300">
+                     <ShieldCheck className="w-4 h-4 text-emerald-500" />
                      <div className="text-left">
                        <p className="text-[9px] text-gray-400 font-mono leading-none">VISA INDEX</p>
-                       <p className="text-xs font-bold text-[#001F3F] font-mono">{selectedDest.visaSuccessRate}</p>
+                       <p className="text-xs font-bold text-emerald-600 font-mono">{selectedDest.visaSuccessRate}</p>
                      </div>
                    </div>
                  </div>

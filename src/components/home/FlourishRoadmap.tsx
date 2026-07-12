@@ -177,7 +177,7 @@ export default function FlourishRoadmap() {
                   <span className="text-[10px] font-mono tracking-wider text-gray-400">ACTIVE PROCESS</span>
                 </div>
 
-                <h3 className="text-3xl md:text-4xl font-extrabold text-[#001F3F] tracking-tight font-display">
+                <h3 className="text-3xl md:text-4xl font-extrabold text-[#001F3F] tracking-tight font-sans">
                   {activeStep.title}
                 </h3>
                 
