@@ -19,6 +19,7 @@ export interface RoadmapStep {
   description: string;
   duration: string;
   deliverables: string[];
+  emoji?: string;
 }
 
 export interface Testimonial {

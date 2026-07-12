@@ -70,90 +70,96 @@ export const DESTINATIONS: Destination[] = [
 
 export const ROADMAP_STEPS: RoadmapStep[] = [
   {
-id: 1,
-title: 'Profiling & Counseling',
-subtitle: 'Building a personalized study abroad strategy.',
-description: 'Our counselors evaluate your academic profile, career goals, preferred destinations, and budget to create a tailored roadmap. We identify the most suitable programs and countries that align with your aspirations and maximize admission opportunities.',
-duration: 'Week 1 - 2',
-deliverables: [
-'Personalized Career Assessment',
-'Study Abroad Roadmap',
-'Country & Program Recommendations'
-]
-},
-{
-id: 2,
-title: 'Shortlisting User Recommended Universities',
-subtitle: 'Selecting universities that fit your ambitions.',
-description: 'Based on your preferences and profile, we carefully shortlist universities across ambitious, balanced, and safe categories. Every recommendation is backed by admission probability, career outcomes, and financial considerations.',
-duration: 'Week 3 - 4',
-deliverables: [
-'Curated University Shortlist',
-'Admission Probability Analysis',
-'Tuition & Cost Comparison Report'
-]
-},
-{
-id: 3,
-title: 'Starting the Application Process',
-subtitle: 'Preparing strong applications for success.',
-description: 'We assist with application submissions, document preparation, SOP creation, and recommendation letter guidance. Each application is strategically optimized to showcase your strengths and achievements.',
-duration: 'Week 5 - 8',
-deliverables: [
-'Statement of Purpose (SOP)',
-'Letters of Recommendation (LOR) Support',
-'University Application Submission'
-]
-},
-{
-id: 4,
-title: 'Offer Acceptance',
-subtitle: 'Choosing and securing the right admission offer.',
-description: 'Once offers arrive, we help compare universities, evaluate scholarships, and guide you through acceptance procedures to ensure you make the best academic and financial decision.',
-duration: 'Week 9 - 10',
-deliverables: [
-'Offer Evaluation Support',
-'Scholarship Guidance',
-'Admission Confirmation Assistance'
-]
-},
-{
-id: 5,
-title: 'Loan Process',
-subtitle: 'Securing financial support with confidence.',
-description: 'Our experts guide you through education loan options, documentation, lender selection, and approval procedures to ensure smooth funding for your international education journey.',
-duration: 'Week 10 - 11',
-deliverables: [
-'Loan Eligibility Assessment',
-'Financial Documentation Support',
-'Loan Application Assistance'
-]
-},
-{
-id: 6,
-title: 'Visa Filing',
-subtitle: 'Ensuring a smooth and successful visa application.',
-description: 'We assist with visa documentation, application filing, financial proof preparation, and mock interview sessions to maximize your chances of visa approval.',
-duration: 'Week 11 - 12',
-deliverables: [
-'Visa Documentation Review',
-'Visa Application Support',
-'Mock Visa Interview Sessions'
-]
-},
-{
-id: 7,
-title: 'Get, Set, Go...',
-subtitle: 'Preparing you for a successful transition abroad.',
-description: 'From accommodation support and travel planning to pre-departure briefings and networking opportunities, we ensure you are fully prepared for life at your destination university.',
-duration: 'Week 13+',
-deliverables: [
-'Pre-Departure Orientation',
-'Accommodation Assistance',
-'Travel & Settlement Support'
-]
-}
-
+    id: 1,
+    title: 'Profiling & Counseling',
+    subtitle: 'Building a personalized study abroad strategy.',
+    description: 'Our counselors evaluate your academic profile, career goals, preferred destinations, and budget to create a tailored roadmap. We identify the most suitable programs and countries that align with your aspirations and maximize admission opportunities.',
+    duration: 'Week 1 - 2',
+    deliverables: [
+      'Personalized Career Assessment',
+      'Study Abroad Roadmap',
+      'Country & Program Recommendations'
+    ],
+    emoji: '📝'
+  },
+  {
+    id: 2,
+    title: 'Shortlisting Universities',
+    subtitle: 'Selecting universities that fit your ambitions.',
+    description: 'Based on your preferences and profile, we carefully shortlist universities across ambitious, balanced, and safe categories. Every recommendation is backed by admission probability, career outcomes, and financial considerations.',
+    duration: 'Week 3 - 4',
+    deliverables: [
+      'Curated University Shortlist',
+      'Admission Probability Analysis',
+      'Tuition & Cost Comparison Report'
+    ],
+    emoji: '🏫'
+  },
+  {
+    id: 3,
+    title: 'Starting the Application Process',
+    subtitle: 'Preparing strong applications for success.',
+    description: 'We assist with application submissions, document preparation, SOP creation, and recommendation letter guidance. Each application is strategically optimized to showcase your strengths and achievements.',
+    duration: 'Week 5 - 8',
+    deliverables: [
+      'Statement of Purpose (SOP)',
+      'Letters of Recommendation (LOR) Support',
+      'University Application Submission'
+    ],
+    emoji: '✉️'
+  },
+  {
+    id: 4,
+    title: 'Offer Acceptance',
+    subtitle: 'Choosing and securing the right admission offer.',
+    description: 'Once offers arrive, we help compare universities, evaluate scholarships, and guide you through acceptance procedures to ensure you make the best academic and financial decision.',
+    duration: 'Week 9 - 10',
+    deliverables: [
+      'Offer Evaluation Support',
+      'Scholarship Guidance',
+      'Admission Confirmation Assistance'
+    ],
+    emoji: '🎓'
+  },
+  {
+    id: 5,
+    title: 'Loan Process',
+    subtitle: 'Securing financial support with confidence.',
+    description: 'Our experts guide you through education loan options, documentation, lender selection, and approval procedures to ensure smooth funding for your international education journey.',
+    duration: 'Week 10 - 11',
+    deliverables: [
+      'Loan Eligibility Assessment',
+      'Financial Documentation Support',
+      'Loan Application Assistance'
+    ],
+    emoji: '💰'
+  },
+  {
+    id: 6,
+    title: 'Visa Filing',
+    subtitle: 'Ensuring a smooth and successful visa application.',
+    description: 'We assist with visa documentation, application filing, financial proof preparation, and mock interview sessions to maximize your chances of visa approval.',
+    duration: 'Week 11 - 12',
+    deliverables: [
+      'Visa Documentation Review',
+      'Visa Application Support',
+      'Mock Visa Interview Sessions'
+    ],
+    emoji: '🛂'
+  },
+  {
+    id: 7,
+    title: 'Get, Set, Go...',
+    subtitle: 'Preparing you for a successful transition abroad.',
+    description: 'From accommodation support and travel planning to pre-departure briefings and networking opportunities, we ensure you are fully prepared for life at your destination university.',
+    duration: 'Week 13+',
+    deliverables: [
+      'Pre-Departure Orientation',
+      'Accommodation Assistance',
+      'Travel & Settlement Support'
+    ],
+    emoji: '✈️'
+  }
 ];
 
 export const TESTIMONIALS: Testimonial[] = [
