@@ -5,28 +5,24 @@ import './globals.css';
 
 const outfit = Outfit({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700', '900'],
   variable: '--font-outfit',
   display: 'swap',
 });
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
   variable: '--font-space-grotesk',
   display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
   variable: '--font-jetbrains-mono',
   display: 'swap',
 });
 
 const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
   style: ['normal', 'italic'],
   variable: '--font-playfair',
   display: 'swap',
@@ -34,7 +30,6 @@ const playfairDisplay = Playfair_Display({
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-plus-jakarta-sans',
   display: 'swap',
 });
@@ -62,9 +57,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${playfairDisplay.variable} ${plusJakartaSans.variable}`}>
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-      </head>
+      <head />
       <body>
         <div id="root">
           {children}

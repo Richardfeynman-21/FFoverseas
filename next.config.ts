@@ -6,6 +6,18 @@ const nextConfig: NextConfig = {
   },
   // Server-only packages — prevent bundler from tracing into these
   serverExternalPackages: ['googleapis', 'nodemailer'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+    ],
+  },
   experimental: {
     // Tree-shake barrel exports for faster compilation
     optimizePackageImports: ['lucide-react', 'motion'],

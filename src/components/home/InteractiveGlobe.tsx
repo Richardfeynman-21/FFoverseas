@@ -113,7 +113,7 @@ export default function InteractiveGlobe({ onSelectCountry }: { onSelectCountry?
     const earthRadius = 2.1;
     const loadingManager = new LoadingManager();
     const textureLoader = new TextureLoader(loadingManager);
-    const baseUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/';
+    const baseUrl = '/textures/';
 
     const earthGeo = new SphereGeometry(earthRadius, 64, 64);
     const earthMat = new MeshPhongMaterial({

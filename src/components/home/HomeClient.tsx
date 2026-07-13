@@ -6,7 +6,6 @@ import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Navbar from '../layout/Navbar';
 import FlyFlourishLogo from '../ui/FlyFlourishLogo';
-import LoadingScreen from './LoadingScreen';
 import { AnimatePresence, motion } from 'motion/react';
 import AnimatedCounter from '../ui/AnimatedCounter';
 
@@ -103,9 +102,7 @@ function ScrollManager() {
 
 export default function HomeClient() {
   const worldTimeRef = useRef<HTMLSpanElement>(null);
-  const [isLoading, setIsLoading] = useState(!hasLoadedOnce);
   const [selectedDestId, setSelectedDestId] = useState<string>('usa');
-  const [assetsReady, setAssetsReady] = useState(false);
 
   const handleSelectCountry = (destId: string) => {
     setSelectedDestId(destId);
@@ -114,26 +111,6 @@ export default function HomeClient() {
       target.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
-  // Prevent scroll during loading
-  useEffect(() => {
-    if (isLoading) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isLoading]);
-
-  // Preload globe components + fonts during loading screen (removes redundant/duplicate texture Image loads)
-  useEffect(() => {
-    Promise.all([
-      document.fonts.ready,
-      import('./InteractiveGlobe'),
-    ]).then(() => setAssetsReady(true));
-  }, []);
 
   // Update dynamic World Grid Clock — direct DOM write avoids re-rendering the entire App every second
   useEffect(() => {
@@ -174,16 +151,6 @@ export default function HomeClient() {
       <Suspense fallback={null}>
         <ScrollManager />
       </Suspense>
-
-      {/* Dynamic Brand Loading Overlay */}
-      <AnimatePresence mode="wait">
-        {isLoading && (
-          <LoadingScreen key="brand-portal-loader" onComplete={() => {
-            setIsLoading(false);
-            hasLoadedOnce = true;
-          }} assetsReady={assetsReady} />
-        )}
-      </AnimatePresence>
       
       {/* Brand aesthetic dynamic mesh glow backgrounds */}
       <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-[#001F3F] rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] pointer-events-none z-0" />
@@ -200,17 +167,17 @@ export default function HomeClient() {
       </div>
 
       {/* Global Header Navigation */}
-      {!isLoading && <Navbar />}
+      <Navbar />
 
       {/* 1.5 Dynamic chatbot buttons */}
-      {!isLoading && <PublicChatWidget />}
+      <PublicChatWidget />
 
       {/* 2. Hero Section */}
       <motion.section 
         className="relative pt-20 pb-20 sm:pt-24 lg:pt-28 xl:pt-32 2xl:pt-36 2xl:pb-32 overflow-hidden" 
         id="hero-landing"
         initial={{ opacity: 0, y: 25, scale: 0.97 }}
-        animate={isLoading ? { opacity: 0, y: 25, scale: 0.97 } : { opacity: 1, y: 0, scale: 1 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ 
           type: 'spring',
           stiffness: 45,
@@ -268,19 +235,19 @@ export default function HomeClient() {
               <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-200/80 max-w-lg">
                 <div>
                   <p className="text-[#FF0000] text-2xl font-black font-mono">
-                    <AnimatedCounter target={98.4} decimals={1} suffix="%" trigger={!isLoading} minStart={60.0} maxStart={80.0} />
+                    <AnimatedCounter target={98.4} decimals={1} suffix="%" trigger={true} minStart={60.0} maxStart={80.0} />
                   </p>
                   <p className="text-[10px] text-gray-400 font-mono font-medium mt-0.5">VISA APPROVAL RATE</p>
                 </div>
                 <div className="border-l border-slate-200 pl-4">
                   <p className="text-[#001F3F] text-2xl font-black font-mono">
-                    <AnimatedCounter target={500} decimals={0} suffix="+" trigger={!isLoading} minStart={250} maxStart={380} />
+                    <AnimatedCounter target={500} decimals={0} suffix="+" trigger={true} minStart={250} maxStart={380} />
                   </p>
                   <p className="text-[10px] text-gray-400 font-mono font-medium mt-0.5">SCHOLARS DEPLOYED</p>
                 </div>
                 <div className="border-l border-slate-200 pl-4">
                   <p className="text-[#001F3F] text-2xl font-black font-mono">
-                    <AnimatedCounter target={1.5} decimals={1} prefix="$" suffix="M" trigger={!isLoading} minStart={0.3} maxStart={0.8} />
+                    <AnimatedCounter target={1.5} decimals={1} prefix="$" suffix="M" trigger={true} minStart={0.3} maxStart={0.8} />
                   </p>
                   <p className="text-[10px] text-gray-400 font-mono font-medium mt-0.5">GRANTS SECURED</p>
                 </div>
@@ -312,6 +279,7 @@ export default function HomeClient() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.12 }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}
       >
         <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
           <FlourishRoadmap />
@@ -326,6 +294,7 @@ export default function HomeClient() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '0 1000px' }}
       >
         <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
           <DestinationCarousel selectedDestId={selectedDestId} onSelectDest={setSelectedDestId} />
@@ -340,6 +309,7 @@ export default function HomeClient() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '0 900px' }}
       >
         <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
           <FloatingBubbles />
@@ -352,6 +322,7 @@ export default function HomeClient() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
         viewport={{ once: true }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}
       >
         <UniversityPartners />
       </motion.div>
@@ -364,6 +335,7 @@ export default function HomeClient() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.1 }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}
       >
         <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
           <ConsultationForm />

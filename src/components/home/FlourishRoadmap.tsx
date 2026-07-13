@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ROADMAP_STEPS } from '../../data/destinations';
 import { CheckCircle2, Milestone, ArrowRight, Sparkles } from 'lucide-react';
+import Image from 'next/image';
 
 export default function FlourishRoadmap() {
   const [activeStepId, setActiveStepId] = useState<number>(1);
@@ -237,9 +238,11 @@ export default function FlourishRoadmap() {
               className="lg:col-span-5 rounded-3xl bg-white/50 backdrop-blur-xl border border-white/80 shadow-lg p-3 flex flex-col justify-center min-h-[360px]"
             >
               <div className="relative w-full h-full min-h-[340px] overflow-hidden rounded-2xl bg-slate-100 shadow-inner">
-                <img
+                <Image
                   src={getStepImage(activeStep.id)}
                   alt={activeStep.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 40vw"
                   className="w-full h-full absolute inset-0 object-cover object-center transition-all duration-700 hover:scale-105"
                 />
                 
@@ -248,7 +251,7 @@ export default function FlourishRoadmap() {
 
                 {/* Company Logo Overlay - Premium & Sleek */}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md border border-white/60 flex items-center gap-1.5 select-none pointer-events-none">
-                  <img src="/FFlogo-icon-only.svg" alt="Company Icon" className="h-5 w-5 object-contain" />
+                  <Image src="/FFlogo-icon-only.svg" alt="Company Icon" width={20} height={20} className="h-5 w-5 object-contain" />
                   <span className="text-[10px] font-mono font-bold tracking-tight text-[#001F3F]">FLY & FLOURISH</span>
                 </div>
 

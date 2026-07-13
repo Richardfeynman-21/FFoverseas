@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { Plane } from "lucide-react";
 import { universities } from "../../data/universities";
+import Image from "next/image";
 
 type University = {
   name: string;
@@ -48,9 +49,11 @@ function UniversityCard({ uni }: { uni: University }) {
         group-hover:scale-110
         "
       >
-        <img
+        <Image
           src={uni.logo}
           alt={uni.name}
+          width={44}
+          height={44}
           className="
           w-8 h-8 sm:w-11 sm:h-11
           object-contain
