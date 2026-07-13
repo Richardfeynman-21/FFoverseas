@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import LoginComponent from '@/src/components/student/LoginComponent';
+import StudentMaintenance from '@/src/components/ui/StudentMaintenance';
 
 export default function StudentLoginPage() {
-  return <LoginComponent />;
+  return <StudentMaintenance />;
 }
