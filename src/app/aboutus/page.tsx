@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { motion, useInView } from 'motion/react';
+import Link from 'next/link';
 import {
   Compass,
   Target,
@@ -540,10 +541,13 @@ export default function AboutUs() {
               </p>
             </Reveal>
             <Reveal delay={0.1}>
-              <button className="bg-[#001F3F] text-white px-8 py-4.5 rounded-xl font-bold hover:bg-[#FF0000] hover:shadow-xl hover:shadow-[#FF0000]/10 transition-all duration-300 shadow-md flex items-center gap-2 group whitespace-nowrap cursor-pointer">
+              <Link 
+                href="/?scrollTo=consultation-hub"
+                className="bg-[#001F3F] text-white px-8 py-4.5 rounded-xl font-bold hover:bg-[#FF0000] hover:shadow-xl hover:shadow-[#FF0000]/10 transition-all duration-300 shadow-md flex items-center gap-2 group whitespace-nowrap cursor-pointer"
+              >
                 Book a Free Consultation
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </Link>
             </Reveal>
           </div>
         </section>
