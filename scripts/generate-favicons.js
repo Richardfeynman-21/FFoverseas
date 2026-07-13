@@ -2,43 +2,30 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 
-const jpegPath = path.resolve('public', 'browser-logo.jpeg');
+const svgPath = path.resolve('public', 'FFlogo-icon-only.svg');
 const publicDir = path.resolve('public');
 
 async function createFavicon(size) {
-  const logoSize = Math.round(size * 0.80);
+  const logoSize = Math.round(size * 0.96); // 96% logo size for maximum prominence inside squarcle
   const padding = Math.round((size - logoSize) / 2);
   
-  // Render the logo SVG/JPEG to target size
-  const logoResized = await sharp(jpegPath)
+  // Render the logo SVG to target size (transparent)
+  const logoBuffer = await sharp(svgPath)
     .resize(logoSize, logoSize)
     .png()
     .toBuffer();
 
-  // Create a premium white background canvas
-  const whiteCanvas = await sharp({
-    create: {
-      width: size,
-      height: size,
-      channels: 4,
-      background: { r: 255, g: 255, b: 255, alpha: 1 }
-    }
-  })
-  .composite([{ input: logoResized, top: padding, left: padding }])
-  .png()
-  .toBuffer();
-
-  // Create a premium white squarcle (rounded square) background SVG mask
+  // Create a premium white squarcle (rounded square) background SVG
   const rx = Math.round(size * 0.22); // 22% radius makes a perfect squarcle (similar to iOS app icons)
-  const squarcleMask = Buffer.from(
+  const squarcleBg = Buffer.from(
     `<svg width="${size}" height="${size}">
        <rect width="${size}" height="${size}" rx="${rx}" ry="${rx}" fill="#ffffff" />
      </svg>`
   );
 
-  // Composite the white canvas with the squarcle mask using dest-in to round the corners
-  return sharp(whiteCanvas)
-    .composite([{ input: squarcleMask, blend: 'dest-in' }])
+  // Composite the logo over the white squarcle background
+  return sharp(squarcleBg)
+    .composite([{ input: logoBuffer, top: padding, left: padding }])
     .png()
     .toBuffer();
 }
@@ -60,7 +47,7 @@ async function main() {
     await fs.promises.writeFile(path.join(publicDir, 'icon-512.png'), png512);
     console.log('✔ Generated squarcle icon-512.png');
 
-    // 2. Generate standard favicon.ico (fallback as 48x48 PNG)
+    // 2. Generate standard favicon.ico (multi-size: 16x16, 32x32, 48x48)
     await fs.promises.writeFile(path.join(publicDir, 'favicon.ico'), png48);
     console.log('✔ Generated squarcle favicon.ico');
 

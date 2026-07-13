@@ -127,7 +127,7 @@ const brandStats = [
 export default function Login() {
   const router = useRouter();
 
-  const [portalMode, setPortalMode] = useState<'student' | 'admin'>('student');
+  const [portalMode, setPortalMode] = useState<'student' | 'agent'>('student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -141,7 +141,7 @@ export default function Login() {
     try {
       return (
         (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
-        (typeof window !== 'undefined' && window.location.hostname === 'localhost')
+        false
       );
     } catch {
       return false;
@@ -176,8 +176,8 @@ export default function Login() {
       const token = localStorage.getItem('ff_student_token');
       if (token) router.replace('/student/dashboard');
     } else {
-      const token = localStorage.getItem('ff_admin_token');
-      if (token) router.replace('/admin');
+      const token = localStorage.getItem('ff_agent_token');
+      if (token) router.replace('/agent');
     }
   }, [router, portalMode]);
 
@@ -270,13 +270,13 @@ export default function Login() {
           throw new Error(data.detail || 'Access denied.');
         }
 
-        localStorage.setItem('ff_admin_token', data.tokens.access_token);
-        localStorage.setItem('ff_admin_refresh_token', data.tokens.refresh_token);
+        localStorage.setItem('ff_agent_token', data.tokens.access_token);
+        localStorage.setItem('ff_agent_refresh_token', data.tokens.refresh_token);
         const profile = { name: data.admin.full_name, role: data.admin.role };
-        localStorage.setItem('ff_admin_profile', JSON.stringify(profile));
+        localStorage.setItem('ff_agent_profile', JSON.stringify(profile));
         
         setIsLoading(false);
-        router.push('/admin');
+        router.push('/agent');
       } catch (err: any) {
         // Fallback for local/demo offline testing
         if (
@@ -284,10 +284,10 @@ export default function Login() {
           password.trim() === 'password123'
         ) {
           const dummyProfile = { name: 'Priya Sharma', role: 'Senior Counselor' };
-          localStorage.setItem('ff_admin_token', 'demo_admin_access_token');
-          localStorage.setItem('ff_admin_profile', JSON.stringify(dummyProfile));
+          localStorage.setItem('ff_agent_token', 'demo_agent_access_token');
+          localStorage.setItem('ff_agent_profile', JSON.stringify(dummyProfile));
           setIsLoading(false);
-          router.push('/admin');
+          router.push('/agent');
         } else {
           setError(
             err.message ||
@@ -547,9 +547,9 @@ export default function Login() {
             </button>
             <button
               type="button"
-              onClick={() => setPortalMode('admin')}
+              onClick={() => setPortalMode('agent')}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                portalMode === 'admin'
+                portalMode === 'agent'
                   ? 'text-[#001F3F] bg-white shadow-sm'
                   : 'text-slate-500 hover:text-[#001F3F]'
               }`}

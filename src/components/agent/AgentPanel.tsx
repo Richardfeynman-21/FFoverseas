@@ -158,12 +158,12 @@ const DEFAULT_STAGES: PipelineStage[] = [
   { id: 7, name: 'Pre-Departure Briefing', status: 'pending', date: '', description: 'Final orientation: accommodation, travel, cultural prep.' }
 ];
 
-interface AdminPanelProps {
-  adminProfile: { name: string; role: string } | null;
+interface AgentPanelProps {
+  agentProfile: { name: string; role: string } | null;
   onLogout: () => void;
 }
 
-export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) {
+export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) {
   const router = useRouter();
 
   // Active Main Tab
@@ -171,48 +171,56 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
 
   // Database States loaded from localStorage
   const [students, setStudents] = useState<StudentRecord[]>(() => {
-    const saved = localStorage.getItem('ff_students_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_students_db');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_STUDENTS;
   });
 
   const [applications, setApplications] = useState<ApplicationRecord[]>(() => {
-    const saved = localStorage.getItem('ff_applications_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_applications_db');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_APPLICATIONS;
   });
 
   const [documents, setDocuments] = useState<DocumentRecord[]>(() => {
-    const saved = localStorage.getItem('ff_documents_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_documents_db');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_DOCUMENTS;
   });
 
   const [universities, setUniversities] = useState<UniversityRecord[]>(() => {
-    const saved = localStorage.getItem('ff_universities_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_universities_db');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_UNIVERSITIES;
@@ -549,15 +557,15 @@ export default function AdminPanel({ adminProfile, onLogout }: AdminPanelProps) 
               </div>
             </div>
 
-            {/* Admin profile detail summary (hidden on mobile, shown on lg) */}
-            {adminProfile && (
+            {/* Agent profile detail summary (hidden on mobile, shown on lg) */}
+            {agentProfile && (
               <div className="hidden lg:flex px-6 py-4 border-t border-slate-100 bg-slate-50/30 items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-black text-[#001F3F] font-mono select-none">
                   PS
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[#001F3F] text-xs font-bold truncate leading-none">{adminProfile.name}</p>
-                  <p className="text-[9px] font-mono text-slate-450 truncate leading-none mt-1.5 uppercase tracking-wider font-semibold">{adminProfile.role}</p>
+                  <p className="text-[#001F3F] text-xs font-bold truncate leading-none">{agentProfile.name}</p>
+                  <p className="text-[9px] font-mono text-slate-450 truncate leading-none mt-1.5 uppercase tracking-wider font-semibold">{agentProfile.role}</p>
                 </div>
               </div>
             )}

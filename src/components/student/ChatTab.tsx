@@ -361,7 +361,7 @@ export const ChatTab: React.FC<ChatTabProps> = ({
           >
             <div className="relative shrink-0">
               <div className="w-12 h-12 rounded-full bg-white border border-slate-200/50 flex items-center justify-center text-[#001F3F] shadow-sm p-1">
-                <img src="/Fly&FlourishLogo.svg" className="w-full h-full object-contain" alt="Fly &amp; Flourish AI Logo" />
+                <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly &amp; Flourish AI Logo" />
               </div>
               <span className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
             </div>
@@ -429,7 +429,7 @@ export const ChatTab: React.FC<ChatTabProps> = ({
               <>
                 <div className="relative shrink-0">
                   <div className="w-12 h-12 rounded-full overflow-hidden mr-4 shadow-sm border border-slate-200 bg-white p-1 flex items-center justify-center">
-                    <img src="/Fly&FlourishLogo.svg" className="w-full h-full object-contain" alt="Fly &amp; Flourish AI Logo" />
+                    <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly &amp; Flourish AI Logo" />
                   </div>
                   <span className="absolute bottom-0.5 right-3.5 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
                 </div>

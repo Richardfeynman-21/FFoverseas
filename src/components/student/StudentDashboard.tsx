@@ -23,11 +23,12 @@ import { ProgressTab } from './ProgressTab';
 import { VaultTab } from './VaultTab';
 import { ProfileTab } from './ProfileTab';
 import { ChatTab } from './ChatTab';
+import { VisaTab } from './VisaTab';
 
 export default function StudentDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [student, setStudent] = useState<Student | null>(null);
   const [countryFilter, setCountryFilter] = useState('All');
@@ -44,12 +45,14 @@ export default function StudentDashboard() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>(() => {
-    const saved = localStorage.getItem('ff_uploaded_docs');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_uploaded_docs');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     // Default mock files for documents that are marked as uploaded by default
@@ -151,12 +154,14 @@ export default function StudentDashboard() {
   }, [docChecks]);
 
   const [applications, setApplications] = useState<StudentApplication[]>(() => {
-    const saved = localStorage.getItem('ff_student_applications');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_student_applications');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_APPLICATIONS;
@@ -167,9 +172,11 @@ export default function StudentDashboard() {
   }, [applications]);
 
   const [activeApplicationId, setActiveApplicationId] = useState<string>(() => {
-    const saved = localStorage.getItem('ff_active_application_id');
-    if (saved && DEFAULT_APPLICATIONS.some(a => a.id === saved)) {
-      return saved;
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_active_application_id');
+      if (saved && DEFAULT_APPLICATIONS.some(a => a.id === saved)) {
+        return saved;
+      }
     }
     return DEFAULT_APPLICATIONS[0]?.id || '';
   });
@@ -184,12 +191,14 @@ export default function StudentDashboard() {
     if (activeApplication) {
       return activeApplication.stages;
     }
-    const saved = localStorage.getItem('ff_application_stages');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ff_application_stages');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     return DEFAULT_APPLICATION_STAGES;
@@ -419,6 +428,8 @@ export default function StudentDashboard() {
         activeTab={activeTab}
         student={student}
         getInitials={getInitials}
+        setSidebarOpen={setSidebarOpen}
+        sidebarOpen={sidebarOpen}
       />
 
       <div className="flex flex-1 min-h-0 relative overflow-hidden">
@@ -458,10 +469,11 @@ export default function StudentDashboard() {
                 countryFilter={countryFilter}
                 setCountryFilter={setCountryFilter}
                 filteredUniversities={filteredUniversities}
+                setActiveTab={setActiveTab}
               />
             )}
 
-            {(activeTab === 'progress' || activeTab === 'visa') && (
+            {activeTab === 'progress' && (
               <ProgressTab
                 progressPercent={progressPercent}
                 stages={stages}
@@ -470,6 +482,13 @@ export default function StudentDashboard() {
                 applications={applications}
                 activeApplicationId={activeApplicationId}
                 setActiveApplicationId={setActiveApplicationId}
+              />
+            )}
+
+            {activeTab === 'visa' && (
+              <VisaTab
+                student={student}
+                setActiveTab={setActiveTab}
               />
             )}
 

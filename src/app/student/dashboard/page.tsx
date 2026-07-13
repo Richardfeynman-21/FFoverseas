@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import StudentMaintenance from '../../../components/ui/StudentMaintenance';
+import StudentDashboard from '@/src/components/student/StudentDashboard';
 
 export default function StudentDashboardPage() {
-  return <StudentMaintenance />;
+  return <StudentDashboard />;
 }

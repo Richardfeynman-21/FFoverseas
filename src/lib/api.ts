@@ -39,8 +39,8 @@ export function mapApiToDetailedUniversity(api: ApiUniversity): DetailedUniversi
     currency: currencySymbol,
     scholarship: (api.scholarship_count || 0) > 0
       ? `${api.scholarship_count} scholarship${api.scholarship_count > 1 ? 's' : ''} available`
-      : '2 scholarships available',
-    scholarshipValue: api.scholarship_count || 2,
+      : 'No scholarships listed',
+    scholarshipValue: api.scholarship_count || 0,
     acceptanceRate: (() => {
       const r = isNaN(rankNum) ? 99999 : rankNum;
       let val = 75;
@@ -181,8 +181,8 @@ export function mapApiDetailToDetailedUniversity(data: { university: ApiUniversi
     currency: currencySymbol,
     scholarship: (api.scholarship_count || 0) > 0 || (data.scholarships && data.scholarships.length > 0)
       ? `${api.scholarship_count || data.scholarships?.length || 0} scholarship${(api.scholarship_count || data.scholarships?.length || 0) > 1 ? 's' : ''} available`
-      : '2 scholarships available',
-    scholarshipValue: api.scholarship_count || data.scholarships?.length || 2,
+      : 'No scholarships listed',
+    scholarshipValue: api.scholarship_count || data.scholarships?.length || 0,
     acceptanceRate: (() => {
       const r = isNaN(rankNum) ? 99999 : rankNum;
       let val = 75;

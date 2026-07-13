@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/api/'],
+      disallow: ['/agent/', '/api/'],
     },
     sitemap: 'https://ffoverseas.in/sitemap.xml',
   };
