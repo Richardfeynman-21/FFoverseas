@@ -88,7 +88,7 @@ export default function AboutUs() {
 
       <main className="overflow-hidden">
         {/* 1. HERO - ARCHITECTING YOUR GLOBAL FUTURE */}
-        <section className="relative min-h-[95vh] flex items-center pt-36 pb-24 bg-white overflow-hidden select-none">
+        <section className="relative min-h-[95vh] xl:min-h-screen flex items-center pt-[92px] pb-12 xl:pb-20 bg-white overflow-hidden select-none">
           {/* Blueprint dot pattern */}
           <div className="absolute inset-0 opacity-[0.06] -z-20 pointer-events-none" 
             style={{

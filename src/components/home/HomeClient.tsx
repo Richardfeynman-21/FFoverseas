@@ -174,7 +174,7 @@ export default function HomeClient() {
 
       {/* 2. Hero Section */}
       <motion.section 
-        className="relative pt-20 pb-20 sm:pt-24 lg:pt-28 xl:pt-32 2xl:pt-36 2xl:pb-32 overflow-hidden" 
+        className="relative min-h-[95vh] xl:min-h-screen flex items-center pt-[92px] pb-12 xl:pb-20 overflow-hidden" 
         id="hero-landing"
         initial={{ opacity: 0, y: 25, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

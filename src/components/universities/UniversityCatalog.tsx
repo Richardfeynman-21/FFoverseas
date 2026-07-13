@@ -747,7 +747,7 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
       <Navbar />
 
       {/* LUXURIOUS HERO BANNER HEADER */}
-      <section className="relative pt-32 pb-16 z-30">
+      <section className="relative pt-[108px] pb-12 z-30">
         <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 text-center space-y-6">
           
           <h1 className="text-4xl md:text-6xl font-black text-[#001F3F] tracking-tight leading-none">
