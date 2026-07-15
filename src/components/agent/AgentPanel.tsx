@@ -477,8 +477,10 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
     if (!token) return;
     
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = window.location.hostname;
-    const wsUrl = `${protocol}//${wsHost}:8080/ws/chat?token=${token}`;
+    const hostname = window.location.hostname;
+    const wsUrl = hostname.includes('localhost') || hostname.includes('127.0.0.1')
+      ? `${protocol}//localhost:8080/ws/chat?token=${token}`
+      : `wss://api.ffoverseas.in/ws/chat?token=${token}`;
     
     console.log("Agent connecting to WebSocket:", wsUrl);
     const socket = new WebSocket(wsUrl);
