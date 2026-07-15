@@ -135,41 +135,9 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ─── Demo Mode Setup ──────────────────────────────────────────────────────────
-  // Automatically enables if in local development mode, or can be toggled manually
-  const [isDemoMode, setIsDemoMode] = useState(() => {
-    try {
-      return (
-        (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
-        false
-      );
-    } catch {
-      return false;
-    }
-  });
-
-  // Easter egg toggle: Triple-click the text header to toggle Demo Mode
-  const handleDemoToggleClick = (e: React.MouseEvent) => {
-    if (e.detail === 3) {
-      setIsDemoMode((prev) => !prev);
-    }
-  };
-
-  // Pre-fill fields with fake data whenever Demo Mode or portalMode switches
-  useEffect(() => {
-    if (isDemoMode) {
-      if (portalMode === 'student') {
-        setEmail('demo.student@ffoverseas.com');
-        setPassword('password123');
-      } else {
-        setEmail('admin@ffoverseas.in');
-        setPassword('password123');
-      }
-    } else {
-      setEmail('');
-      setPassword('');
-    }
-  }, [isDemoMode, portalMode]);
+  // ─── Demo Mode Setup ───
+  // Demo mode is completely disabled for production security
+  const isDemoMode = false;
 
   useEffect(() => {
     if (portalMode === 'student') {
@@ -193,25 +161,7 @@ export default function Login() {
     setIsLoading(true);
 
     if (portalMode === 'student') {
-      // ─── Handle Demo Logic ───
-      if (isDemoMode) {
-        setTimeout(() => {
-          localStorage.setItem('ff_student_token', 'demo_access_token_xyz123');
-          localStorage.setItem('ff_student_refresh_token', 'demo_refresh_token_xyz123');
-          localStorage.setItem(
-            'ff_student',
-            JSON.stringify({
-              id: 'demo-student-id',
-              name: 'Demo Student User',
-              email: email.trim(),
-              avatar_url: null,
-            })
-          );
-          setIsLoading(false);
-          router.push('/student/dashboard');
-        }, 1000); // Mimic a 1-second network latency
-        return;
-      }
+
 
       // ─── Standard Production/API Logic ───
       try {
@@ -229,20 +179,45 @@ export default function Login() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.detail || 'Incorrect email or password.');
+          throw new Error(data.error || data.detail || 'Incorrect email or password.');
         }
 
-        localStorage.setItem('ff_student_token', data.tokens.access_token);
-        localStorage.setItem('ff_student_refresh_token', data.tokens.refresh_token);
-        localStorage.setItem(
-          'ff_student',
-          JSON.stringify({
-            id: data.student.id,
-            name: data.student.full_name,
-            email: data.student.email,
-            avatar_url: data.student.avatar_url,
-          })
-        );
+        const accessToken = data.access_token;
+        const refreshToken = data.refresh_token;
+
+        localStorage.setItem('ff_student_token', accessToken);
+        localStorage.setItem('ff_student_refresh_token', refreshToken);
+
+        // Fetch student profile details from /api/students/me
+        const profileResponse = await fetch('/api/students/me', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+
+        if (profileResponse.ok) {
+          const studentData = await profileResponse.json();
+          localStorage.setItem(
+            'ff_student',
+            JSON.stringify({
+              id: studentData.id,
+              name: studentData.full_name,
+              email: studentData.email,
+              avatar_url: studentData.avatar_url || null,
+            })
+          );
+        } else {
+          localStorage.setItem(
+            'ff_student',
+            JSON.stringify({
+              id: '',
+              name: 'Student User',
+              email: email.trim(),
+              avatar_url: null,
+            })
+          );
+        }
 
         router.push('/student/dashboard');
       } catch (err: any) {
@@ -253,7 +228,12 @@ export default function Login() {
     } else {
       // ─── Admin/Agent Login ───
       try {
-        const response = await fetch('/api/auth/admin/login', {
+        let loginUrl = '/api/auth/agent/login';
+        if (email.trim().toLowerCase() === 'admin@ffoverseas.in') {
+          loginUrl = '/api/auth/admin/login';
+        }
+
+        const response = await fetch(loginUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -267,34 +247,83 @@ export default function Login() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.detail || 'Access denied.');
+          if (loginUrl === '/api/auth/agent/login') {
+            const adminResponse = await fetch('/api/auth/admin/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: email.trim(),
+                password: password.trim(),
+              }),
+            });
+            const adminData = await adminResponse.json();
+            if (adminResponse.ok) {
+              await handleAgentAdminSuccess(adminData, true);
+              return;
+            }
+          }
+          throw new Error(data.error || data.detail || 'Access denied.');
         }
 
-        localStorage.setItem('ff_agent_token', data.tokens.access_token);
-        localStorage.setItem('ff_agent_refresh_token', data.tokens.refresh_token);
-        const profile = { name: data.admin.full_name, role: data.admin.role };
-        localStorage.setItem('ff_agent_profile', JSON.stringify(profile));
-        
-        setIsLoading(false);
-        router.push('/agent');
-      } catch (err: any) {
-        // Fallback for local/demo offline testing
-        if (
-          email.trim() === 'admin@ffoverseas.in' &&
-          password.trim() === 'password123'
-        ) {
-          const dummyProfile = { name: 'Priya Sharma', role: 'Senior Counselor' };
-          localStorage.setItem('ff_agent_token', 'demo_agent_access_token');
-          localStorage.setItem('ff_agent_profile', JSON.stringify(dummyProfile));
+        await handleAgentAdminSuccess(data, loginUrl === '/api/auth/admin/login');
+
+        async function handleAgentAdminSuccess(loginData: any, isAdmin: boolean) {
+          const accessToken = loginData.access_token;
+          const refreshToken = loginData.refresh_token;
+
+          localStorage.setItem('ff_agent_token', accessToken);
+          localStorage.setItem('ff_agent_refresh_token', refreshToken);
+
+          if (isAdmin) {
+            localStorage.setItem(
+              'ff_agent_profile',
+              JSON.stringify({
+                id: 'superadmin-id',
+                name: 'System Super Admin',
+                role: 'superadmin',
+              })
+            );
+          } else {
+            const profileResponse = await fetch('/api/agents/me', {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+              },
+            });
+
+            if (profileResponse.ok) {
+              const agentData = await profileResponse.json();
+              localStorage.setItem(
+                'ff_agent_profile',
+                JSON.stringify({
+                  id: agentData.id,
+                  name: agentData.full_name,
+                  role: 'agent',
+                })
+              );
+            } else {
+              localStorage.setItem(
+                'ff_agent_profile',
+                JSON.stringify({
+                  id: '',
+                  name: 'Agent User',
+                  role: 'agent',
+                })
+              );
+            }
+          }
+
           setIsLoading(false);
           router.push('/agent');
-        } else {
-          setError(
-            err.message ||
-              'Connection failed. Use default demo credentials (admin@ffoverseas.in / password123).'
-          );
-          setIsLoading(false);
         }
+      } catch (err: any) {
+        setError(
+          err.message ||
+            'Connection failed. Please check your credentials.'
+        );
+        setIsLoading(false);
       }
     }
   };
@@ -306,22 +335,7 @@ export default function Login() {
       initial="hidden"
       animate="visible"
     >
-      {/* ─── Demo Banner Sticky Badge ─── */}
-      <AnimatePresence>
-        {isDemoMode && (
-          <motion.div
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -50, opacity: 0 }}
-            className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-amber-500 text-white font-mono text-xs px-3 py-1.5 rounded-full shadow-md font-bold select-none cursor-pointer hover:bg-amber-600 transition-colors"
-            onClick={() => setIsDemoMode(false)}
-            title="Click to turn off Demo Mode"
-          >
-            <Code className="w-3.5 h-3.5" />
-            <span>DEMO MODE ACTIVE</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* ═══════════════════════════════════════════════════════════════════════
           LEFT BRAND PANEL — Hidden on mobile, visible lg+
@@ -368,11 +382,7 @@ export default function Login() {
               <h2 className="text-white font-extrabold text-lg tracking-tight leading-none">
                 Fly & Flourish
               </h2>
-              <p 
-                onClick={handleDemoToggleClick}
-                className="text-[9px] font-mono font-medium text-[#FF0000] tracking-[0.2em] uppercase leading-none mt-0.5 select-none cursor-pointer"
-                title="Triple click to toggle demo mode"
-              >
+              <p className="text-[9px] font-mono font-medium text-[#FF0000] tracking-[0.2em] uppercase leading-none mt-0.5">
                 STUDENT PORTAL
               </p>
             </div>
@@ -507,10 +517,7 @@ export default function Login() {
                 <h2 className="text-[#001F3F] font-extrabold text-base tracking-tight leading-none">
                   Fly & Flourish
                 </h2>
-                <p 
-                  onClick={handleDemoToggleClick}
-                  className="text-[8px] font-mono font-medium text-[#FF0000] tracking-[0.2em] uppercase leading-none mt-0.5 select-none cursor-pointer"
-                >
+                <p className="text-[8px] font-mono font-medium text-[#FF0000] tracking-[0.2em] uppercase leading-none mt-0.5">
                   STUDENT PORTAL
                 </p>
               </div>
@@ -578,54 +585,7 @@ export default function Login() {
 
           {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Demo Mode Toggle Card */}
-            <motion.div 
-              variants={staggerItem}
-              className={`p-3.5 rounded-xl border transition-all duration-300 flex items-center justify-between ${
-                isDemoMode 
-                  ? 'bg-amber-50/85 border-amber-200 shadow-sm' 
-                  : 'bg-slate-50/50 border-slate-100'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <div className={`p-2 rounded-lg transition-colors ${
-                  isDemoMode ? 'bg-amber-500 text-white animate-pulse' : 'bg-slate-100 text-slate-400'
-                }`}>
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div className="text-left">
-                  <h4 className="text-xs font-bold text-[#001F3F] flex items-center gap-1.5">
-                    Demo Mode
-                    {isDemoMode && (
-                      <span className="bg-amber-100 text-amber-800 text-[9px] px-1.5 py-0.5 rounded font-mono font-bold">
-                        ACTIVE
-                      </span>
-                    )}
-                  </h4>
-                  <p className="text-[10px] text-gray-400 font-medium">
-                    Log in instantly without connecting to the database
-                  </p>
-                </div>
-              </div>
-              
-              {/* Toggle Switch */}
-              <button
-                type="button"
-                onClick={() => setIsDemoMode(!isDemoMode)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  isDemoMode ? 'bg-amber-500' : 'bg-slate-200'
-                }`}
-                role="switch"
-                aria-checked={isDemoMode}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    isDemoMode ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </motion.div>
+
 
             {/* Email field */}
             <motion.div className="space-y-1.5" variants={staggerItem}>

@@ -24,6 +24,7 @@ export interface ApplicationRecord {
   program: string;
   status: 'Applied' | 'Offered' | 'Accepted' | 'Rejected';
   appliedDate: string;
+  metadata?: any;
 }
 
 export interface DocumentRecord {
@@ -50,6 +51,7 @@ export interface PipelineStage {
   status: 'completed' | 'current' | 'pending';
   date: string;
   description: string;
+  dbStageId?: string;
 }
 
 export interface ChatMessage {

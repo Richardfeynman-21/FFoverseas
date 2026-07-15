@@ -690,8 +690,21 @@ export default function UniversityCatalog({ initialUniversities, initialTotal }:
 
     match = Math.min(match, 98);
 
+    let counselorName = 'Your Admissions Counselor';
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('ff_student');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed?.assignedAgentName) {
+            counselorName = parsed.assignedAgentName;
+          }
+        } catch (e) {}
+      }
+    }
+
     if (match >= 90) {
-      msg = `Excellent Academic Fit! You have a ${match}% profile match for ${eligibilityUni?.name}. You qualify for premier scholarship schemes up to £10,000 / $15,000. Ms. Priya Sharma is assigned as your Admissions Counselor and will follow up with direct application fee waivers.`;
+      msg = `Excellent Academic Fit! You have a ${match}% profile match for ${eligibilityUni?.name}. You qualify for premier scholarship schemes up to £10,000 / $15,000. ${counselorName} is assigned as your Admissions Counselor and will follow up with direct application fee waivers.`;
     } else if (match >= 75) {
       msg = `Strong Admission Potential! You have a ${match}% match for ${eligibilityUni?.name}. You fulfill the base requirements for almost all programs. We will assist you in draft development (SOP & Letters of Recommendation) to ensure approval.`;
     } else {

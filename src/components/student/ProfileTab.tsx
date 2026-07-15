@@ -55,6 +55,11 @@ interface ProfileData {
   eduGradeAverage: string;
   eduGraduated: string;
 
+  // Study Preferences
+  preferredCountry: string;
+  preferredDegree: string;
+  preferredIntake: string;
+
   // Schools Attended
   schools: School[];
 
@@ -87,91 +92,36 @@ interface ProfileData {
 }
 
 const DEFAULT_PROFILE_DATA: ProfileData = {
-  firstName: 'Abhinove Reddy',
+  firstName: '',
   middleName: '',
-  lastName: 'Survi',
-  dob: '2001-10-19',
-  firstLanguage: 'Telugu',
+  lastName: '',
+  dob: '',
+  firstLanguage: '',
   citizenship: 'India',
-  passportNumber: 'W2059454',
-  passportExpiry: '2032-06-26',
+  passportNumber: '',
+  passportExpiry: '',
   maritalStatus: 'Single',
   gender: 'Male',
-  address: '1-64, Rudravelly,Yadadri Bhongir',
-  city: 'Hyderabad',
+  address: '',
+  city: '',
   country: 'India',
-  state: 'Telangana',
-  zip: '508126',
-  email: 'abhinovereddy19@gmail.com',
-  phone: '+91 90105 51441',
-  eduCountry: 'India',
-  eduHighestLevel: '4-Year Bachelors Degree',
-  eduGradingScheme: 'Higher Education (Bachelor and above) Grading Scheme',
-  eduGradeAverage: '7',
+  state: '',
+  zip: '',
+  email: '',
+  phone: '',
+  eduCountry: '',
+  eduHighestLevel: '',
+  eduGradingScheme: '',
+  eduGradeAverage: '',
   eduGraduated: 'Yes',
-  schools: [
-    {
-      id: 'school-1',
-      level: '4-Year Bachelors Degree',
-      country: 'India',
-      name: 'Holy Mary Institute Of Technology & Science',
-      gradingScheme: 'Higher Education (Bachelor and above) Grading Scheme',
-      language: 'English',
-      from: '2019-08-08',
-      to: '2023-07-08',
-      degreeName: '4-Year Bachelors Degree',
-      graduated: 'Yes',
-      graduationDate: '2023-07-08',
-      hasCertificate: true,
-      address: 'Hyderabad',
-      city: 'Hyderabad',
-      state: 'Telangana',
-      zip: '508126',
-      isCollapsed: false,
-    },
-    {
-      id: 'school-2',
-      level: 'Grade 12 / High School',
-      country: 'India',
-      name: 'Kakatiya Junior College',
-      gradingScheme: 'Standard Grading Scheme',
-      language: 'English',
-      from: '2017-06-08',
-      to: '2019-05-30',
-      degreeName: 'Intermediate',
-      graduated: 'Yes',
-      graduationDate: '2019-05-30',
-      hasCertificate: true,
-      address: 'Hyderabad',
-      city: 'Hyderabad',
-      state: 'Telangana',
-      zip: '508126',
-      isCollapsed: true,
-    },
-    {
-      id: 'school-3',
-      level: 'Grade 10',
-      country: 'India',
-      name: 'Mary Mother Of Divine Grace High School',
-      gradingScheme: 'Standard Grading Scheme',
-      language: 'English',
-      from: '2016-06-06',
-      to: '2017-03-30',
-      degreeName: '10th class',
-      graduated: 'Yes',
-      graduationDate: '2017-03-30',
-      hasCertificate: true,
-      address: 'Hyderabad',
-      city: 'Hyderabad',
-      state: 'Telangana',
-      zip: '508126',
-      isCollapsed: true,
-    }
-  ],
-  englishProof: 'yes',
-  englishTestType: 'Duolingo',
-  duolingoScore: '125',
-  duolingoDate: '2023-08-18',
+  preferredCountry: 'USA',
+  preferredDegree: 'Master',
+  preferredIntake: 'Fall 2026',
+  schools: [],
+  englishProof: 'no_plan',
+  englishTestType: 'IELTS',
+  duolingoScore: '',
+  duolingoDate: '',
   toeflScore: '',
   toeflDate: '',
   ieltsScore: '',
@@ -180,14 +130,14 @@ const DEFAULT_PROFILE_DATA: ProfileData = {
   pteDate: '',
   openToLanguageCourse: false,
   hasGmat: false,
-  hasGre: true,
-  greVerbalScore: '157',
-  greVerbalRank: '73',
-  greQuantScore: '168',
-  greQuantRank: '87',
-  greAwaScore: '2.5',
-  greAwaRank: '7',
-  greDate: '2022-08-24',
+  hasGre: false,
+  greVerbalScore: '',
+  greVerbalRank: '',
+  greQuantScore: '',
+  greQuantRank: '',
+  greAwaScore: '',
+  greAwaRank: '',
+  greDate: '',
   refusedVisa: 'No',
   validPermits: [],
   visaRefusalDetails: ''
@@ -213,6 +163,7 @@ export const ProfileTab: React.FC = () => {
   const [collapsedCards, setCollapsedCards] = useState<Record<string, boolean>>({
     personal: false,
     address: false,
+    preferences: false,
     eduSummary: false,
     schools: false,
     english: false,
@@ -233,6 +184,53 @@ export const ProfileTab: React.FC = () => {
       return () => clearTimeout(t);
     }
   }, [toastMsg]);
+
+  // Fetch profile on mount
+  useEffect(() => {
+    const token = localStorage.getItem('ff_student_token');
+    if (!token) return;
+
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/students/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const studentData = await res.json();
+          const nameParts = (studentData.full_name || '').split(' ');
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
+          
+          const finalProfile = studentData.profile_data ? {
+            ...DEFAULT_PROFILE_DATA,
+            ...studentData.profile_data,
+            preferredCountry: studentData.preferred_destination || studentData.profile_data.preferredCountry || DEFAULT_PROFILE_DATA.preferredCountry,
+            preferredDegree: studentData.preferred_degree_level || studentData.profile_data.preferredDegree || DEFAULT_PROFILE_DATA.preferredDegree,
+            preferredIntake: studentData.preferred_intake || studentData.profile_data.preferredIntake || DEFAULT_PROFILE_DATA.preferredIntake,
+          } : {
+            ...DEFAULT_PROFILE_DATA,
+            firstName,
+            lastName,
+            email: studentData.email || DEFAULT_PROFILE_DATA.email,
+            phone: studentData.phone || DEFAULT_PROFILE_DATA.phone,
+            country: studentData.country || DEFAULT_PROFILE_DATA.country,
+            preferredCountry: studentData.preferred_destination || DEFAULT_PROFILE_DATA.preferredCountry,
+            preferredDegree: studentData.preferred_degree_level || DEFAULT_PROFILE_DATA.preferredDegree,
+            preferredIntake: studentData.preferred_intake || DEFAULT_PROFILE_DATA.preferredIntake,
+          };
+          
+          setProfile(finalProfile);
+          localStorage.setItem('ff_profile_data', JSON.stringify(finalProfile));
+        }
+      } catch (err) {
+        console.error('Error loading profile:', err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleInputChange = (field: keyof ProfileData, value: any) => {
     setProfile(prev => ({ ...prev, [field]: value }));
@@ -292,15 +290,58 @@ export const ProfileTab: React.FC = () => {
     }));
   };
 
-  const handleSaveAndContinue = () => {
-    setToastMsg({ text: 'Profile changes saved successfully!', type: 'success' });
-    
-    // Auto-advance tabs
-    if (activeSubTab === 'general') setActiveSubTab('education');
-    else if (activeSubTab === 'education') setActiveSubTab('scores');
-    else if (activeSubTab === 'scores') setActiveSubTab('visa');
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleSaveAndContinue = async () => {
+    const token = localStorage.getItem('ff_student_token');
+    if (!token) {
+      setToastMsg({ text: 'Session expired. Please log in again.', type: 'error' });
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/students/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          full_name: (profile.firstName + ' ' + profile.lastName).trim() || 'Student Name',
+          phone: profile.phone || null,
+          country: profile.country || null,
+          preferred_destination: profile.preferredCountry || null,
+          preferred_degree_level: profile.preferredDegree || null,
+          preferred_intake: profile.preferredIntake || null,
+          profile_data: profile
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.detail || 'Failed to save profile.');
+      }
+
+      localStorage.setItem('ff_profile_data', JSON.stringify(profile));
+
+      const updatedStudent = await res.json();
+      localStorage.setItem('ff_student', JSON.stringify({
+        id: updatedStudent.id,
+        name: updatedStudent.full_name,
+        email: updatedStudent.email,
+        avatar_url: updatedStudent.avatar_url || null
+      }));
+
+      setToastMsg({ text: 'Profile changes saved successfully!', type: 'success' });
+      
+      // Auto-advance tabs
+      if (activeSubTab === 'general') setActiveSubTab('education');
+      else if (activeSubTab === 'education') setActiveSubTab('scores');
+      else if (activeSubTab === 'scores') setActiveSubTab('visa');
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      console.error(err);
+      setToastMsg({ text: err.message || 'Failed to save profile changes.', type: 'error' });
+    }
   };
 
   const handlePermitToggle = (permit: string) => {
@@ -696,6 +737,85 @@ export const ProfileTab: React.FC = () => {
                                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-[#001F3F] outline-none focus:bg-white focus:border-primary transition-all"
                               />
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Card 3: Study Preferences */}
+              <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-xl shadow-slate-900/2">
+                <button
+                  type="button"
+                  onClick={() => toggleCard('preferences')}
+                  className="w-full px-6 py-5 flex items-center justify-between text-left border-b border-slate-50 hover:bg-slate-50/40 transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="p-1.5 bg-[#001F3F]/5 text-primary rounded-lg material-symbols-outlined text-[20px]">explore</span>
+                    <h3 className="font-bold text-[#001F3F]">Study Preferences</h3>
+                  </div>
+                  {collapsedCards.preferences ? <ChevronDown size={18} className="text-slate-400" /> : <ChevronUp size={18} className="text-slate-400" />}
+                </button>
+
+                <AnimatePresence>
+                  {!collapsedCards.preferences && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: 'auto' }}
+                      exit={{ height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 sm:p-8 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                          {/* Target Country */}
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase font-mono tracking-wider">
+                              Target Country <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                              value={profile.preferredCountry}
+                              onChange={(e) => handleInputChange('preferredCountry', e.target.value)}
+                              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-[#001F3F] outline-none focus:bg-white focus:border-primary transition-all cursor-pointer"
+                            >
+                              <option value="USA">USA</option>
+                              <option value="UK">UK</option>
+                              <option value="Canada">Canada</option>
+                              <option value="Australia">Australia</option>
+                              <option value="Germany">Germany</option>
+                            </select>
+                          </div>
+
+                          {/* Target Degree */}
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase font-mono tracking-wider">
+                              Target Degree <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                              value={profile.preferredDegree}
+                              onChange={(e) => handleInputChange('preferredDegree', e.target.value)}
+                              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-[#001F3F] outline-none focus:bg-white focus:border-primary transition-all cursor-pointer"
+                            >
+                              <option value="Bachelor">Bachelor</option>
+                              <option value="Master">Master</option>
+                              <option value="PhD">PhD</option>
+                              <option value="Associate">Associate Degree</option>
+                            </select>
+                          </div>
+
+                          {/* Target Intake */}
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase font-mono tracking-wider">
+                              Target Intake <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={profile.preferredIntake}
+                              onChange={(e) => handleInputChange('preferredIntake', e.target.value)}
+                              placeholder="e.g. Fall 2026"
+                              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-[#001F3F] outline-none focus:bg-white focus:border-primary transition-all"
+                            />
                           </div>
                         </div>
                       </div>

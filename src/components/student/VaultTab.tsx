@@ -15,6 +15,7 @@ interface VaultTabProps {
   uploadedDocs: number;
   uploadedFiles: UploadedFile[];
   setUploadedFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>;
+  activeApplicationId?: string;
 }
 
 export const VaultTab: React.FC<VaultTabProps> = ({
@@ -23,6 +24,7 @@ export const VaultTab: React.FC<VaultTabProps> = ({
   uploadedDocs,
   uploadedFiles,
   setUploadedFiles,
+  activeApplicationId,
 }) => {
   const [selectedDocType, setSelectedDocType] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
@@ -65,9 +67,15 @@ export const VaultTab: React.FC<VaultTabProps> = ({
     return <FileCode size={size} className="text-slate-500" />;
   };
 
-  const startUploadSimulation = (file: File) => {
+  const startUploadSimulation = async (file: File) => {
     if (!selectedDocType) {
       setToastMsg({ text: 'Please select a document category first!', type: 'error' });
+      return;
+    }
+
+    const token = localStorage.getItem('ff_student_token');
+    if (!token) {
+      setToastMsg({ text: 'Session expired. Please log in again.', type: 'error' });
       return;
     }
 
@@ -75,45 +83,62 @@ export const VaultTab: React.FC<VaultTabProps> = ({
       name: file.name,
       size: formatSize(file.size)
     });
-    setUploadProgress(0);
+    setUploadProgress(10);
 
-    if (uploadIntervalRef.current) clearInterval(uploadIntervalRef.current);
+    try {
+      const formData = new FormData();
+      formData.append('doc_type', selectedDocType);
+      formData.append('file', file);
 
-    uploadIntervalRef.current = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(uploadIntervalRef.current);
-          
-          // Add file to list
-          const newFile: UploadedFile = {
-            id: `doc-${Date.now()}`,
-            documentId: selectedDocType,
-            name: file.name,
-            size: formatSize(file.size),
-            uploadedAt: new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
-          };
+      if (activeApplicationId && !activeApplicationId.startsWith('app-')) {
+        formData.append('application_id', activeApplicationId);
+      }
 
-          setUploadedFiles((prevFiles) => {
-            // Replace if already exists for this slot, or add
-            const filtered = prevFiles.filter((f) => f.documentId !== selectedDocType);
-            return [...filtered, newFile];
-          });
+      setUploadProgress(40);
 
-          // Ensure docChecks gets updated (sync effect in index.tsx handles this)
-          setDocChecks((prev) => ({ ...prev, [selectedDocType]: true }));
-
-          setToastMsg({ text: `"${file.name}" uploaded successfully!`, type: 'success' });
-          setUploadingFile(null);
-          setSelectedDocType('');
-          return 100;
-        }
-        return prev + 10;
+      const res = await fetch('/api/documents/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
       });
-    }, 150);
+
+      setUploadProgress(80);
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.detail || 'Upload failed.');
+      }
+
+      const doc = await res.json();
+      setUploadProgress(100);
+
+      const newFile: UploadedFile = {
+        id: doc.id,
+        documentId: doc.doc_type || selectedDocType,
+        name: doc.file_name,
+        size: formatSize(doc.file_size_bytes),
+        uploadedAt: new Date(doc.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
+      };
+
+      setUploadedFiles((prevFiles) => {
+        const filtered = prevFiles.filter((f) => f.documentId !== selectedDocType);
+        return [...filtered, newFile];
+      });
+
+      setDocChecks((prev) => ({ ...prev, [selectedDocType]: true }));
+      setToastMsg({ text: `"${file.name}" uploaded successfully!`, type: 'success' });
+      setUploadingFile(null);
+      setSelectedDocType('');
+    } catch (err: any) {
+      console.error(err);
+      setToastMsg({ text: err.message || 'Failed to upload document.', type: 'error' });
+      setUploadingFile(null);
+    }
   };
 
   const handleCancelUpload = () => {
-    if (uploadIntervalRef.current) clearInterval(uploadIntervalRef.current);
     setUploadingFile(null);
     setUploadProgress(0);
     setToastMsg({ text: 'Upload cancelled.', type: 'error' });
@@ -142,32 +167,99 @@ export const VaultTab: React.FC<VaultTabProps> = ({
     }
   };
 
-  const handleDeleteFile = (id: string) => {
+  const handleDeleteFile = async (id: string) => {
     const fileToDelete = uploadedFiles.find((f) => f.id === id);
-    if (fileToDelete) {
+    if (!fileToDelete) return;
+
+    const isMock = fileToDelete.id.startsWith('mock-') || fileToDelete.id.startsWith('manual-');
+    if (isMock) {
       setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
       setDocChecks((prev) => ({ ...prev, [fileToDelete.documentId]: false }));
       setToastMsg({ text: `Removed document reference.`, type: 'success' });
+      return;
+    }
+
+    const token = localStorage.getItem('ff_student_token');
+    if (!token) {
+      setToastMsg({ text: 'Session expired. Please log in again.', type: 'error' });
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/documents/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.detail || 'Delete failed.');
+      }
+
+      setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
+      setDocChecks((prev) => ({ ...prev, [fileToDelete.documentId]: false }));
+      setToastMsg({ text: `Document deleted successfully.`, type: 'success' });
+    } catch (err: any) {
+      console.error(err);
+      setToastMsg({ text: err.message || 'Failed to delete document.', type: 'error' });
     }
   };
 
-  const handleDownloadFile = (file: UploadedFile) => {
-    const element = document.createElement("a");
-    const fileContent = `Fly & Flourish Student Dashboard - Mock Document Download\n\n` +
-      `Document ID: ${file.id}\n` +
-      `Category: ${DOCUMENTS.find(d => d.id === file.documentId)?.name || 'Custom'}\n` +
-      `File Name: ${file.name}\n` +
-      `File Size: ${file.size}\n` +
-      `Uploaded At: ${file.uploadedAt}\n\n` +
-      `This is a mock download file generated by the Fly & Flourish Student Dashboard to verify the document retrieval workflow.`;
-    const textFile = new Blob([fileContent], { type: 'text/plain' });
-    element.href = URL.createObjectURL(textFile);
-    element.download = file.name.endsWith('.txt') ? file.name : file.name + '.txt';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    
-    setToastMsg({ text: `Downloading ${file.name}...`, type: 'success' });
+  const handleDownloadFile = async (file: UploadedFile) => {
+    const isMock = file.id.startsWith('mock-') || file.id.startsWith('manual-');
+    if (isMock) {
+      const element = document.createElement("a");
+      const fileContent = `Fly & Flourish Student Dashboard - Mock Document Download\n\n` +
+        `Document ID: ${file.id}\n` +
+        `Category: ${DOCUMENTS.find(d => d.id === file.documentId)?.name || 'Custom'}\n` +
+        `File Name: ${file.name}\n` +
+        `File Size: ${file.size}\n` +
+        `Uploaded At: ${file.uploadedAt}\n\n` +
+        `This is a mock download file generated by the Fly & Flourish Student Dashboard to verify the document retrieval workflow.`;
+      const textFile = new Blob([fileContent], { type: 'text/plain' });
+      element.href = URL.createObjectURL(textFile);
+      element.download = file.name.endsWith('.txt') ? file.name : file.name + '.txt';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      
+      setToastMsg({ text: `Downloading ${file.name}...`, type: 'success' });
+      return;
+    }
+
+    const token = localStorage.getItem('ff_student_token');
+    if (!token) {
+      setToastMsg({ text: 'Session expired. Please log in again.', type: 'error' });
+      return;
+    }
+
+    try {
+      setToastMsg({ text: `Downloading ${file.name}...`, type: 'success' });
+      const res = await fetch(`/api/documents/${file.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to download file.');
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (err: any) {
+      console.error(err);
+      setToastMsg({ text: err.message || 'Failed to download file.', type: 'error' });
+    }
   };
 
   const handleViewFile = (file: UploadedFile) => {

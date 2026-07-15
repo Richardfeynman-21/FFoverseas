@@ -58,7 +58,7 @@ export const ProgressTab: React.FC<ProgressTabProps> = ({
               <button
                 key={app.id}
                 onClick={() => setActiveApplicationId(app.id)}
-                className={`relative p-5.5 rounded-3xl text-left border cursor-pointer transition-all duration-350 select-none overflow-hidden group flex flex-col justify-between h-44 ${
+                className={`relative p-5.5 rounded-3xl text-left border cursor-pointer transition-all duration-350 select-none overflow-hidden group space-y-4 ${
                   isSelected
                     ? 'bg-gradient-to-br from-[#001F3F] to-[#1a3a60] border-transparent text-white shadow-xl shadow-slate-900/10 -translate-y-1'
                     : 'bg-white border-slate-100/80 hover:border-slate-300 hover:bg-slate-50/50 shadow-sm text-[#001F3F] hover:-translate-y-1'
@@ -71,11 +71,26 @@ export const ProgressTab: React.FC<ProgressTabProps> = ({
 
                 <div className="w-full space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg uppercase ${
-                      isSelected ? 'bg-white/10 text-white border border-white/5' : 'bg-slate-50 text-slate-400 border border-slate-100'
-                    }`}>
-                      {app.country}
-                    </span>
+                    <div className="flex items-center gap-1.5 overflow-hidden">
+                      <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg uppercase shrink-0 ${
+                        isSelected ? 'bg-white/10 text-white border border-white/5' : 'bg-slate-50 text-slate-400 border border-slate-100'
+                      }`}>
+                        {app.country}
+                      </span>
+                      {app.status && (
+                        <span className={`text-[9px] font-sans font-extrabold px-1.5 py-0.5 rounded-lg uppercase tracking-wider truncate shrink-0 ${
+                          app.status.toLowerCase() === 'accepted' || app.status.toLowerCase() === 'offered'
+                            ? (isSelected ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/10' : 'bg-emerald-50 text-emerald-600 border border-emerald-100')
+                            : app.status.toLowerCase() === 'rejected'
+                            ? (isSelected ? 'bg-red-500/25 text-red-300 border border-red-500/10' : 'bg-red-50 text-red-650 border border-red-100')
+                            : app.status.toLowerCase() === 'draft'
+                            ? (isSelected ? 'bg-amber-500/25 text-amber-300 border border-amber-500/10' : 'bg-amber-50 text-amber-650 border border-amber-100')
+                            : (isSelected ? 'bg-blue-500/25 text-blue-300 border border-blue-500/10' : 'bg-blue-50 text-blue-650 border border-blue-100')
+                        }`}>
+                          {app.status}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-sm shrink-0">
                       {app.flag === 'CA' ? '🇨🇦' : app.flag === 'US' ? '🇺🇸' : app.flag === 'GB' ? '🇬🇧' : '🏫'}
                     </span>
@@ -88,21 +103,6 @@ export const ProgressTab: React.FC<ProgressTabProps> = ({
                     <p className={`text-[10.5px] font-semibold truncate mt-1 ${isSelected ? 'text-slate-205' : 'text-slate-450'}`}>
                       {app.programName}
                     </p>
-                  </div>
-                </div>
-
-                <div className="w-full space-y-2">
-                  <div className="flex items-center justify-between text-[10px] font-bold">
-                    <span className={isSelected ? 'text-slate-300' : 'text-slate-400'}>Progress</span>
-                    <span className={isSelected ? 'text-white font-mono' : 'text-[#001F3F] font-mono'}>
-                      {appProgressPercent}%
-                    </span>
-                  </div>
-                  <div className={`w-full h-1.5 rounded-full overflow-hidden ${isSelected ? 'bg-white/20' : 'bg-slate-100'}`}>
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${isSelected ? 'bg-red-500' : 'bg-[#001F3F]'}`}
-                      style={{ width: `${appProgressPercent}%` }}
-                    />
                   </div>
                 </div>
               </button>

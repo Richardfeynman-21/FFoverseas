@@ -3,6 +3,7 @@
 import React from 'react';
 
 export interface University {
+  id?: number;
   name: string;
   country: string;
   flag: string;
@@ -29,7 +30,7 @@ export interface DocumentItem {
   uploaded: boolean;
 }
 
-export type TabKey = 'dashboard' | 'universities' | 'progress' | 'vault' | 'visa' | 'chat' | 'agent-chat' | 'profile';
+export type TabKey = 'dashboard' | 'universities' | 'progress' | 'vault' | 'visa' | 'chat' | 'agent-chat' | 'profile' | 'refer';
 
 export interface ChatMessage {
   text: string;
@@ -42,6 +43,8 @@ export interface Student {
   email: string;
   id: string;
   avatar_url?: string | null;
+  assignedAgentName?: string | null;
+  assignedAgentId?: string | null;
 }
 
 export interface NavItem {
@@ -66,5 +69,6 @@ export interface StudentApplication {
   flag: string;
   logoColor: string;
   stages: ApplicationStage[];
+  status?: string;
 }
 

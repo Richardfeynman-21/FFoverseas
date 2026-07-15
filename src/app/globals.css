@@ -114,22 +114,22 @@ body {
 
 /* Premium thin scrollbar for scrollable panels */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 31, 63, 0.1);
+  background: rgba(0, 31, 63, 0.25);
   border-radius: 99px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 0, 0, 0.3);
+  background: rgba(0, 31, 63, 0.50);
 }
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 31, 63, 0.1) transparent;
+  scrollbar-color: rgba(0, 31, 63, 0.25) transparent;
 }
 
 /* ================================================= */

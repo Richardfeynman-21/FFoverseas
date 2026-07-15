@@ -13,6 +13,7 @@ interface DashboardTabProps {
   applications: StudentApplication[];
   activeApplicationId: string;
   setActiveApplicationId: (id: string) => void;
+  docChecks: Record<string, boolean>;
 }
 
 interface ActionItem {
@@ -32,6 +33,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   applications,
   activeApplicationId,
   setActiveApplicationId,
+  docChecks,
 }) => {
   const getAppLabel = (app: StudentApplication) => {
     let uni = app.universityName;
@@ -60,35 +62,38 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
     return name.slice(0, 10).toUpperCase();
   };
 
-  const [tasks, setTasks] = useState<ActionItem[]>([
-    {
-      id: 1,
-      title: 'Finalize SOP Draft for Oxford',
-      subtitle: 'High priority submission required',
-      badge: 'DUE IN 2D',
+  const docMetadata = [
+    { id: 'passport', name: 'Passport Copy' },
+    { id: 'transcripts', name: 'Academic Transcripts' },
+    { id: 'sop', name: 'Statement of Purpose' },
+    { id: 'lor', name: 'Letters of Recommendation' },
+    { id: 'financial', name: 'Financial Documents' },
+    { id: 'english', name: 'English Test Score (IELTS/TOEFL)' },
+    { id: 'photos', name: 'Passport Size Photos' },
+  ];
+
+  const documentTasks: ActionItem[] = docMetadata
+    .filter(d => !docChecks[d.id])
+    .map((d, index) => ({
+      id: index + 1000,
+      title: `Upload ${d.name}`,
+      subtitle: 'Required for university application review',
+      badge: 'REQUIRED',
       completed: false,
       isRed: true,
-    },
-    {
-      id: 2,
-      title: 'Book Mock Interview Session',
-      subtitle: 'Prepare for scholarship interview',
-      badge: 'PLANNING',
-      completed: false,
-      isRed: false,
-    },
-    {
-      id: 3,
-      title: 'LOR: Prof. Higgins',
-      subtitle: 'Follow up on pending recommendation',
-      badge: null,
-      completed: false,
-      isRed: false,
-    },
-  ]);
+    }));
+
+  const [customTasks, setCustomTasks] = useState<ActionItem[]>([]);
+
+  const tasks = [...documentTasks, ...customTasks];
 
   const toggleTask = (id: number) => {
-    setTasks(prev =>
+    if (id >= 1000) {
+      // Document task clicked: take user to the Vault tab to upload the document!
+      setActiveTab('vault');
+      return;
+    }
+    setCustomTasks(prev =>
       prev.map(task =>
         task.id === id ? { ...task, completed: !task.completed } : task
       )
@@ -109,7 +114,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       completed: false,
       isRed: badge?.toLowerCase().includes('due') || false,
     };
-    setTasks(prev => [...prev, newTask]);
+    setCustomTasks(prev => [...prev, newTask]);
   };
 
   return (
@@ -131,9 +136,15 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               Welcome back, {student.name.split(' ')[0]}.
             </h1>
             <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-300 max-w-2xl font-light leading-relaxed">
-              Your journey is unfolding beautifully. Applications for 4 universities are{' '}
-              <span className="text-white font-semibold italic">{progressPercent}% complete</span>. Your Oxford deadline
-              awaits in 12 days.
+              Your journey is unfolding beautifully. {applications.length > 0 ? (
+                <>
+                  Applications for{' '}
+                  <span className="text-white font-semibold">{applications.length} {applications.length === 1 ? 'university' : 'universities'}</span>
+                  {' '}are <span className="text-white font-semibold italic">{progressPercent}% complete</span>.
+                </>
+              ) : (
+                "Explore universities and start shortlisting courses to begin your applications."
+              )}
             </p>
           </div>
           <button
@@ -158,7 +169,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             </div>
             <div>
               <p className="text-on-surface-variant font-label-caps uppercase text-[10px] mb-1">Universities Applied</p>
-              <h3 className="text-2xl md:text-3xl font-display text-primary">04</h3>
+              <h3 className="text-2xl md:text-3xl font-display text-primary">
+                {String(applications.length).padStart(2, '0')}
+              </h3>
             </div>
           </div>
           <div className="bento-card glass-card rounded-2xl p-6 md:p-8 flex items-center gap-4 sm:gap-6 justify-start sm:justify-center">
@@ -181,8 +194,10 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               </span>
             </div>
             <div>
-              <p className="text-on-surface-variant font-label-caps uppercase text-[10px] mb-1">Days to Deadline</p>
-              <h3 className="text-2xl md:text-3xl font-display text-primary">12</h3>
+              <p className="text-on-surface-variant font-label-caps uppercase text-[10px] mb-1">Days to Intake</p>
+              <h3 className="text-2xl md:text-3xl font-display text-primary">
+                {Math.max(0, Math.ceil((new Date('2026-09-01T00:00:00Z').getTime() - Date.now()) / (1000 * 60 * 60 * 24)))}
+              </h3>
             </div>
           </div>
         </div>
@@ -258,34 +273,44 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           <div className="glass-card rounded-2xl p-6 sm:p-10 bento-card flex-1">
             <h2 className="text-xl sm:text-2xl font-display text-primary mb-6 sm:mb-10">Live Updates</h2>
             <div className="relative space-y-6 sm:space-y-10 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-slate-200">
-              <div className="relative pl-10">
-                <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-white border border-secondary text-secondary flex items-center justify-center z-10">
-                  <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+              {stages.length > 0 ? (
+                stages.slice(0, 3).map((stage, idx) => (
+                  <div key={stage.id || idx} className="relative pl-10">
+                    <div className={`absolute left-0 top-1 w-6 h-6 rounded-full bg-white border flex items-center justify-center z-10 ${
+                      stage.status === 'completed'
+                        ? 'border-emerald-500 text-emerald-500'
+                        : stage.status === 'current'
+                        ? 'border-secondary text-secondary'
+                        : 'border-slate-300 text-slate-300'
+                    }`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${
+                        stage.status === 'completed'
+                          ? 'bg-emerald-500'
+                          : stage.status === 'current'
+                          ? 'bg-secondary'
+                          : 'bg-slate-300'
+                      }`}></div>
+                    </div>
+                    <p className="font-semibold text-primary text-sm sm:text-base">
+                      {stage.name}
+                    </p>
+                    <p className="text-[11px] sm:text-[12px] text-on-surface-variant mt-1">
+                      {stage.status === 'completed'
+                        ? `Stage completed successfully${stage.date ? ` on ${stage.date}` : ''}.`
+                        : stage.status === 'current'
+                        ? 'This stage is currently in progress.'
+                        : 'Pending next steps in your application.'}
+                    </p>
+                    {stage.date && (
+                      <p className="text-[9px] text-slate-400 mt-2 font-label-caps">{stage.date.toUpperCase()}</p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-xs text-slate-400 italic">No recent application updates found.</p>
                 </div>
-                <p className="font-semibold text-primary text-sm sm:text-base">Transcript Verified</p>
-                <p className="text-[11px] sm:text-[12px] text-on-surface-variant mt-1">
-                  Undergraduate transcripts approved by central team.
-                </p>
-                <p className="text-[9px] text-slate-400 mt-2 font-label-caps">2H AGO</p>
-              </div>
-              <div className="relative pl-10">
-                <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-300 flex items-center justify-center z-10">
-                  <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                </div>
-                <p className="font-semibold text-primary text-sm sm:text-base">MIT Update Received</p>
-                <p className="text-[11px] sm:text-[12px] text-on-surface-variant mt-1">
-                  Requested clarification on extracurricular section.
-                </p>
-                <p className="text-[9px] text-slate-400 mt-2 font-label-caps">YESTERDAY</p>
-              </div>
-              <div className="relative pl-10">
-                <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-300 flex items-center justify-center z-10">
-                  <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                </div>
-                <p className="font-semibold text-primary text-sm sm:text-base">Session Scheduled</p>
-                <p className="text-[11px] sm:text-[12px] text-on-surface-variant mt-1">Call confirmed with Senior Counselor Elena.</p>
-                <p className="text-[9px] text-slate-400 mt-2 font-label-caps">OCT 24, 2023</p>
-              </div>
+              )}
             </div>
           </div>
           {/* Quick Links */}

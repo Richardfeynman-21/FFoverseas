@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   CheckCircle2, 
@@ -54,89 +54,38 @@ export const VisaTab: React.FC<VisaTabProps> = ({ student, setActiveTab }) => {
   ];
 
   // 2. Timeline Steps State
-  const [steps, setSteps] = useState<VisaStep[]>([
-    {
-      id: 1,
-      name: 'DS-160 Form Submission',
-      status: 'completed',
-      dateCompleted: 'Jun 12, 2026',
-      description: 'The DS-160 Online Nonimmigrant Visa Application form must be completed and submitted online prior to your visa interview.',
-      checklist: [
-        { id: 'ds-ceac', label: 'Create CEAC account & save application ID', completed: true },
-        { id: 'ds-fields', label: 'Complete all personal, travel, and sponsor fields', completed: true },
-        { id: 'ds-photo', label: 'Upload digital visa passport photograph', completed: true },
-        { id: 'ds-submit', label: 'Submit form & print DS-160 confirmation page', completed: true },
-      ],
-      documents: [
-        { name: 'DS-160 Confirmation.pdf', url: '#' },
-        { name: 'Visa Photo Receipt.jpg', url: '#' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'SEVIS I-901 Fee Payment',
-      status: 'completed',
-      dateCompleted: 'Jun 18, 2026',
-      description: 'All international students must pay the SEVIS I-901 fee to register with the Student and Exchange Visitor Information System.',
-      checklist: [
-        { id: 'sev-i20', label: 'Receive physical/digital I-20 from university', completed: true },
-        { id: 'sev-id', label: 'Locate SEVIS ID (starts with N) on form I-20', completed: true },
-        { id: 'sev-pay', label: 'Pay $350 fee on FMJfee.com portal', completed: true },
-        { id: 'sev-receipt', label: 'Download & print official payment receipt', completed: true },
-      ],
-      documents: [
-        { name: 'SEVIS I-901 Receipt.pdf', url: '#' },
-        { name: 'I-20 Form Signed.pdf', url: '#' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Interview Slot Booking',
-      status: 'active',
-      description: 'Schedule two appointments: one for Biometrics (VAC) and one for your Consular Interview at the US Embassy or Consulate.',
-      checklist: [
-        { id: 'slot-cgi', label: 'Create profile on CGI Federal scheduling portal', completed: true },
-        { id: 'slot-fee', label: 'Pay the MRV visa application fee ($185)', completed: false },
-        { id: 'slot-vac', label: 'Book Biometrics / VAC appointment', completed: false },
-        { id: 'slot-consular', label: 'Book Consular interview slot', completed: false },
-      ],
-      documents: [
-        { name: 'MRV Fee Payment Receipt', url: '#' }
-      ]
-    },
-    {
-      id: 4,
-      name: 'Mock Interview Preparation',
-      status: 'pending',
-      description: 'Attend a live practice mock session with our senior counselor to build confidence and polish your verbal responses.',
-      checklist: [
-        { id: 'mock-attend', label: 'Schedule & attend mock session with advisor', completed: false },
-        { id: 'mock-common', label: 'Review top 50 F-1 visa practice questions', completed: false },
-        { id: 'mock-financial', label: 'Organize liquid asset proofs & sponsor letters', completed: false },
-      ]
-    },
-    {
-      id: 5,
-      name: 'Embassy Consular Interview',
-      status: 'pending',
-      description: 'Visit the Embassy or Consulate on the scheduled date for your interview. Bring all original documents in a physical folder.',
-      checklist: [
-        { id: 'emb-vac', label: 'Attend Biometrics / fingerprinting session', completed: false },
-        { id: 'emb-consular', label: 'Attend Consular interview with original files', completed: false },
-        { id: 'emb-approval', label: 'Receive visa approval from consular officer', completed: false },
-      ]
-    },
-    {
-      id: 6,
-      name: 'Passport Retrieval',
-      status: 'locked',
-      description: 'Track the status of your passport delivery or pick up location once the visa is printed.',
-      checklist: [
-        { id: 'pass-track', label: 'Track passport status online via Blue Dart/CGI', completed: false },
-        { id: 'pass-receive', label: 'Retrieve passport with stamped visa', completed: false },
-      ]
+  const [steps, setSteps] = useState<VisaStep[]>([]);
+
+  const fetchVisaSteps = async () => {
+    try {
+      const token = localStorage.getItem('ff_student_token');
+      if (!token) return;
+      const res = await fetch('/api/students/me/visa-steps', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = data.map((v: any) => ({
+          id: v.step_index + 1,
+          name: v.name,
+          status: v.status,
+          dateCompleted: v.date_completed,
+          description: v.description,
+          checklist: v.checklist || [],
+          documents: v.documents || []
+        }));
+        setSteps(mapped);
+      }
+    } catch (err) {
+      console.error('Error fetching visa steps:', err);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    fetchVisaSteps();
+  }, []);
 
   const [expandedStep, setExpandedStep] = useState<number | null>(3); // Keep active step open by default
 
@@ -162,42 +111,68 @@ export const VisaTab: React.FC<VisaTabProps> = ({ student, setActiveTab }) => {
   }, [steps]);
 
   const progressPercent = useMemo(() => {
+    if (totalChecklistItems === 0) return 0;
     return Math.round((completedChecklistItems / totalChecklistItems) * 100);
   }, [completedChecklistItems, totalChecklistItems]);
 
   // Toggle checklist items
-  const handleChecklistToggle = (stepId: number, itemId: string) => {
-    setSteps(prevSteps => prevSteps.map(step => {
-      if (step.id !== stepId) return step;
+  const handleChecklistToggle = async (stepId: number, itemId: string) => {
+    const targetStep = steps.find(s => s.id === stepId);
+    if (!targetStep) return;
 
-      const updatedChecklist = step.checklist.map(item => 
-        item.id === itemId ? { ...item, completed: !item.completed } : item
-      );
+    const updatedChecklist = targetStep.checklist.map(item => 
+      item.id === itemId ? { ...item, completed: !item.completed } : item
+    );
 
-      // Check if all items in this step are completed
-      const allCompleted = updatedChecklist.every(item => item.completed);
-      const noneCompleted = updatedChecklist.every(item => !item.completed);
-      
-      let newStatus = step.status;
-      if (step.id === 1 || step.id === 2) {
-        // Keep completed steps completed unless all unchecked
-        if (noneCompleted) newStatus = 'active';
-      } else if (step.id !== 6) { // step 6 is locked
-        if (allCompleted) {
-          newStatus = 'completed';
-        } else if (noneCompleted) {
-          newStatus = 'pending';
-        } else {
-          newStatus = 'active';
-        }
+    const allCompleted = updatedChecklist.every(item => item.completed);
+    const noneCompleted = updatedChecklist.every(item => !item.completed);
+    
+    let newStatus = targetStep.status;
+    if (stepId === 1 || stepId === 2) {
+      if (allCompleted) {
+        newStatus = 'completed';
+      } else if (noneCompleted) {
+        newStatus = 'active';
+      } else {
+        newStatus = 'active';
       }
+    } else if (stepId !== 6) { // step 6 is locked
+      if (allCompleted) {
+        newStatus = 'completed';
+      } else if (noneCompleted) {
+        newStatus = 'pending';
+      } else {
+        newStatus = 'active';
+      }
+    }
 
-      return {
-        ...step,
-        status: newStatus,
-        checklist: updatedChecklist
-      };
-    }));
+    const token = localStorage.getItem('ff_student_token');
+    if (!token) return;
+
+    try {
+      const dateCompleted = newStatus === 'completed' 
+        ? new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : null;
+
+      const res = await fetch(`/api/students/me/visa-steps/${stepId - 1}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          status: newStatus,
+          date_completed: dateCompleted,
+          checklist: updatedChecklist
+        })
+      });
+
+      if (res.ok) {
+        await fetchVisaSteps();
+      }
+    } catch (err) {
+      console.error('Error updating visa step:', err);
+    }
   };
 
   // Filtered resources
@@ -247,7 +222,7 @@ export const VisaTab: React.FC<VisaTabProps> = ({ student, setActiveTab }) => {
               Your Visa Prep is in Progress
             </h2>
             <p className="text-xs text-slate-450 leading-relaxed max-w-lg">
-              You have completed <span className="font-bold text-[#001F3F]">{completedChecklistItems} of {totalChecklistItems}</span> checklist items. Next, pay your application fee and book your mock interview session with Counselor Priya.
+              You have completed <span className="font-bold text-[#001F3F]">{completedChecklistItems} of {totalChecklistItems}</span> checklist items. Next, pay your application fee and book your mock interview session with Counselor {student?.assignedAgentName || 'your Counselor'}.
             </p>
             <div className="flex flex-wrap gap-3 justify-center md:justify-start pt-2">
               <button 
@@ -488,13 +463,13 @@ export const VisaTab: React.FC<VisaTabProps> = ({ student, setActiveTab }) => {
                 <div className="w-full h-full bg-slate-200 rounded-full overflow-hidden">
                   {/* Standard placeholder initials if avatar missing */}
                   <div className="w-full h-full bg-gradient-to-br from-[#001F3F] to-[#1a3a60] flex items-center justify-center text-white font-extrabold text-sm uppercase">
-                    PS
+                    {(student?.assignedAgentName || 'Assigned Counselor').split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'AC'}
                   </div>
                 </div>
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
               </div>
               <div className="min-w-0">
-                <p className="font-black text-[#001F3F] text-sm truncate">Priya Sharma</p>
+                <p className="font-black text-[#001F3F] text-sm truncate">{student?.assignedAgentName || 'Assigned Counselor'}</p>
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider truncate">Senior Visa Expert</p>
               </div>
             </div>

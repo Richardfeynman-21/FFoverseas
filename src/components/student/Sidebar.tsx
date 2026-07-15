@@ -11,6 +11,7 @@ interface SidebarProps {
   student: Student;
   handleLogout: () => void;
   getInitials: (name: string) => string;
+  onBookConsultationClick?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -21,6 +22,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   student,
   handleLogout,
   getInitials,
+  onBookConsultationClick,
 }) => {
   const menuItems = [
     { key: 'dashboard' as TabKey, label: 'Dashboard Overview', icon: 'dashboard' },
@@ -30,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { key: 'visa' as TabKey, label: 'Visa Tracking', icon: 'airplane_ticket' },
     { key: 'chat' as TabKey, label: 'Chat', icon: 'chat' },
     { key: 'profile' as TabKey, label: 'Profile Settings', icon: 'person' },
+    { key: 'refer' as TabKey, label: 'Refer & Earn', icon: 'share' },
   ];
 
   return (
@@ -60,7 +63,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom section - always visible, never overlapping */}
       <div className="px-4 xl:px-6 space-y-3 xl:space-y-4 pt-4 xl:pt-6 shrink-0 mt-auto border-t border-outline-variant mx-3 xl:mx-4">
-        <button className="w-full bg-secondary text-white py-2 xl:py-3 rounded-xl font-mono text-[9px] xl:text-[10.5px] hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20 active:scale-95 tracking-widest cursor-pointer">
+        <button 
+          onClick={onBookConsultationClick}
+          className="w-full bg-secondary text-white py-2 xl:py-3 rounded-xl font-mono text-[9px] xl:text-[10.5px] hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20 active:scale-95 tracking-widest cursor-pointer"
+        >
           BOOK CONSULTATION
         </button>
         <div className="flex flex-col gap-0.5">

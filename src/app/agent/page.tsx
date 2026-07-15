@@ -11,7 +11,7 @@ export default function AgentPage() {
 
   // Authentication & Guard States
   const [isAgent, setIsAgent] = useState(false);
-  const [agentProfile, setAgentProfile] = useState<{ name: string; role: string } | null>(null);
+  const [agentProfile, setAgentProfile] = useState<{ id: string; name: string; role: string } | null>(null);
   const [notification, setNotification] = useState<{ text: string; isError: boolean } | null>(null);
 
   // Check auth on mount — if not authenticated, redirect to login

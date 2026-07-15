@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 async function proxyRequest(req: NextRequest) {
   // Prevent direct browser bar navigation (Open Relay mitigation)
   const fetchMode = req.headers.get("sec-fetch-mode");
@@ -12,12 +14,21 @@ async function proxyRequest(req: NextRequest) {
     }, { status: 403 });
   }
 
-  const BACKEND_TARGET = process.env.BACKEND_API_URL || "http://127.0.0.1:8000";
+  const pathname = req.nextUrl.pathname;
+  let backendTarget = "http://localhost:8080";
+  if (
+    pathname.startsWith("/api/universities") ||
+    pathname.startsWith("/api/public-chat") ||
+    pathname.startsWith("/api/health")
+  ) {
+    backendTarget = "http://localhost:8000";
+  }
+
   const apiKey = process.env.BACKEND_API_KEY || process.env.FRONTEND_API_KEY;
 
   // Build target URL
   const originalUrl = req.nextUrl.pathname + req.nextUrl.search;
-  const targetUrl = `${BACKEND_TARGET}${originalUrl}`;
+  const targetUrl = `${backendTarget}${originalUrl}`;
 
   // Build headers
   const headers = new Headers();

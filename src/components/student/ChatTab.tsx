@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Send, Trash2, HelpCircle, Phone, MessageSquare, Check, AlertCircle, 
-  UploadCloud, Sparkles, Compass, Plus, PanelLeft, X, Mail, ChevronRight, CheckCheck, Clock
+  UploadCloud, Sparkles, Compass, Plus, PanelLeft, X, Mail, ChevronRight, CheckCheck, Clock, RefreshCw
 } from 'lucide-react';
 import { ChatMessage, TabKey } from './types';
 import { NAVY, RED, DOCUMENTS } from './constants';
@@ -19,11 +19,20 @@ interface ChatTabProps {
   setActiveTab: (tab: TabKey) => void;
   clearChat: () => void;
   forcedMode?: 'ai' | 'agent';
+  refreshChat?: () => void;
+  agentName?: string;
 }
 
 // 1. Advisor Contact Card Component
-const AdvisorCard: React.FC = () => {
+const AdvisorCard: React.FC<{ agentName?: string }> = ({ agentName = 'Assigned Counselor' }) => {
   const [requested, setRequested] = useState(false);
+  const email = agentName.toLowerCase().includes('abhinove') ? 'abhinove@ffoverseas.in' : 'advisor@ffoverseas.in';
+  const initials = agentName
+    .split(' ')
+    .filter(Boolean)
+    .map(n => n[0])
+    .join('')
+    .toUpperCase();
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
@@ -32,17 +41,17 @@ const AdvisorCard: React.FC = () => {
     >
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-full bg-[#001F3F] text-white flex items-center justify-center font-extrabold text-sm border-2 border-white shadow-md">
-          PS
+          {initials || 'AC'}
         </div>
         <div>
-          <h4 className="font-black text-[#001F3F] text-xs">Ms. Priya Sharma</h4>
-          <p className="text-[9px] text-slate-400 font-mono tracking-wider uppercase">Senior Admissions Counsel</p>
+          <h4 className="font-black text-[#001F3F] text-xs">{agentName}</h4>
+          <p className="text-[9px] text-slate-400 font-mono tracking-wider uppercase">Senior Admissions Counselor</p>
         </div>
       </div>
       <div className="mt-3.5 space-y-2 text-[11px] text-slate-650 border-t border-slate-100 pt-3.5">
         <div className="flex justify-between">
           <span className="text-slate-400 font-bold">Direct Email:</span>
-          <a href="mailto:advisor@ffoverseas.in" className="font-extrabold text-blue-600 hover:underline">advisor@ffoverseas.in</a>
+          <a href={`mailto:${email}`} className="font-extrabold text-blue-600 hover:underline">{email}</a>
         </div>
         <div className="flex justify-between">
           <span className="text-slate-400 font-bold">Hotline:</span>
@@ -69,7 +78,7 @@ const AdvisorCard: React.FC = () => {
           {requested ? '✓ CALLBACK REQUESTED' : '📞 REQUEST CALLBACK'}
         </button>
         <a
-          href="mailto:advisor@ffoverseas.in"
+          href={`mailto:${email}`}
           className="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#001F3F] rounded-xl text-[9px] font-black uppercase tracking-wider border border-slate-200/50 flex items-center justify-center transition-colors cursor-pointer"
         >
           EMAIL
@@ -77,7 +86,7 @@ const AdvisorCard: React.FC = () => {
       </div>
       {requested && (
         <p className="text-[8px] text-emerald-600 mt-2 font-mono text-center animate-pulse">
-          Fly &amp; Flourish AI requested: PRIYA SHARMA will call you in 15 mins.
+          Fly &amp; Flourish AI requested: {agentName.toUpperCase()} will call you in 15 mins.
         </p>
       )}
     </motion.div>
@@ -240,8 +249,12 @@ export const ChatTab: React.FC<ChatTabProps> = ({
   setActiveTab,
   clearChat,
   forcedMode,
+  refreshChat,
+  agentName: agentNameProp,
 }) => {
   const [studentName, setStudentName] = useState('Student');
+  const [agentNameState, setAgentNameState] = useState('Ms. Priya Sharma');
+  const agentName = agentNameProp || agentNameState;
   const chatMode = forcedMode || 'ai';
   const [lastAgentMsg, setLastAgentMsg] = useState('Sure, let me check that for you...');
 
@@ -252,6 +265,9 @@ export const ChatTab: React.FC<ChatTabProps> = ({
         const parsed = JSON.parse(stored);
         if (parsed?.name) {
           setStudentName(parsed.name);
+        }
+        if (parsed?.assignedAgentName) {
+          setAgentNameState(parsed.assignedAgentName);
         }
         if (parsed?.id) {
           const saved = localStorage.getItem(`ff_agent_messages_${parsed.id}`);
@@ -280,8 +296,8 @@ export const ChatTab: React.FC<ChatTabProps> = ({
 
   const getInteractiveWidget = (text: string) => {
     const lower = text.toLowerCase();
-    if (lower.includes('priya sharma') || lower.includes('advisor@ffoverseas')) {
-      return <AdvisorCard />;
+    if (lower.includes('priya sharma') || lower.includes('advisor@ffoverseas') || lower.includes('abhinove') || (agentName && lower.includes(agentName.toLowerCase()))) {
+      return <AdvisorCard agentName={agentName} />;
     }
     if (lower.includes('shortlisting') || lower.includes('curation timeline')) {
       return <ShortlistTimeline />;
@@ -342,10 +358,10 @@ export const ChatTab: React.FC<ChatTabProps> = ({
             </div>
             <div className="ml-3 flex-1 min-w-0">
               <div className="flex justify-between items-baseline">
-                <h3 className="text-xs font-bold text-[#001F3F] truncate">Sarah Jenkins</h3>
+                <h3 className="text-xs font-bold text-[#001F3F] truncate">{agentName}</h3>
                 <span className="text-[9px] text-slate-400 font-mono ml-2 shrink-0">10:45 AM</span>
               </div>
-              <p className="text-[9px] text-[#FF0000] font-bold uppercase tracking-wider mb-0.5">Senior Consultant</p>
+              <p className="text-[9px] text-[#FF0000] font-bold uppercase tracking-wider mb-0.5">Senior Admissions Counselor</p>
               <p className="text-[11px] text-slate-500 truncate">{lastAgentMsg}</p>
             </div>
           </div>
@@ -417,11 +433,11 @@ export const ChatTab: React.FC<ChatTabProps> = ({
                   <span className="absolute bottom-0.5 right-3.5 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-sm sm:text-base font-bold text-[#001F3F] leading-tight truncate">Sarah Jenkins</h2>
+                  <h2 className="text-sm sm:text-base font-bold text-[#001F3F] leading-tight truncate">{agentName}</h2>
                   <div className="flex items-center space-x-1.5 mt-0.5">
                     <span className="text-[9px] text-green-600 font-bold uppercase tracking-widest">Online</span>
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                    <span className="text-[9px] text-slate-450 font-medium">Senior Consultant</span>
+                    <span className="text-[9px] text-slate-450 font-medium">Senior Admissions Counselor</span>
                   </div>
                 </div>
               </>
@@ -445,6 +461,16 @@ export const ChatTab: React.FC<ChatTabProps> = ({
             )}
           </div>
           <div className="flex items-center space-x-2 text-slate-400">
+            {refreshChat && (
+              <button 
+                onClick={refreshChat}
+                className="px-2.5 py-1.5 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-[10px] font-bold text-slate-650 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Refresh Chat History"
+              >
+                <RefreshCw size={12} />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+            )}
             <button 
               onClick={clearChat}
               className="px-2.5 py-1.5 hover:bg-red-50 border border-slate-200 hover:border-red-200/50 rounded-xl text-[10px] font-bold text-slate-500 hover:text-red-500 transition-all cursor-pointer flex items-center gap-1.5"
@@ -550,7 +576,7 @@ export const ChatTab: React.FC<ChatTabProps> = ({
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
-                placeholder={chatMode === 'agent' ? "Type a message to Priya Sharma..." : "Ask Fly & Flourish AI about status, visas, or scholarships..."}
+                placeholder={chatMode === 'agent' ? `Type a message to ${agentName}...` : "Ask Fly & Flourish AI about status, visas, or scholarships..."}
                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 sm:py-3.5 sm:px-6 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#001F3F]/10 focus:border-[#001F3F]/30 transition-all placeholder:text-slate-450 text-[#001F3F] font-medium"
               />
             </div>

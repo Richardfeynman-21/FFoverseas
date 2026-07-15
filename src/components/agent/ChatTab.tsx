@@ -7,7 +7,8 @@ import {
   Search,
   MessageCircle,
   Send,
-  Zap
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 import { StudentRecord, ChatMessage } from './types';
 
@@ -30,6 +31,8 @@ interface ChatTabProps {
     time: string;
     unread: boolean;
   }>;
+  chatUpdateTrigger?: number;
+  refreshChat?: () => void;
 }
 
 export default function ChatTab({
@@ -40,7 +43,9 @@ export default function ChatTab({
   chatInput,
   setChatInput,
   handleSendReply,
-  getInboxConversations
+  getInboxConversations,
+  chatUpdateTrigger,
+  refreshChat
 }: ChatTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -129,6 +134,16 @@ export default function ChatTab({
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {refreshChat && (
+                  <button
+                    onClick={refreshChat}
+                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-slate-200 hover:border-slate-350 rounded-lg cursor-pointer transition-all flex items-center gap-1 shadow-3xs"
+                    title="Refresh Chat History"
+                  >
+                    <RefreshCw size={10} />
+                    <span className="text-[8px] font-bold hidden sm:inline">Refresh</span>
+                  </button>
+                )}
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[8px] font-mono text-emerald-700 tracking-wider uppercase bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-lg font-bold">
                   Active Now

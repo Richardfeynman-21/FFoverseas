@@ -42,9 +42,49 @@ export default function ApplicationsTab({
 
   const statuses: Array<'Applied' | 'Offered' | 'Accepted' | 'Rejected'> = ['Applied', 'Offered', 'Accepted', 'Rejected'];
 
-  const handleStatusChange = (appId: string, name: string, newStatus: 'Applied' | 'Offered' | 'Accepted' | 'Rejected') => {
-    setApplications(applications.map(a => a.id === appId ? { ...a, status: newStatus } : a));
-    triggerNotification(`Application moved: ${name} -> ${newStatus}`);
+  const handleStatusChange = async (appId: string, name: string, newStatus: 'Applied' | 'Offered' | 'Accepted' | 'Rejected') => {
+    const app = applications.find(a => a.id === appId);
+    if (!app) return;
+
+    const token = localStorage.getItem('ff_agent_token');
+    if (!token) {
+      triggerNotification('Session expired. Please log in again.', true);
+      return;
+    }
+
+    // Map status to lowercase or backend equivalent
+    let backendStatus = newStatus.toLowerCase(); // 'applied', 'offered', 'accepted', 'rejected'
+    if (backendStatus === 'applied') {
+      backendStatus = 'submitted'; // Backend status mapping
+    }
+
+    try {
+      const res = await fetch(`/api/applications/${appId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          university_id: 1, // default placeholder
+          university_name: app.universityName,
+          course_name: app.program,
+          degree_level: 'Masters', // default placeholder
+          status: backendStatus
+        })
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || errJson.detail || 'Failed to update application status.');
+      }
+
+      setApplications(applications.map(a => a.id === appId ? { ...a, status: newStatus } : a));
+      triggerNotification(`Application moved: ${name} -> ${newStatus}`);
+    } catch (err: any) {
+      console.error(err);
+      triggerNotification(err.message || 'Failed to update application status.', true);
+    }
   };
 
   return (

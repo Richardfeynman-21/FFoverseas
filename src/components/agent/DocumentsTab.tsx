@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Eye, CheckCircle, XCircle, ChevronRight, FileCheck, FileCode, Check, Send, X } from 'lucide-react';
-import { DocumentRecord } from './types';
+import { DocumentRecord, StudentRecord } from './types';
 
 const staggerItem = {
   hidden: { opacity: 0, y: 12 },
@@ -21,17 +21,100 @@ const staggerContainer = {
 interface DocumentsTabProps {
   documents: DocumentRecord[];
   setDocuments: React.Dispatch<React.SetStateAction<DocumentRecord[]>>;
+  students: StudentRecord[];
   triggerNotification: (text: string, isError?: boolean) => void;
 }
 
 export default function DocumentsTab({
   documents,
   setDocuments,
+  students,
   triggerNotification
 }: DocumentsTabProps) {
   // Selected document for side-by-side audit sandbox
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const selectedDoc = documents.find(d => d.id === selectedDocId) || null;
+
+  // Agent upload states
+  const [uploadStudentId, setUploadStudentId] = useState('');
+  const [uploadDocType, setUploadDocType] = useState<'passport' | 'transcripts' | 'sop' | 'lor' | 'financial' | 'english' | 'photos'>('passport');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleAgentUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadStudentId) {
+      triggerNotification('Please select a student.', true);
+      return;
+    }
+    if (!uploadFile) {
+      triggerNotification('Please select a file to upload.', true);
+      return;
+    }
+
+    const token = localStorage.getItem('ff_agent_token');
+    if (!token) {
+      triggerNotification('Session expired. Please log in again.', true);
+      return;
+    }
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('student_id', uploadStudentId);
+    let backendDocType = uploadDocType as string;
+    if (uploadDocType === 'transcripts') backendDocType = 'transcript';
+    else if (uploadDocType === 'english' || uploadDocType === 'photos') backendDocType = 'other';
+
+    formData.append('doc_type', backendDocType);
+    formData.append('file', uploadFile);
+
+    try {
+      const res = await fetch('/api/documents/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || errJson.detail || 'Upload failed.');
+      }
+
+      const newDoc = await res.json();
+      const student = students.find(s => s.id === uploadStudentId);
+      
+      let mappedType: DocumentRecord['documentType'] = 'Passport';
+      if (uploadDocType === 'transcripts') mappedType = 'Transcript';
+      else if (uploadDocType === 'sop') mappedType = 'SOP';
+      else if (uploadDocType === 'lor') mappedType = 'LOR';
+      else if (uploadDocType === 'financial') mappedType = 'Financial';
+      else if (uploadDocType === 'english') mappedType = 'English';
+      else if (uploadDocType === 'photos') mappedType = 'Photos';
+
+      const mappedDoc: DocumentRecord = {
+        id: newDoc.id,
+        studentName: student ? student.name : 'Unknown Student',
+        documentType: mappedType,
+        fileName: newDoc.file_name,
+        status: 'Pending Review',
+        uploadedAt: new Date().toISOString().split('T')[0]
+      };
+
+      setDocuments(prev => [mappedDoc, ...prev]);
+      triggerNotification('Document uploaded successfully.');
+      
+      setUploadFile(null);
+      const fileInput = document.getElementById('agent-file-upload') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    } catch (err: any) {
+      console.error(err);
+      triggerNotification(err.message || 'Failed to upload document.', true);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Sandbox states
   const [checklist, setChecklist] = useState({
@@ -59,16 +142,66 @@ export default function DocumentsTab({
     triggerNotification('Audit comment added.');
   };
 
-  const handleApprove = (docId: string) => {
-    setDocuments(documents.map(d => d.id === docId ? { ...d, status: 'Verified' } : d));
-    triggerNotification('Document approved & verified.');
-    setSelectedDocId(null);
+  const handleApprove = async (docId: string) => {
+    const token = localStorage.getItem('ff_agent_token');
+    if (!token) {
+      triggerNotification('Session expired. Please log in again.', true);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/documents/${docId}/verify`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ is_verified: true })
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || errJson.detail || 'Verification failed.');
+      }
+
+      setDocuments(documents.map(d => d.id === docId ? { ...d, status: 'Verified' } : d));
+      triggerNotification('Document approved & verified.');
+      setSelectedDocId(null);
+    } catch (err: any) {
+      console.error(err);
+      triggerNotification(err.message || 'Failed to verify document.', true);
+    }
   };
 
-  const handleReject = (docId: string) => {
-    setDocuments(documents.map(d => d.id === docId ? { ...d, status: 'Rejected' } : d));
-    triggerNotification('Document rejected.', true);
-    setSelectedDocId(null);
+  const handleReject = async (docId: string) => {
+    const token = localStorage.getItem('ff_agent_token');
+    if (!token) {
+      triggerNotification('Session expired. Please log in again.', true);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/documents/${docId}/verify`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ is_verified: false })
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || errJson.detail || 'Rejection failed.');
+      }
+
+      setDocuments(documents.map(d => d.id === docId ? { ...d, status: 'Rejected' } : d));
+      triggerNotification('Document rejected.', true);
+      setSelectedDocId(null);
+    } catch (err: any) {
+      console.error(err);
+      triggerNotification(err.message || 'Failed to reject document.', true);
+    }
   };
 
   return (
@@ -84,7 +217,75 @@ export default function DocumentsTab({
       {/* Grid Layout (List vs Sandbox) */}
       <motion.div className="grid grid-cols-1 lg:grid-cols-12 gap-6" variants={staggerItem}>
         {/* Left Side: Document Cards list */}
-        <div className={`${selectedDoc ? 'lg:col-span-6' : 'lg:col-span-12'} space-y-3 max-h-[750px] overflow-y-auto pr-1 scrollbar-hide`}>
+        <div className={`${selectedDoc ? 'lg:col-span-6' : 'lg:col-span-12'} space-y-4 max-h-[750px] overflow-y-auto pr-1 scrollbar-hide`}>
+          {/* Upload card for Agent */}
+          <div className="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 shadow-[0_4px_15px_rgba(0,0,0,0.005)] space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                <FileCode size={14} />
+              </div>
+              <h3 className="font-extrabold text-[11px] uppercase text-[#001F3F] tracking-wider">Upload Document for Student</h3>
+            </div>
+            <form onSubmit={handleAgentUpload} className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+              <div className="space-y-1">
+                <label className="text-[8px] font-mono text-slate-400 uppercase font-bold">Select Student</label>
+                <select
+                  value={uploadStudentId}
+                  onChange={(e) => setUploadStudentId(e.target.value)}
+                  className="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-[10.5px] font-semibold text-slate-800 focus:outline-none focus:border-[#001F3F] focus:ring-1 focus:ring-[#001F3F]/5 shadow-2xs cursor-pointer"
+                >
+                  <option value="">-- Choose Student --</option>
+                  {students.map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.email})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[8px] font-mono text-slate-400 uppercase font-bold">Document Type</label>
+                <select
+                  value={uploadDocType}
+                  onChange={(e) => setUploadDocType(e.target.value as any)}
+                  className="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-[10.5px] font-semibold text-slate-800 focus:outline-none focus:border-[#001F3F] focus:ring-1 focus:ring-[#001F3F]/5 shadow-2xs cursor-pointer"
+                >
+                  <option value="passport">Passport Copy</option>
+                  <option value="transcripts">Academic Transcripts</option>
+                  <option value="sop">Statement of Purpose</option>
+                  <option value="lor">Letters of Recommendation</option>
+                  <option value="financial">Financial Documents</option>
+                  <option value="english">English Test Score</option>
+                  <option value="photos">Passport Size Photos</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[8px] font-mono text-slate-400 uppercase font-bold">Choose File</label>
+                <div className="flex gap-2">
+                  <input
+                    id="agent-file-upload"
+                    type="file"
+                    onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('agent-file-upload')?.click()}
+                    className="flex-1 px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold text-slate-700 hover:bg-slate-50 transition-all text-center select-none cursor-pointer truncate max-w-[120px] shadow-2xs border-dashed"
+                  >
+                    {uploadFile ? uploadFile.name : 'Select File'}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUploading}
+                    className="px-3.5 py-2 bg-[#001F3F] hover:bg-slate-800 text-white text-[9.5px] font-bold uppercase tracking-wider rounded-xl transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-97"
+                  >
+                    {isUploading ? 'Uploading...' : 'Upload'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
           {documents.map(doc => {
             const isSelected = selectedDoc?.id === doc.id;
             
@@ -169,6 +370,35 @@ export default function DocumentsTab({
                       <code className="bg-white border border-slate-100 px-2 py-0.5 rounded text-[10px] text-[#001F3F] select-all truncate block max-w-[200px]">
                         {selectedDoc.fileName}
                       </code>
+                    </div>
+                    <div className="pt-2">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const token = localStorage.getItem('ff_agent_token');
+                            if (!token) return;
+                            const res = await fetch(`/api/documents/${selectedDoc.id}`, {
+                              headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (!res.ok) throw new Error("Failed to download file");
+                            const blob = await res.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = selectedDoc.fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                          } catch (err) {
+                            console.error(err);
+                            triggerNotification("Failed to download document.", true);
+                          }
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-150 hover:bg-slate-200 border border-slate-250 hover:border-slate-300 rounded-xl text-[10px] font-bold text-[#001F3F] cursor-pointer transition-all shadow-2xs"
+                      >
+                        <Eye size={12} />
+                        <span>Download / View Document</span>
+                      </button>
                     </div>
                   </div>
                 </div>

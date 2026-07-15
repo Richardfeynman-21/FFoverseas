@@ -63,7 +63,7 @@ export function getBotResponse(message: string): string {
   if (lower.includes('visa') || lower.includes('interview') || lower.includes('embassy'))
     return "Visa processing begins after you receive your offer letter. We provide **3 mock visa interviews**, a complete document audit, and embassy appointment scheduling. Our visa success rate is 98.4%! 🛂";
   if (lower.includes('advisor') || lower.includes('talk') || lower.includes('call') || lower.includes('help'))
-    return "Your dedicated advisor is **Ms. Priya Sharma**. You can reach her at +91 8374740505 or email advisor@ffoverseas.in. Office hours: Mon-Sat, 9 AM - 6 PM IST. Would you like us to schedule a callback? 📞";
+    return "Your dedicated advisor is available for live chat. You can contact them through the 'Chat with Counselor' tab. Office hours: Mon-Sat, 9 AM - 6 PM IST. Would you like us to schedule a callback? 📞";
   if (lower.includes('document') || lower.includes('upload') || lower.includes('lor'))
     return "You've uploaded **5 out of 7** required documents. Missing: Letters of Recommendation and Passport Photos. Please upload them through the 'My Progress' tab to avoid delays. 📄";
   if (lower.includes('university') || lower.includes('college'))
@@ -81,6 +81,7 @@ export const DEFAULT_APPLICATIONS: StudentApplication[] = [
     country: 'Canada',
     flag: 'CA',
     logoColor: 'from-[#002f6c] to-[#001834]',
+    status: 'applied',
     stages: [
       { id: 1, name: 'Profile Submitted', status: 'completed', date: 'May 28, 2026', description: 'Your personal and academic profile has been submitted and recorded in our system.' },
       { id: 2, name: 'Documents Verified', status: 'completed', date: 'Jun 05, 2026', description: 'All submitted documents have been verified and approved by our admissions team.' },
@@ -98,6 +99,7 @@ export const DEFAULT_APPLICATIONS: StudentApplication[] = [
     country: 'Canada',
     flag: 'CA',
     logoColor: 'from-[#0A2240] to-[#00152B]',
+    status: 'submitted',
     stages: [
       { id: 1, name: 'Profile Submitted', status: 'completed', date: 'May 28, 2026', description: 'Your personal and academic profile has been submitted and recorded in our system.' },
       { id: 2, name: 'Documents Verified', status: 'completed', date: 'Jun 05, 2026', description: 'All submitted documents have been verified and approved by our admissions team.' },
@@ -115,6 +117,7 @@ export const DEFAULT_APPLICATIONS: StudentApplication[] = [
     country: 'Canada',
     flag: 'CA',
     logoColor: 'from-[#ED1B2F] to-[#A3000D]',
+    status: 'draft',
     stages: [
       { id: 1, name: 'Profile Submitted', status: 'completed', date: 'May 28, 2026', description: 'Your personal and academic profile has been submitted and recorded in our system.' },
       { id: 2, name: 'Documents Verified', status: 'completed', date: 'Jun 05, 2026', description: 'All submitted documents have been verified and approved by our admissions team.' },

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -149,9 +149,9 @@ const DEFAULT_UNIVERSITIES: UniversityRecord[] = [
 ];
 
 const DEFAULT_STAGES: PipelineStage[] = [
-  { id: 1, name: 'Profile Submitted', status: 'completed', date: 'May 28, 2026', description: 'Student personal and academic profile recorded.' },
-  { id: 2, name: 'Documents Verified', status: 'completed', date: 'Jun 05, 2026', description: 'Submitted documents verified by admissions team.' },
-  { id: 3, name: 'University Shortlisted', status: 'current', date: '', description: 'Best-fit universities matched to student profile.' },
+  { id: 1, name: 'Profile Submitted', status: 'pending', date: '', description: 'Student personal and academic profile recorded.' },
+  { id: 2, name: 'Documents Verified', status: 'pending', date: '', description: 'Submitted documents verified by admissions team.' },
+  { id: 3, name: 'University Shortlisted', status: 'pending', date: '', description: 'Best-fit universities matched to student profile.' },
   { id: 4, name: 'Application Sent', status: 'pending', date: '', description: 'Finalized applications dispatched to universities.' },
   { id: 5, name: 'Offer Letter', status: 'pending', date: '', description: 'Acceptance letters and offer confirmations received.' },
   { id: 6, name: 'Visa Processing', status: 'pending', date: '', description: 'Visa prep, mock interviews, and embassy submission.' },
@@ -159,7 +159,7 @@ const DEFAULT_STAGES: PipelineStage[] = [
 ];
 
 interface AgentPanelProps {
-  agentProfile: { name: string; role: string } | null;
+  agentProfile: { id: string; name: string; role: string } | null;
   onLogout: () => void;
 }
 
@@ -170,47 +170,11 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
   const [activeTab, setActiveTab] = useState<'overview' | 'students' | 'chat' | 'applications' | 'documents' | 'universities'>('overview');
 
   // Database States loaded from localStorage
-  const [students, setStudents] = useState<StudentRecord[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ff_students_db');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    return DEFAULT_STUDENTS;
-  });
-
-  const [applications, setApplications] = useState<ApplicationRecord[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ff_applications_db');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    return DEFAULT_APPLICATIONS;
-  });
-
-  const [documents, setDocuments] = useState<DocumentRecord[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ff_documents_db');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    return DEFAULT_DOCUMENTS;
-  });
+  // Database States
+  const [students, setStudents] = useState<StudentRecord[]>([]);
+  const [backendOffline, setBackendOffline] = useState(false);
+  const [applications, setApplications] = useState<ApplicationRecord[]>([]);
+  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
 
   const [universities, setUniversities] = useState<UniversityRecord[]>(() => {
     if (typeof window !== 'undefined') {
@@ -231,33 +195,350 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
 
+  const [chatUpdateTrigger, setChatUpdateTrigger] = useState(0);
+  const [token, setToken] = useState<string | null>(null);
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+  const agentSocketRef = useRef<WebSocket | null>(null);
+  
+  const activeRoomIdRef = useRef<string | null>(null);
+  const activeChatStudentIdRef = useRef<string | null>(null);
+  
+  useEffect(() => {
+    activeRoomIdRef.current = activeRoomId;
+  }, [activeRoomId]);
+
+  useEffect(() => {
+    activeChatStudentIdRef.current = activeChatStudentId;
+  }, [activeChatStudentId]);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setToken(localStorage.getItem('ff_agent_token'));
+    }
+  }, []);
+
   const [notification, setNotification] = useState<{ text: string; isError: boolean } | null>(null);
 
-  // ─── Syncing Databases to LocalStorage ─────────────────────────────────────────
-  useEffect(() => {
-    localStorage.setItem('ff_students_db', JSON.stringify(students));
-  }, [students]);
-
-  useEffect(() => {
-    localStorage.setItem('ff_applications_db', JSON.stringify(applications));
-  }, [applications]);
-
-  useEffect(() => {
-    localStorage.setItem('ff_documents_db', JSON.stringify(documents));
-  }, [documents]);
-
+  // Sync universities to localStorage
   useEffect(() => {
     localStorage.setItem('ff_universities_db', JSON.stringify(universities));
   }, [universities]);
 
-  // Load messages when activeChatStudentId changes
+  // Sync students to localStorage to enable cross-tab real-time updates
   useEffect(() => {
-    loadChatForStudent(activeChatStudentId);
-  }, [activeChatStudentId]);
+    if (students.length > 0) {
+      localStorage.setItem('ff_students_db', JSON.stringify(students));
+    }
+  }, [students]);
+
+  // Fetch assigned students, applications, and documents on mount / agentProfile changes
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('ff_agent_token');
+      if (!token) return;
+
+      try {
+        // 1. Fetch Students
+        let studentsData: any[] = [];
+        if (agentProfile?.role === 'superadmin') {
+          const res = await fetch('/api/admin/students', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            studentsData = data.students || [];
+            setBackendOffline(false);
+          } else {
+            if (res.status === 502 || res.status === 503) {
+              setBackendOffline(true);
+            }
+          }
+        } else {
+          const res = await fetch('/api/agents/me/students', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (res.ok) {
+            studentsData = await res.json();
+            setBackendOffline(false);
+          } else if (res.status === 401) {
+            localStorage.removeItem('ff_agent_token');
+            router.replace('/student/login');
+            return;
+          } else {
+            if (res.status === 502 || res.status === 503) {
+              setBackendOffline(true);
+            }
+          }
+        }
+
+        const mappedStudents: StudentRecord[] = studentsData.map((s: any) => ({
+          id: s.id,
+          name: s.full_name,
+          email: s.email,
+          phone: s.phone || '',
+          targetDestination: s.preferred_destination || null,
+          targetDegree: s.preferred_degree_level || null,
+          targetUniversity: s.profile_data?.targetUniversity || null,
+          targetCourse: s.profile_data?.targetCourse || null,
+          specificCourses: s.profile_data?.specificCourses || null,
+          interestedIntake: s.profile_data?.interestedIntake || null,
+          remarks: s.profile_data?.remarks || '',
+          status: s.status || 'lead',
+          gpa: s.profile_data?.eduGradeAverage ? parseFloat(s.profile_data.eduGradeAverage) : null
+        }));
+        setStudents(mappedStudents);
+
+        if (mappedStudents.length > 0) {
+          setActiveChatStudentId((prev) => {
+            if (prev && mappedStudents.some(s => s.id === prev)) {
+              return prev;
+            }
+            return mappedStudents[0].id;
+          });
+        }
+
+        // 2. Fetch Applications
+        const appRes = await fetch('/api/applications', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (appRes.ok) {
+          const appData = await appRes.json();
+          const mappedApps: ApplicationRecord[] = appData.map((app: any) => {
+            const student = mappedStudents.find(s => s.id === app.student_id);
+            let mappedStatus: 'Applied' | 'Offered' | 'Accepted' | 'Rejected' = 'Applied';
+            const statusLower = (app.status || '').toLowerCase();
+            if (statusLower === 'offered') mappedStatus = 'Offered';
+            else if (statusLower === 'accepted') mappedStatus = 'Accepted';
+            else if (statusLower === 'rejected') mappedStatus = 'Rejected';
+
+            return {
+              id: app.id,
+              studentId: app.student_id || '',
+              studentName: student ? student.name : 'Unknown Student',
+              universityName: app.university_name,
+              program: app.course_name,
+              status: mappedStatus,
+              appliedDate: app.submitted_at || app.created_at ? new Date(app.submitted_at || app.created_at).toISOString().split('T')[0] : '',
+              metadata: app.metadata
+            };
+          });
+          setApplications(mappedApps);
+
+          // Fetch and sync stages for each application to local storage
+          for (const app of appData) {
+            try {
+              const stageRes = await fetch(`/api/applications/${app.id}/progress`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+              if (stageRes.ok) {
+                const dbStages = await stageRes.json();
+                const mappedStages = dbStages.map((ps: any) => ({
+                  id: ps.order_index,
+                  name: ps.stage_name,
+                  status: ps.status === 'completed' ? 'completed' : ps.status === 'in_progress' ? 'current' : 'pending',
+                  date: ps.completed_at ? new Date(ps.completed_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+                  description: ps.notes || ps.description || '',
+                  dbStageId: ps.stage_id
+                }));
+                localStorage.setItem(`ff_stages_${app.student_id}`, JSON.stringify(mappedStages));
+              }
+            } catch (err) {
+              console.error(`Error fetching stages for app ${app.id}:`, err);
+            }
+          }
+        }
+
+        // 3. Fetch Documents
+        const docRes = await fetch('/api/documents', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (docRes.ok) {
+          const docData = await docRes.json();
+          const mappedDocs: DocumentRecord[] = docData.map((doc: any) => {
+            const student = mappedStudents.find(s => s.id === doc.student_id);
+            let mappedType: DocumentRecord['documentType'] = 'Passport';
+            const typeLower = (doc.doc_type || '').toLowerCase();
+            if (typeLower === 'transcript') mappedType = 'Transcript';
+            else if (typeLower === 'sop') mappedType = 'SOP';
+            else if (typeLower === 'lor') mappedType = 'LOR';
+            else if (typeLower === 'financial') mappedType = 'Financial';
+            else if (typeLower === 'english') mappedType = 'English';
+            else if (typeLower === 'photos' || typeLower === 'other') mappedType = 'Photos';
+
+            let mappedStatus: DocumentRecord['status'] = 'Pending Review';
+            const statusLower = (doc.status || '').toLowerCase();
+            if (statusLower === 'verified' || statusLower === 'approved') mappedStatus = 'Verified';
+            else if (statusLower === 'rejected') mappedStatus = 'Rejected';
+
+            return {
+              id: doc.id,
+              studentName: student ? student.name : 'Unknown Student',
+              documentType: mappedType,
+              fileName: doc.file_name,
+              status: mappedStatus,
+              uploadedAt: doc.created_at ? new Date(doc.created_at).toISOString().split('T')[0] : ''
+            };
+          });
+          setDocuments(mappedDocs);
+        }
+      } catch (err) {
+        console.error('Error fetching agent data:', err);
+        setBackendOffline(true);
+        triggerNotification('Backend service is offline. Please check your server status.', true);
+      }
+    };
+
+    fetchData();
+  }, [agentProfile, activeTab]);
+
+  const initAgentChatRoom = async () => {
+    if (!token || !activeChatStudentId || activeChatStudentId === 'demo-student-id') {
+      loadChatForStudent(activeChatStudentId);
+      return;
+    }
+    
+    try {
+      const res = await fetch('/api/chat/rooms', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      let roomId = null;
+      if (res.ok) {
+        const rooms = await res.json();
+        const directRoom = rooms.find((r: any) => 
+          r.room_type === 'direct' && 
+          r.student_id === activeChatStudentId
+        );
+        if (directRoom) {
+          roomId = directRoom.id;
+        }
+      }
+      
+      if (!roomId && agentProfile) {
+        const createRes = await fetch('/api/chat/rooms', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            student_id: activeChatStudentId,
+            agent_id: agentProfile.id,
+            room_type: 'direct'
+          })
+        });
+        if (createRes.ok) {
+          const newRoom = await createRes.json();
+          roomId = newRoom.id;
+        }
+      }
+      
+      if (roomId) {
+        setActiveRoomId(roomId);
+        
+        const msgRes = await fetch(`/api/chat/rooms/${roomId}/messages`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (msgRes.ok) {
+          const msgs = await msgRes.json();
+          const mappedMsgs = msgs.map((m: any) => ({
+            text: m.content,
+            isBot: m.sender_role === 'agent',
+            time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }));
+          mappedMsgs.reverse();
+          setChatMessages(mappedMsgs);
+          localStorage.setItem(`ff_agent_messages_${activeChatStudentId}`, JSON.stringify(mappedMsgs));
+          setChatUpdateTrigger(prev => prev + 1);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching chat history from database:', err);
+    }
+  };
+
+  // Load messages from PostgreSQL database when activeChatStudentId changes
+  useEffect(() => {
+    initAgentChatRoom();
+  }, [activeChatStudentId, token, agentProfile]);
+
+  // Establish WebSocket connection for the counselor (runs once per session token)
+  useEffect(() => {
+    if (!token) return;
+    
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = window.location.hostname;
+    const wsUrl = `${protocol}//${wsHost}:8080/ws/chat?token=${token}`;
+    
+    console.log("Agent connecting to WebSocket:", wsUrl);
+    const socket = new WebSocket(wsUrl);
+    agentSocketRef.current = socket;
+    
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log("Agent WebSocket event received:", data);
+        
+        if (data.type === 'NewMessage') {
+          const payload = data.payload;
+          const msg = payload.message;
+          const mappedMsg = {
+            text: msg.content,
+            isBot: msg.sender_role === 'agent',
+            time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+          
+          let targetStudentId: string | null = null;
+          if (activeRoomIdRef.current && payload.room_id === activeRoomIdRef.current) {
+            targetStudentId = activeChatStudentIdRef.current;
+            setChatMessages((prev) => [...prev, mappedMsg]);
+          } else {
+            // Check if we can find the student from the rooms mapping in localStorage
+            // (Standard fallback or direct room mapping checks)
+          }
+          
+          if (targetStudentId) {
+            const saved = localStorage.getItem(`ff_agent_messages_${targetStudentId}`);
+            let current = [];
+            if (saved) {
+              try { current = JSON.parse(saved); } catch (e) {}
+            }
+            const updated = [...current, mappedMsg];
+            localStorage.setItem(`ff_agent_messages_${targetStudentId}`, JSON.stringify(updated));
+            setChatUpdateTrigger(prev => prev + 1);
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing agent WebSocket event:", e);
+      }
+    };
+    
+    socket.onclose = () => {
+      console.log("Agent WebSocket connection closed");
+    };
+    
+    return () => {
+      socket.close();
+      agentSocketRef.current = null;
+    };
+  }, [token]);
 
   // Listen to storage events to keep the Chat Inbox and Stages synced in real-time
   useEffect(() => {
-    const handleStorageChange = () => {
+    const handleStorageChange = (e: any) => {
+      // Trigger a visual update on any storage sync / cross-tab changes
+      setChatUpdateTrigger(prev => prev + 1);
+
       // Reload students
       const savedStudents = localStorage.getItem('ff_students_db');
       if (savedStudents) {
@@ -281,21 +562,22 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
   // ─── Seed Chat Messages on Mount ──────────────────────────────────────────────
   useEffect(() => {
     // Seed default chats in localStorage if not exists, to make inbox look rich
+    const agentName = agentProfile?.name || 'your Counselor';
     students.forEach(st => {
       const chatKey = `ff_agent_messages_${st.id}`;
       if (!localStorage.getItem(chatKey)) {
         let initialMsgs: ChatMessage[] = [];
         if (st.id === 'demo-student-id') {
           initialMsgs = [
-            { text: `Hi ${st.name}! Ms. Priya Sharma here, your Senior Admissions Counselor. I'm online and ready to assist you. Ask me anything about your university shortlists, visas, or documents!`, isBot: true, time: '10:00 AM' },
-            { text: "Hello Ms. Priya! I uploaded my consolidate transcripts. Can you please check if they are verified? Also, when will the university shortlists be ready?", isBot: false, time: '10:15 AM' },
+            { text: `Hi ${st.name}! ${agentName} here, your Senior Admissions Counselor. I'm online and ready to assist you. Ask me anything about your university shortlists, visas, or documents!`, isBot: true, time: '10:00 AM' },
+            { text: `Hello ${agentName}! I uploaded my consolidate transcripts. Can you please check if they are verified? Also, when will the university shortlists be ready?`, isBot: false, time: '10:15 AM' },
             { text: "Thanks for uploading. I have verified your transcript. I'm finalising your university shortlists now. I will upload them shortly!", isBot: true, time: '10:20 AM' },
             { text: "Awesome! Let know when they are ready. I am keen on Canada universities.", isBot: false, time: '10:22 AM' }
           ];
         } else if (st.id === 'st-02') {
           initialMsgs = [
-            { text: "Hi Aanya! Let me know if you need help with your Stanford application SOP.", isBot: true, time: '09:00 AM' },
-            { text: "Hi Priya! Yes, I just updated my SOP draft. Can you review the career goals section?", isBot: false, time: '09:30 AM' }
+            { text: `Hi Aanya! Let me know if you need help with your Stanford application SOP.`, isBot: true, time: '09:00 AM' },
+            { text: `Hi ${agentName}! Yes, I just updated my SOP draft. Can you review the career goals section?`, isBot: false, time: '09:30 AM' }
           ];
         } else if (st.id === 'st-03') {
           initialMsgs = [
@@ -354,14 +636,53 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
     return JSON.parse(JSON.stringify(DEFAULT_STAGES));
   };
 
-  const saveStagesForStudent = (studentId: string, updatedStages: PipelineStage[]) => {
+  const saveStagesForStudent = async (studentId: string, updatedStages: PipelineStage[]) => {
     if (studentId === 'demo-student-id') {
       localStorage.setItem('ff_application_stages', JSON.stringify(updatedStages));
     }
+    
     localStorage.setItem(`ff_stages_${studentId}`, JSON.stringify(updatedStages));
     
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new Event('storage_sync'));
+
+    // Backend database synchronization
+    const app = applications.find(a => a.studentId === studentId);
+    const token = localStorage.getItem('ff_agent_token');
+    if (app && token) {
+      const updatedMetadata = {
+        ...(app.metadata || {}),
+        milestones: updatedStages
+      };
+
+      try {
+        const backendStatus = app.status === 'Applied' ? 'submitted' : app.status.toLowerCase();
+        const res = await fetch(`/api/applications/${app.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            university_id: 1, // default placeholder
+            university_name: app.universityName,
+            course_name: app.program,
+            degree_level: 'Masters', // default placeholder
+            status: backendStatus,
+            metadata: updatedMetadata
+          })
+        });
+
+        if (res.ok) {
+          // Update the local applications state so metadata is updated
+          setApplications(prev => prev.map(a => a.id === app.id ? { ...a, metadata: updatedMetadata } : a));
+        } else {
+          console.error('Failed to save stages to application metadata', await res.text());
+        }
+      } catch (e) {
+        console.error('Failed to save stages to application metadata:', e);
+      }
+    }
   };
 
   // ─── Chat Actions ─────────────────────────────────────────────────────────────
@@ -369,48 +690,186 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
     if (e) e.preventDefault();
     if (!chatInput.trim()) return;
 
-    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const newMsg: ChatMessage = {
-      text: chatInput.trim(),
-      isBot: true,
-      time
-    };
+    if (activeChatStudentId === 'demo-student-id') {
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const newMsg: ChatMessage = {
+        text: chatInput.trim(),
+        isBot: true,
+        time
+      };
+      const updated = [...chatMessages, newMsg];
+      setChatMessages(updated);
+      localStorage.setItem(`ff_agent_messages_${activeChatStudentId}`, JSON.stringify(updated));
+      setChatInput('');
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('storage_sync'));
+      triggerNotification('Reply sent successfully.');
+      return;
+    }
 
-    const updated = [...chatMessages, newMsg];
-    setChatMessages(updated);
-    localStorage.setItem(`ff_agent_messages_${activeChatStudentId}`, JSON.stringify(updated));
-    setChatInput('');
-
-    window.dispatchEvent(new Event('storage'));
-    window.dispatchEvent(new Event('storage_sync'));
-    triggerNotification('Reply sent successfully.');
+    if (agentSocketRef.current && agentSocketRef.current.readyState === WebSocket.OPEN && activeRoomId) {
+      agentSocketRef.current.send(JSON.stringify({
+        type: 'SendMessage',
+        payload: {
+          room_id: activeRoomId,
+          content: chatInput.trim(),
+          attachments: null
+        }
+      }));
+      setChatInput('');
+      triggerNotification('Reply sent successfully.');
+    } else {
+      console.warn("Agent WebSocket connection not open. Cannot send message.");
+      triggerNotification('WebSocket offline. Failed to send message.', true);
+    }
   };
 
   // ─── Student Profile Actions ──────────────────────────────────────────────────
-  const handleSaveProfile = (studentId: string, updatedFields: Partial<StudentRecord>) => {
-    const updatedStudents = students.map(s => {
-      if (s.id === studentId) {
-        return {
-          ...s,
-          ...updatedFields
-        };
-      }
-      return s;
-    });
+  const handleSaveProfile = async (studentId: string, updatedFields: Partial<StudentRecord>) => {
+    const token = localStorage.getItem('ff_agent_token');
+    if (!token) {
+      triggerNotification('Session expired. Please log in again.', true);
+      return;
+    }
 
-    setStudents(updatedStudents);
-    triggerNotification('Student profile database updated.');
+    const st = students.find(s => s.id === studentId);
+    if (!st) return;
+
+    try {
+      const res = await fetch(`/api/agents/students/${studentId}/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          full_name: updatedFields.name !== undefined ? updatedFields.name : st.name,
+          phone: updatedFields.phone !== undefined ? updatedFields.phone : st.phone,
+          country: null,
+          preferred_destination: updatedFields.targetDestination !== undefined ? updatedFields.targetDestination : st.targetDestination,
+          preferred_degree_level: updatedFields.targetDegree !== undefined ? updatedFields.targetDegree : st.targetDegree,
+          preferred_intake: updatedFields.interestedIntake !== undefined ? updatedFields.interestedIntake : st.interestedIntake,
+          profile_data: {
+            targetUniversity: updatedFields.targetUniversity !== undefined ? updatedFields.targetUniversity : st.targetUniversity,
+            targetCourse: updatedFields.targetCourse !== undefined ? updatedFields.targetCourse : st.targetCourse,
+            specificCourses: updatedFields.specificCourses !== undefined ? updatedFields.specificCourses : st.specificCourses,
+            interestedIntake: updatedFields.interestedIntake !== undefined ? updatedFields.interestedIntake : st.interestedIntake,
+            remarks: updatedFields.remarks !== undefined ? updatedFields.remarks : st.remarks,
+            eduGradeAverage: updatedFields.gpa !== undefined ? (updatedFields.gpa === null ? '' : updatedFields.gpa.toString()) : (st.gpa === null ? '' : st.gpa.toString())
+          }
+        })
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || errJson.detail || 'Failed to update student profile.');
+      }
+
+      const updatedStudents = students.map(s => {
+        if (s.id === studentId) {
+          return {
+            ...s,
+            ...updatedFields
+          };
+        }
+        return s;
+      });
+
+      setStudents(updatedStudents);
+      triggerNotification('Student profile database updated.');
+    } catch (err: any) {
+      console.error(err);
+      triggerNotification(err.message || 'Failed to update student profile.', true);
+    }
   };
 
-  const handleUpdateStudentStatus = (studentId: string, newStatus: 'lead' | 'in_progress' | 'completed' | 'inactive') => {
-    const updated = students.map(s => {
-      if (s.id === studentId) {
-        return { ...s, status: newStatus };
+  const handleUpdateStudentStatus = async (studentId: string, newStatus: 'lead' | 'in_progress' | 'completed' | 'inactive') => {
+    const token = localStorage.getItem('ff_agent_token');
+    if (!token) {
+      triggerNotification('Session expired. Please log in again.', true);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/students/${studentId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          is_active: newStatus === 'in_progress'
+        })
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || errJson.detail || 'Failed to update student status.');
       }
-      return s;
-    });
-    setStudents(updated);
-    triggerNotification(`Student status updated to: ${newStatus}`);
+
+      setStudents(prev => prev.map(s => {
+        if (s.id === studentId) {
+          return { ...s, status: newStatus };
+        }
+        return s;
+      }));
+      triggerNotification(`Student status updated to: ${newStatus}`);
+    } catch (err: any) {
+      console.error(err);
+      triggerNotification(err.message || 'Failed to update student status.', true);
+    }
+  };
+
+  const handleCreateStudent = async (studentData: { email: string; password_hash: string; full_name: string; phone: string }) => {
+    const token = localStorage.getItem('ff_agent_token');
+    if (!token) {
+      triggerNotification('Session expired. Please log in again.', true);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/agents/me/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          email: studentData.email,
+          password: studentData.password_hash,
+          full_name: studentData.full_name,
+          phone: studentData.phone || null
+        })
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || errJson.detail || 'Failed to create student.');
+      }
+
+      const newStudent = await res.json();
+      const mappedNewStudent: StudentRecord = {
+        id: newStudent.id,
+        name: newStudent.full_name,
+        email: newStudent.email,
+        phone: newStudent.phone || '',
+        targetDestination: newStudent.preferred_destination || null,
+        targetDegree: newStudent.preferred_degree_level || null,
+        targetUniversity: newStudent.profile_data?.targetUniversity || null,
+        targetCourse: newStudent.profile_data?.targetCourse || null,
+        specificCourses: newStudent.profile_data?.specificCourses || null,
+        interestedIntake: newStudent.profile_data?.interestedIntake || null,
+        remarks: newStudent.profile_data?.remarks || '',
+        status: newStudent.is_active ? 'in_progress' : 'inactive',
+        gpa: newStudent.profile_data?.eduGradeAverage ? parseFloat(newStudent.profile_data.eduGradeAverage) : null
+      };
+
+      setStudents(prev => [...prev, mappedNewStudent]);
+      triggerNotification('Student created successfully.');
+    } catch (err: any) {
+      console.error(err);
+      triggerNotification(err.message || 'Failed to create student.', true);
+    }
   };
 
   const handleRemoveStudent = (studentId: string) => {
@@ -520,7 +979,22 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
   const dynamicColors = getTabColorStyles(activeTab);
 
   return (
-    <div className="min-h-screen bg-white text-slate-700 font-sans selection:bg-[#001F3F]/5 selection:text-[#001F3F] pb-10 flex flex-col lg:flex-row w-full transition-colors duration-500">
+    <div className="min-h-screen bg-white text-slate-700 font-sans selection:bg-[#001F3F]/5 selection:text-[#001F3F] pb-10 flex flex-col lg:flex-row w-full transition-colors duration-500 relative">
+      {backendOffline && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white px-6 py-3 flex items-center justify-between text-xs font-bold font-mono tracking-wider shadow-lg animate-pulse">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping shrink-0" />
+            <span>CRITICAL ERROR: AGY BACKEND OFFLINE (502 BAD GATEWAY). SYSTEM DISCONNECTED.</span>
+          </div>
+          <button 
+            type="button"
+            onClick={() => window.location.reload()} 
+            className="px-3 py-1 bg-white/20 hover:bg-white/35 rounded-lg border border-white/10 transition cursor-pointer text-[9px]"
+          >
+            RECONNECT
+          </button>
+        </div>
+      )}
       
       {/* Dynamic notifications */}
       <AnimatePresence>
@@ -662,6 +1136,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
             loadStagesForStudent={loadStagesForStudent}
             saveStagesForStudent={saveStagesForStudent}
             triggerNotification={triggerNotification}
+            handleCreateStudent={handleCreateStudent}
           />
         )}
 
@@ -676,6 +1151,8 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
             setChatInput={setChatInput}
             handleSendReply={handleSendReply}
             getInboxConversations={getInboxConversations}
+            chatUpdateTrigger={chatUpdateTrigger}
+            refreshChat={initAgentChatRoom}
           />
         )}
 
@@ -688,11 +1165,11 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
           />
         )}
 
-        {/* ───── TAB 5: DOCUMENT AUDITS ───── */}
         {activeTab === 'documents' && (
           <DocumentsTab
             documents={documents}
             setDocuments={setDocuments}
+            students={students}
             triggerNotification={triggerNotification}
           />
         )}
