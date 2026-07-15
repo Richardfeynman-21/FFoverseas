@@ -15,13 +15,22 @@ async function proxyRequest(req: NextRequest) {
   }
 
   const pathname = req.nextUrl.pathname;
-  let backendTarget = "http://localhost:8080";
-  if (
-    pathname.startsWith("/api/universities") ||
-    pathname.startsWith("/api/public-chat") ||
-    pathname.startsWith("/api/health")
-  ) {
-    backendTarget = "http://localhost:8000";
+  let backendTarget = process.env.BACKEND_API_URL || "http://localhost:8080";
+
+  // During local development (when BACKEND_API_URL is not set or is localhost),
+  // we do the port split between 8080 (Rust) and 8000 (Python).
+  const isLocalDev = !process.env.BACKEND_API_URL || 
+                     process.env.BACKEND_API_URL.includes("localhost") || 
+                     process.env.BACKEND_API_URL.includes("127.0.0.1");
+
+  if (isLocalDev) {
+    if (
+      pathname.startsWith("/api/universities") ||
+      pathname.startsWith("/api/public-chat") ||
+      pathname.startsWith("/api/health")
+    ) {
+      backendTarget = "http://localhost:8000";
+    }
   }
 
   const apiKey = process.env.BACKEND_API_KEY || process.env.FRONTEND_API_KEY;
