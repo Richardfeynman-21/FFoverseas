@@ -994,6 +994,7 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
                     key={lvl}
                     onClick={() => {
                       setSelectedDegreeLevel(lvl);
+                      setSelectedDuration('All');
                       setOpenDropdown(null);
                       setCurrentPage(1);
                     }}
@@ -1055,47 +1056,49 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
           </div>
 
           {/* 4. Duration Dropdown */}
-          <div className="flex flex-col relative">
-            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1.5">Duration</label>
-            <button
-              type="button"
-              onClick={() => setOpenDropdown(openDropdown === 'duration' ? null : 'duration')}
-              className={`w-full px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-between shadow-2xs ${
-                selectedDuration !== 'All'
-                  ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
-                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-650'
-              }`}
-            >
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                <span>{selectedDuration === 'All' ? 'All Durations' : selectedDuration}</span>
-              </div>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'duration' ? 'rotate-180' : ''}`} />
-            </button>
+          {selectedDegreeLevel !== 'All' && (
+            <div className="flex flex-col relative">
+              <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1.5">Duration</label>
+              <button
+                type="button"
+                onClick={() => setOpenDropdown(openDropdown === 'duration' ? null : 'duration')}
+                className={`w-full px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-between shadow-2xs ${
+                  selectedDuration !== 'All'
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-650'
+                }`}
+              >
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{selectedDuration === 'All' ? 'All Durations' : selectedDuration}</span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'duration' ? 'rotate-180' : ''}`} />
+              </button>
 
-            {openDropdown === 'duration' && (
-              <div className="absolute left-0 right-0 mt-12 bg-white rounded-2xl border border-slate-100 shadow-xl p-2 z-50 space-y-1 text-left animate-in fade-in slide-in-from-top-1 duration-200">
-                {['All', '1 Year', '2 Years', '3 Years', '4 Years'].map(dur => (
-                  <button
-                    key={dur}
-                    onClick={() => {
-                      setSelectedDuration(dur);
-                      setOpenDropdown(null);
-                      setCurrentPage(1);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                      selectedDuration === dur
-                        ? 'bg-[#001F3F]/5 text-[#001F3F]'
-                        : 'hover:bg-slate-50 text-slate-600'
-                    }`}
-                  >
-                    <span>{dur === 'All' ? 'All Durations' : dur}</span>
-                    {selectedDuration === dur && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+              {openDropdown === 'duration' && (
+                <div className="absolute left-0 right-0 mt-12 bg-white rounded-2xl border border-slate-100 shadow-xl p-2 z-50 space-y-1 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                  {['All', '1 Year', '2 Years', '3 Years', '4 Years'].map(dur => (
+                    <button
+                      key={dur}
+                      onClick={() => {
+                        setSelectedDuration(dur);
+                        setOpenDropdown(null);
+                        setCurrentPage(1);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        selectedDuration === dur
+                          ? 'bg-[#001F3F]/5 text-[#001F3F]'
+                          : 'hover:bg-slate-50 text-slate-600'
+                      }`}
+                    >
+                      <span>{dur === 'All' ? 'All Durations' : dur}</span>
+                      {selectedDuration === dur && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 5. University Name Dropdown with Search */}
           {countryFilter !== 'All' && (
