@@ -288,7 +288,8 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
           interestedIntake: s.profile_data?.interestedIntake || null,
           remarks: s.profile_data?.remarks || '',
           status: s.status || 'lead',
-          gpa: s.profile_data?.eduGradeAverage ? parseFloat(s.profile_data.eduGradeAverage) : null
+          gpa: s.profile_data?.eduGradeAverage ? parseFloat(s.profile_data.eduGradeAverage) : null,
+          assignedAgentId: s.assigned_agent_id || null
         }));
         setStudents(mappedStudents);
 
@@ -425,6 +426,17 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
       }
       
       if (!roomId && agentProfile) {
+        const currentStudent = students.find(s => s.id === activeChatStudentId);
+        const targetAgentId = agentProfile.role === 'superadmin' 
+          ? currentStudent?.assignedAgentId 
+          : agentProfile.id;
+
+        if (!targetAgentId) {
+          console.warn("No agent assigned to this student. Cannot create chat room.");
+          triggerNotification("Please assign an advisor to this student first.", true);
+          return;
+        }
+
         const createRes = await fetch('/api/chat/rooms', {
           method: 'POST',
           headers: {
@@ -433,7 +445,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
           },
           body: JSON.stringify({
             student_id: activeChatStudentId,
-            agent_id: agentProfile.id,
+            agent_id: targetAgentId,
             room_type: 'direct'
           })
         });

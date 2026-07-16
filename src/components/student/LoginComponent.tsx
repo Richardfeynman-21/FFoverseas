@@ -277,10 +277,19 @@ export default function Login() {
           localStorage.setItem('ff_agent_refresh_token', refreshToken);
 
           if (isAdmin) {
+            let adminId = 'superadmin-id';
+            try {
+              const decoded = JSON.parse(atob(accessToken.split('.')[1]));
+              if (decoded && decoded.sub) {
+                adminId = decoded.sub;
+              }
+            } catch (err) {
+              console.error("Failed to decode token claims:", err);
+            }
             localStorage.setItem(
               'ff_agent_profile',
               JSON.stringify({
-                id: 'superadmin-id',
+                id: adminId,
                 name: 'System Super Admin',
                 role: 'superadmin',
               })

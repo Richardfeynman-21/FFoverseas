@@ -14,6 +14,7 @@ export interface StudentRecord {
   remarks: string;
   status: 'lead' | 'in_progress' | 'completed' | 'inactive';
   gpa: number | null;
+  assignedAgentId?: string | null;
 }
 
 export interface ApplicationRecord {

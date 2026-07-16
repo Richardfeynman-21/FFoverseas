@@ -410,7 +410,7 @@ export default function StudentDashboard() {
         }
       }
       
-      if (!roomId) {
+      if (!roomId && student.assignedAgentId) {
         const createRes = await fetch('/api/chat/rooms', {
           method: 'POST',
           headers: {
