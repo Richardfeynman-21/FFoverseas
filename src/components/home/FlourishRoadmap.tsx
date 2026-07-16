@@ -251,7 +251,7 @@ export default function FlourishRoadmap() {
 
                 {/* Company Logo Overlay - Premium & Sleek */}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md border border-white/60 flex items-center gap-1.5 select-none pointer-events-none">
-                  <Image src="/FFlogo-icon-only.svg" alt="Company Icon" width={20} height={20} className="h-5 w-5 object-contain" />
+                  <Image src="/FFlogo-icon-only.png" alt="Company Icon" width={20} height={20} className="h-5 w-5 object-contain" />
                   <span className="text-[10px] font-mono font-bold tracking-tight text-[#001F3F]">FLY & FLOURISH</span>
                 </div>
 
