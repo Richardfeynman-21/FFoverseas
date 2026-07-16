@@ -22,7 +22,10 @@ import {
   Sparkles,
   Info,
   MessageSquare,
-  X
+  X,
+  ChevronDown,
+  Calendar,
+  Check
 } from 'lucide-react';
 import { University } from './types';
 import { Flag } from './Flag';
@@ -100,6 +103,30 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
       selectedDuration === 'All' && 
       selectedUniversity === 'All';
   }, [appliedSearchQuery, countryFilter, selectedDegreeLevel, selectedIntake, selectedDuration, selectedUniversity]);
+
+  // 4.2 State for custom dropdowns and searching within university names
+  const [openDropdown, setOpenDropdown] = useState<'country' | 'type' | 'intake' | 'duration' | 'university' | null>(null);
+  const [uniSearchQuery, setUniSearchQuery] = useState('');
+
+  const filteredUniOptions = useMemo(() => {
+    let list = allUniversities;
+    if (countryFilter && countryFilter !== 'All') {
+      const apiCountry = 
+        countryFilter === 'USA' ? 'United States' :
+        countryFilter === 'UK' ? 'United Kingdom' :
+        countryFilter;
+      list = list.filter(uni => 
+        uni.country.toLowerCase() === apiCountry.toLowerCase() ||
+        uni.country.toLowerCase().includes(apiCountry.toLowerCase())
+      );
+    }
+    if (uniSearchQuery.trim()) {
+      list = list.filter(uni => 
+        uni.name.toLowerCase().includes(uniSearchQuery.toLowerCase())
+      );
+    }
+    return list;
+  }, [allUniversities, countryFilter, uniSearchQuery]);
 
 
 
@@ -225,28 +252,8 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
     fetchAppliedApplications();
   }, []);
 
-  // Fetch list of all universities to populate select filters and fetch trending courses
+  // Fetch trending courses on mount
   useEffect(() => {
-    const fetchAllUnis = async () => {
-      try {
-        const token = localStorage.getItem('ff_student_token');
-        const res = await fetch('/api/universities?page_size=100', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const mapped = data.universities.map((u: any) => ({
-            id: u.id,
-            name: u.name,
-            country: u.country
-          }));
-          setAllUniversities(mapped);
-        }
-      } catch (err) {
-        console.error("Failed to load university options:", err);
-      }
-    };
-
     const fetchTrending = async () => {
       try {
         const token = localStorage.getItem('ff_student_token');
@@ -287,10 +294,46 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
         console.error("Failed to load trending courses:", err);
       }
     };
-
-    fetchAllUnis();
     fetchTrending();
   }, []);
+
+  // Fetch list of all universities to populate select filters based on countryFilter and uniSearchQuery
+  useEffect(() => {
+    const fetchUniversityOptions = async () => {
+      try {
+        const token = localStorage.getItem('ff_student_token');
+        const params = new URLSearchParams();
+        params.append('page_size', '100'); // load top 100 matches
+        
+        if (countryFilter && countryFilter !== 'All') {
+          const apiCountry = 
+            countryFilter === 'USA' ? 'United States' :
+            countryFilter === 'UK' ? 'United Kingdom' :
+            countryFilter;
+          params.append('countries', apiCountry);
+        }
+        if (uniSearchQuery.trim()) {
+          params.append('search', uniSearchQuery.trim());
+        }
+        
+        const res = await fetch(`/api/universities?${params.toString()}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const mapped = data.universities.map((u: any) => ({
+            id: u.id,
+            name: u.name,
+            country: u.country
+          }));
+          setAllUniversities(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load university options:", err);
+      }
+    };
+    fetchUniversityOptions();
+  }, [countryFilter, uniSearchQuery]);
 
   // Fetch courses dynamically from backend global courses catalog when filter criteria changes
   useEffect(() => {
@@ -868,126 +911,292 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
         </div>
       </div>
 
-      {/* ─── Search & Filters Panel (Redesigned Direct Grid Filters) ─── */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-md space-y-4">
+      {/* Click catcher for active custom dropdowns */}
+      {openDropdown && (
+        <div className="fixed inset-0 z-40 bg-transparent" onClick={() => setOpenDropdown(null)} />
+      )}
+
+      {/* ─── Search & Filters Panel (Redesigned Premium Direct Filters) ─── */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-md space-y-5 relative z-50">
         
         {/* Filter Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          
           {/* 1. University Country Dropdown */}
-          <div className="flex flex-col">
-            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">University Country</label>
-            <select
-              value={countryFilter}
-              onChange={(e) => {
-                setCountryFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+          <div className="flex flex-col relative">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1.5">University Country</label>
+            <button
+              type="button"
+              onClick={() => setOpenDropdown(openDropdown === 'country' ? null : 'country')}
+              className={`w-full px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-between shadow-2xs ${
+                countryFilter !== 'All'
+                  ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-650'
+              }`}
             >
-              <option value="All">All Countries</option>
-              <option value="USA">United States (USA)</option>
-              <option value="UK">United Kingdom (UK)</option>
-              <option value="Canada">Canada</option>
-              <option value="Australia">Australia</option>
-              <option value="Germany">Germany</option>
-            </select>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                <span>{countryFilter === 'All' ? 'All Countries' : countryFilter}</span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'country' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {openDropdown === 'country' && (
+              <div className="absolute left-0 right-0 mt-12 bg-white rounded-2xl border border-slate-100 shadow-xl p-2 z-50 space-y-1 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                {['All', 'USA', 'UK', 'Canada', 'Australia', 'Germany'].map(country => (
+                  <button
+                    key={country}
+                    onClick={() => {
+                      setCountryFilter(country);
+                      setSelectedUniversity('All');
+                      setSearchQuery('');
+                      setAppliedSearchQuery('');
+                      setOpenDropdown(null);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      countryFilter === country
+                        ? 'bg-[#001F3F]/5 text-[#001F3F]'
+                        : 'hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    <span>{country === 'All' ? 'All Countries' : country === 'UK' ? 'United Kingdom (UK)' : country === 'USA' ? 'United States (USA)' : country}</span>
+                    {countryFilter === country && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 2. Course Type Dropdown */}
-          <div className="flex flex-col">
-            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">Course Type</label>
-            <select
-              value={selectedDegreeLevel}
-              onChange={(e) => {
-                setSelectedDegreeLevel(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+          <div className="flex flex-col relative">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1.5">Course Type</label>
+            <button
+              type="button"
+              onClick={() => setOpenDropdown(openDropdown === 'type' ? null : 'type')}
+              className={`w-full px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-between shadow-2xs ${
+                selectedDegreeLevel !== 'All'
+                  ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-650'
+              }`}
             >
-              <option value="All">All Course Types</option>
-              <option value="Undergraduate">Undergraduate</option>
-              <option value="Postgraduate">Postgraduate</option>
-            </select>
+              <div className="flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                <span>{selectedDegreeLevel === 'All' ? 'All Course Types' : selectedDegreeLevel}</span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'type' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {openDropdown === 'type' && (
+              <div className="absolute left-0 right-0 mt-12 bg-white rounded-2xl border border-slate-100 shadow-xl p-2 z-50 space-y-1 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                {['All', 'Undergraduate', 'Postgraduate'].map(lvl => (
+                  <button
+                    key={lvl}
+                    onClick={() => {
+                      setSelectedDegreeLevel(lvl);
+                      setOpenDropdown(null);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      selectedDegreeLevel === lvl
+                        ? 'bg-[#001F3F]/5 text-[#001F3F]'
+                        : 'hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    <span>{lvl === 'All' ? 'All Course Types' : lvl}</span>
+                    {selectedDegreeLevel === lvl && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 3. Course Intake Dropdown */}
-          <div className="flex flex-col">
-            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">Course Intake</label>
-            <select
-              value={selectedIntake}
-              onChange={(e) => {
-                setSelectedIntake(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+          <div className="flex flex-col relative">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1.5">Course Intake</label>
+            <button
+              type="button"
+              onClick={() => setOpenDropdown(openDropdown === 'intake' ? null : 'intake')}
+              className={`w-full px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-between shadow-2xs ${
+                selectedIntake !== 'All'
+                  ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-650'
+              }`}
             >
-              <option value="All">All Intakes</option>
-              <option value="September">September Intake</option>
-              <option value="January">January Intake</option>
-              <option value="May">May Intake</option>
-            </select>
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                <span>{selectedIntake === 'All' ? 'All Intakes' : `${selectedIntake} Intake`}</span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'intake' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {openDropdown === 'intake' && (
+              <div className="absolute left-0 right-0 mt-12 bg-white rounded-2xl border border-slate-100 shadow-xl p-2 z-50 space-y-1 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                {['All', 'September', 'January', 'May'].map(intake => (
+                  <button
+                    key={intake}
+                    onClick={() => {
+                      setSelectedIntake(intake);
+                      setOpenDropdown(null);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      selectedIntake === intake
+                        ? 'bg-[#001F3F]/5 text-[#001F3F]'
+                        : 'hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    <span>{intake === 'All' ? 'All Intakes' : `${intake} Intake`}</span>
+                    {selectedIntake === intake && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 4. Duration Dropdown */}
-          <div className="flex flex-col">
-            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">Duration</label>
-            <select
-              value={selectedDuration}
-              onChange={(e) => {
-                setSelectedDuration(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+          <div className="flex flex-col relative">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1.5">Duration</label>
+            <button
+              type="button"
+              onClick={() => setOpenDropdown(openDropdown === 'duration' ? null : 'duration')}
+              className={`w-full px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-between shadow-2xs ${
+                selectedDuration !== 'All'
+                  ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-650'
+              }`}
             >
-              <option value="All">All Durations</option>
-              <option value="1 Year">1 Year</option>
-              <option value="2 Years">2 Years</option>
-              <option value="3 Years">3 Years</option>
-              <option value="4 Years">4 Years</option>
-            </select>
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                <span>{selectedDuration === 'All' ? 'All Durations' : selectedDuration}</span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'duration' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {openDropdown === 'duration' && (
+              <div className="absolute left-0 right-0 mt-12 bg-white rounded-2xl border border-slate-100 shadow-xl p-2 z-50 space-y-1 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+                {['All', '1 Year', '2 Years', '3 Years', '4 Years'].map(dur => (
+                  <button
+                    key={dur}
+                    onClick={() => {
+                      setSelectedDuration(dur);
+                      setOpenDropdown(null);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      selectedDuration === dur
+                        ? 'bg-[#001F3F]/5 text-[#001F3F]'
+                        : 'hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    <span>{dur === 'All' ? 'All Durations' : dur}</span>
+                    {selectedDuration === dur && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5]" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* 5. University Name Dropdown */}
-          <div className="flex flex-col md:col-span-2">
-            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">University Name</label>
-            <select
-              value={selectedUniversity}
-              onChange={(e) => {
-                setSelectedUniversity(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
-            >
-              <option value="All">All Universities</option>
-              {allUniversities.map((uni) => (
-                <option key={uni.id} value={uni.id}>{uni.name} ({uni.country})</option>
-              ))}
-            </select>
-          </div>
+          {/* 5. University Name Dropdown with Search */}
+          {countryFilter !== 'All' && (
+            <div className="flex flex-col md:col-span-2 relative">
+              <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1.5">University Name</label>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpenDropdown(openDropdown === 'university' ? null : 'university');
+                  setUniSearchQuery(''); // reset search query when opening
+                }}
+                className={`w-full px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-between shadow-2xs ${
+                  selectedUniversity !== 'All'
+                    ? 'border-[#001F3F] bg-[#001F3F]/5 text-[#001F3F]'
+                    : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-650'
+                }`}
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <GraduationCap className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="truncate">
+                    {selectedUniversity === 'All'
+                      ? 'Select University'
+                      : (allUniversities.find(u => String(u.id) === selectedUniversity)?.name || 'University')}
+                  </span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 shrink-0 ${openDropdown === 'university' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {openDropdown === 'university' && (
+                <div className="absolute left-0 right-0 mt-12 bg-white rounded-2xl border border-slate-100 shadow-xl z-50 overflow-hidden text-left animate-in fade-in slide-in-from-top-1 duration-200 max-h-80 flex flex-col">
+                  {/* Search Bar inside the dropdown list */}
+                  <div className="p-2.5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+                    <Search className="text-slate-400 shrink-0" size={13} />
+                    <input
+                      type="text"
+                      placeholder="Search universities..."
+                      value={uniSearchQuery}
+                      onChange={(e) => setUniSearchQuery(e.target.value)}
+                      className="w-full bg-transparent text-xs text-[#001F3F] placeholder-slate-400 focus:outline-none"
+                      onClick={(e) => e.stopPropagation()} // Stop click from propagating and closing dropdown
+                    />
+                    {uniSearchQuery && (
+                      <button onClick={(e) => { e.stopPropagation(); setUniSearchQuery(''); }} className="text-slate-400 hover:text-slate-600 transition"><X size={11} /></button>
+                    )}
+                  </div>
+                  
+                  {/* Options List */}
+                  <div className="overflow-y-auto p-2 space-y-0.5 max-h-60">
+                    {filteredUniOptions.length === 0 ? (
+                      <div className="text-[10px] text-slate-400 font-bold uppercase text-center py-4 select-none">No universities found</div>
+                    ) : (
+                      filteredUniOptions.map(uni => (
+                        <button
+                          key={uni.id}
+                          onClick={() => {
+                            setSelectedUniversity(String(uni.id));
+                            setOpenDropdown(null);
+                            setCurrentPage(1);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition cursor-pointer text-left ${
+                            selectedUniversity === String(uni.id)
+                              ? 'bg-[#001F3F]/5 text-[#001F3F]'
+                              : 'hover:bg-slate-50 text-slate-650'
+                          }`}
+                        >
+                          <span className="truncate">{uni.name} ({uni.country})</span>
+                          {selectedUniversity === String(uni.id) && <Check className="w-3.5 h-3.5 text-[#001F3F] stroke-[2.5] shrink-0" />}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 6. Search by Course Name Input */}
-          <div className="flex flex-col md:col-span-2">
-            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">Search by Course Name</label>
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-              <input
-                type="text"
-                placeholder="Search courses..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-9 pr-24 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#001F3F] transition"
-              />
-              <button
-                onClick={() => {
-                  setAppliedSearchQuery(searchQuery);
-                  setCurrentPage(1);
-                }}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 px-3.5 py-1.5 bg-[#001F3F] hover:bg-[#001F3F]/90 text-white rounded-lg text-[10px] font-bold tracking-wider transition active:scale-95 cursor-pointer"
-              >
-                APPLY
-              </button>
+          {countryFilter !== 'All' && (
+            <div className="flex flex-col md:col-span-2">
+              <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1.5">Search by Course Name</label>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <input
+                  type="text"
+                  placeholder="Search courses..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-9 pr-24 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#001F3F] transition h-[38px]"
+                />
+                <button
+                  onClick={() => {
+                    setAppliedSearchQuery(searchQuery);
+                    setCurrentPage(1);
+                  }}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 px-3.5 py-1.5 bg-[#001F3F] hover:bg-[#001F3F]/90 text-white rounded-lg text-[10px] font-bold tracking-wider transition active:scale-95 cursor-pointer"
+                >
+                  APPLY
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Active Filters Row (if any filters are selected) */}
