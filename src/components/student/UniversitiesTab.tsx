@@ -21,7 +21,8 @@ import {
   Minus,
   Sparkles,
   Info,
-  MessageSquare
+  MessageSquare,
+  X
 } from 'lucide-react';
 import { University } from './types';
 import { Flag } from './Flag';
@@ -73,13 +74,15 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedField, setSelectedField] = useState('All');
 
-  // 4. Advanced Filters Panel State (Replicating Main Catalog filters)
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  // 4. Advanced Filters Panel State (Redesigned Direct Grid Filters)
   const [selectedFeeRange, setSelectedFeeRange] = useState('All');
   const [selectedMinRanking, setSelectedMinRanking] = useState('All');
   const [selectedDegreeLevel, setSelectedDegreeLevel] = useState('All');
   const [selectedIeltsScore, setSelectedIeltsScore] = useState('All');
   const [selectedUniversity, setSelectedUniversity] = useState('All');
+  const [selectedIntake, setSelectedIntake] = useState('All');
+  const [selectedDuration, setSelectedDuration] = useState('All');
+  const [trendingCourses, setTrendingCourses] = useState<CourseItem[]>([]);
   const [sortByOption, setSortByOption] = useState('rank');
   const [appliedSearchQuery, setAppliedSearchQuery] = useState('');
   const [allUniversities, setAllUniversities] = useState<any[]>([]);
@@ -88,6 +91,15 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
   const [totalPages, setTotalPages] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const itemsPerPage = 12;
+
+  const isFiltersEmpty = useMemo(() => {
+    return !appliedSearchQuery && 
+      countryFilter === 'All' && 
+      selectedDegreeLevel === 'All' && 
+      selectedIntake === 'All' && 
+      selectedDuration === 'All' && 
+      selectedUniversity === 'All';
+  }, [appliedSearchQuery, countryFilter, selectedDegreeLevel, selectedIntake, selectedDuration, selectedUniversity]);
 
   // 4.1 Temporary draft state hooks for advanced filters inside UniversitiesTab
   const [draftFeeRange, setDraftFeeRange] = useState('All');
@@ -231,7 +243,7 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
     fetchAppliedApplications();
   }, []);
 
-  // Fetch list of all universities to populate select filters
+  // Fetch list of all universities to populate select filters and fetch trending courses
   useEffect(() => {
     const fetchAllUnis = async () => {
       try {
@@ -252,11 +264,58 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
         console.error("Failed to load university options:", err);
       }
     };
+
+    const fetchTrending = async () => {
+      try {
+        const token = localStorage.getItem('ff_student_token');
+        const res = await fetch('/api/universities/courses?sort_by=rank&page=1&page_size=15', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const mapped: CourseItem[] = data.courses.map((item: any) => {
+            const uni = item.university;
+            const shortCountry = COUNTRY_SHORT_NAMES[uni.country] || uni.country;
+            const tuitionVal = formatTuition(item.tuition_fee, item.currency || uni.currency || 'USD');
+            const rankingStr = uni.qs_rank_2026 ? `#${uni.qs_rank_2026.replace('#', '')}` : 'N/A';
+            const acceptanceRate = getAcceptanceRate(uni.qs_rank_2026);
+            let field = 'Other';
+            const name = item.course_name.toLowerCase();
+            if (name.includes('computer') || name.includes('data science') || name.includes('ai')) field = 'Computer Science & AI';
+            else if (name.includes('engineer') || name.includes('physics')) field = 'Engineering & Science';
+            else if (name.includes('business') || name.includes('finance')) field = 'Business & Management';
+
+            return {
+              id: item.id || item.course_id || Math.random().toString(),
+              courseName: item.course_name,
+              field,
+              duration: item.country === 'UK' ? '1 Year' : '2 Years',
+              tuition: tuitionVal,
+              scholarship: formatScholarship(uni),
+              intake: 'Fall 2026',
+              ieltsScore: '7.0',
+              greRequired: 'Optional',
+              acceptanceRate,
+              university: uni
+            };
+          });
+          setTrendingCourses(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load trending courses:", err);
+      }
+    };
+
     fetchAllUnis();
+    fetchTrending();
   }, []);
 
   // Fetch courses dynamically from backend global courses catalog when filter criteria changes
   useEffect(() => {
+    if (isFiltersEmpty) {
+      setLoading(false);
+      return;
+    }
     const fetchCourses = async () => {
       setLoading(true);
       try {
@@ -433,7 +492,7 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
     };
 
     fetchCourses();
-  }, [countryFilter, appliedSearchQuery, selectedDegreeLevel, selectedFeeRange, selectedMinRanking, sortByOption, selectedUniversity, currentPage]);
+  }, [countryFilter, appliedSearchQuery, selectedDegreeLevel, selectedFeeRange, selectedMinRanking, sortByOption, selectedUniversity, selectedIntake, selectedDuration, currentPage, isFiltersEmpty]);
 
   const toggleShortlist = async (courseId: string) => {
     const token = localStorage.getItem('ff_student_token');
@@ -717,9 +776,8 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
     return list;
   }, [fetchedCourses, backendShortlist, appliedList]);
 
-  // 6. Filtering & Sorting logic (Trusting backend for countries, rankings, tuition, degree, and sorting)
   const filteredCourses = useMemo(() => {
-    let list = courses.filter((course) => {
+    let list = (isFiltersEmpty ? trendingCourses : courses).filter((course) => {
       // 1. Search matches
       const matchesSearch = 
         course.courseName.toLowerCase().includes(appliedSearchQuery.toLowerCase()) ||
@@ -750,11 +808,17 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
         }
       }
       
-      return matchesSearch && matchesField && matchesShortlistMode && matchesIelts;
+      // 5. Intake Filtering (Client-side fallback)
+      const matchesIntake = selectedIntake === 'All' || course.intake.toLowerCase().includes(selectedIntake.toLowerCase());
+
+      // 6. Duration Filtering (Client-side fallback)
+      const matchesDuration = selectedDuration === 'All' || course.duration.toLowerCase().includes(selectedDuration.toLowerCase());
+
+      return matchesSearch && matchesField && matchesShortlistMode && matchesIelts && matchesIntake && matchesDuration;
     });
 
     return list;
-  }, [courses, appliedSearchQuery, selectedField, viewMode, shortlistedIds, selectedIeltsScore, appliedList]);
+  }, [courses, trendingCourses, isFiltersEmpty, appliedSearchQuery, selectedField, viewMode, shortlistedIds, selectedIeltsScore, selectedIntake, selectedDuration, appliedList]);
 
   // Courses selected for comparison
   const compareCourses = useMemo(() => {
@@ -822,104 +886,188 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
         </div>
       </div>
 
-      {/* ─── Search & Filters Panel ─── */}
-      <div className="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-6 border border-slate-200/60 shadow-lg shadow-slate-900/5 space-y-6">
+      {/* ─── Search & Filters Panel (Redesigned Direct Grid Filters) ─── */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-md space-y-4">
         
-        {/* Row 1: Search Bar & All Filters Button */}
-        <div className="flex flex-col md:flex-row gap-3.5">
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              setAppliedSearchQuery(searchQuery);
-              setCurrentPage(1);
-            }} 
-            className="flex-1 flex gap-2"
-          >
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+        {/* Filter Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          {/* 1. University Country Dropdown */}
+          <div className="flex flex-col">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">University Country</label>
+            <select
+              value={countryFilter}
+              onChange={(e) => {
+                setCountryFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+            >
+              <option value="All">All Countries</option>
+              <option value="USA">United States (USA)</option>
+              <option value="UK">United Kingdom (UK)</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="Germany">Germany</option>
+            </select>
+          </div>
+
+          {/* 2. Course Type Dropdown */}
+          <div className="flex flex-col">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">Course Type</label>
+            <select
+              value={selectedDegreeLevel}
+              onChange={(e) => {
+                setSelectedDegreeLevel(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+            >
+              <option value="All">All Course Types</option>
+              <option value="Undergraduate">Undergraduate</option>
+              <option value="Postgraduate">Postgraduate</option>
+            </select>
+          </div>
+
+          {/* 3. Course Intake Dropdown */}
+          <div className="flex flex-col">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">Course Intake</label>
+            <select
+              value={selectedIntake}
+              onChange={(e) => {
+                setSelectedIntake(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+            >
+              <option value="All">All Intakes</option>
+              <option value="September">September Intake</option>
+              <option value="January">January Intake</option>
+              <option value="May">May Intake</option>
+            </select>
+          </div>
+
+          {/* 4. Duration Dropdown */}
+          <div className="flex flex-col">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">Duration</label>
+            <select
+              value={selectedDuration}
+              onChange={(e) => {
+                setSelectedDuration(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+            >
+              <option value="All">All Durations</option>
+              <option value="1 Year">1 Year</option>
+              <option value="2 Years">2 Years</option>
+              <option value="3 Years">3 Years</option>
+              <option value="4 Years">4 Years</option>
+            </select>
+          </div>
+
+          {/* 5. University Name Dropdown */}
+          <div className="flex flex-col md:col-span-2">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">University Name</label>
+            <select
+              value={selectedUniversity}
+              onChange={(e) => {
+                setSelectedUniversity(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="bg-slate-50/60 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#001F3F] transition cursor-pointer"
+            >
+              <option value="All">All Universities</option>
+              {allUniversities.map((uni) => (
+                <option key={uni.id} value={uni.id}>{uni.name} ({uni.country})</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 6. Search by Course Name Input */}
+          <div className="flex flex-col md:col-span-2">
+            <label className="text-[10px] text-slate-400 font-mono font-bold tracking-wider uppercase mb-1">Search by Course Name</label>
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input
                 type="text"
-                placeholder="Search by course name, university, or country..."
+                placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-4 py-3.5 text-xs text-[#001F3F] placeholder-slate-400 focus:outline-none focus:border-[#001F3F] focus:ring-1 focus:ring-[#001F3F] shadow-sm transition"
+                className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-9 pr-24 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#001F3F] transition"
               />
+              <button
+                onClick={() => {
+                  setAppliedSearchQuery(searchQuery);
+                  setCurrentPage(1);
+                }}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 px-3.5 py-1.5 bg-[#001F3F] hover:bg-[#001F3F]/90 text-white rounded-lg text-[10px] font-bold tracking-wider transition active:scale-95 cursor-pointer"
+              >
+                APPLY
+              </button>
             </div>
+          </div>
+        </div>
+
+        {/* Active Filters Row (if any filters are selected) */}
+        {!isFiltersEmpty && (
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <div className="flex flex-wrap items-center gap-2">
+              {countryFilter !== 'All' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[10px] font-bold rounded-lg select-none">
+                  <span>{countryFilter}</span>
+                  <button onClick={() => { setCountryFilter('All'); setCurrentPage(1); }} className="text-amber-600 hover:text-amber-800 transition cursor-pointer"><X size={10} /></button>
+                </span>
+              )}
+              {selectedDegreeLevel !== 'All' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[10px] font-bold rounded-lg select-none">
+                  <span>{selectedDegreeLevel}</span>
+                  <button onClick={() => { setSelectedDegreeLevel('All'); setCurrentPage(1); }} className="text-amber-600 hover:text-amber-800 transition cursor-pointer"><X size={10} /></button>
+                </span>
+              )}
+              {selectedIntake !== 'All' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[10px] font-bold rounded-lg select-none">
+                  <span>{selectedIntake}</span>
+                  <button onClick={() => { setSelectedIntake('All'); setCurrentPage(1); }} className="text-amber-600 hover:text-amber-800 transition cursor-pointer"><X size={10} /></button>
+                </span>
+              )}
+              {selectedDuration !== 'All' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[10px] font-bold rounded-lg select-none">
+                  <span>{selectedDuration}</span>
+                  <button onClick={() => { setSelectedDuration('All'); setCurrentPage(1); }} className="text-amber-600 hover:text-amber-800 transition cursor-pointer"><X size={10} /></button>
+                </span>
+              )}
+              {selectedUniversity !== 'All' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[10px] font-bold rounded-lg max-w-[200px] truncate select-none">
+                  <span>{allUniversities.find(u => String(u.id) === selectedUniversity)?.name || 'University'}</span>
+                  <button onClick={() => { setSelectedUniversity('All'); setCurrentPage(1); }} className="text-amber-600 hover:text-amber-800 transition shrink-0 cursor-pointer"><X size={10} /></button>
+                </span>
+              )}
+              {appliedSearchQuery && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[10px] font-bold rounded-lg select-none">
+                  <span>"{appliedSearchQuery}"</span>
+                  <button onClick={() => { setSearchQuery(''); setAppliedSearchQuery(''); setCurrentPage(1); }} className="text-amber-600 hover:text-amber-800 transition cursor-pointer"><X size={10} /></button>
+                </span>
+              )}
+            </div>
+            
+            {/* Clear All button */}
             <button
-              type="submit"
-              className="px-6 py-3.5 bg-[#001F3F] hover:bg-[#001F3F]/90 text-white rounded-2xl text-xs font-bold tracking-wider transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md active:scale-95 flex items-center justify-center gap-1.5 shrink-0"
+              onClick={() => {
+                setCountryFilter('All');
+                setSelectedDegreeLevel('All');
+                setSelectedIntake('All');
+                setSelectedDuration('All');
+                setSelectedUniversity('All');
+                setSearchQuery('');
+                setAppliedSearchQuery('');
+                setCurrentPage(1);
+              }}
+              className="text-[10.5px] font-bold text-[#001F3F] hover:text-[#001F3F]/80 uppercase tracking-wider cursor-pointer active:scale-95 select-none"
             >
-              <Search size={14} />
-              <span>Search</span>
+              CLEAR ALL
             </button>
-          </form>
-
-          <button
-            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-            className={`px-5 py-3.5 rounded-2xl text-xs font-bold tracking-wider transition-all duration-200 border cursor-pointer flex items-center justify-center gap-2 select-none active:scale-95 shrink-0 ${
-              isFiltersOpen
-                ? 'bg-[#001F3F] text-white border-transparent shadow-md'
-                : 'bg-white text-slate-650 border-slate-200 hover:border-slate-350 hover:bg-slate-50'
-            }`}
-          >
-            <Filter size={14} />
-            <span>All Filters</span>
-            {activeFilterCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[9px] font-black leading-none shrink-0">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {/* Row 2: Region / Country Quick Selection */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
-          <span className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider shrink-0 min-w-[70px]">Country:</span>
-          <div className="flex flex-wrap gap-2">
-            {['All', 'USA', 'UK', 'Canada', 'Australia', 'Germany'].map((country) => (
-              <button
-                key={country}
-                onClick={() => {
-                  setCountryFilter(country);
-                  setCurrentPage(1);
-                }}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-250 cursor-pointer ${
-                  countryFilter === country
-                    ? 'bg-[#001F3F] text-white shadow-sm'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300'
-                }`}
-              >
-                {country === 'All' ? 'All Countries' : country}
-              </button>
-            ))}
           </div>
-        </div>
-
-        {/* Row 3: Domain / Field selection */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 border-t border-slate-100 pt-5">
-          <span className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider shrink-0 min-w-[70px]">Domain:</span>
-          <div className="flex flex-wrap gap-2">
-            {fieldsList.map((field) => (
-              <button
-                key={field}
-                onClick={() => {
-                  setSelectedField(field);
-                  setCurrentPage(1);
-                }}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-250 cursor-pointer ${
-                  selectedField === field
-                    ? 'bg-[#001F3F] text-white shadow-sm'
-                    : 'bg-white text-slate-650 border border-slate-200 hover:border-slate-350 hover:bg-slate-50'
-                }`}
-              >
-                {field === 'All' ? 'All Domains' : field}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ─── Advanced Filters Modal Overlay (Replicating Main Catalog filters) ─── */}
-
+        )}
       </div>
 
       {/* ─── Active Filter Meta Info ─── */}
@@ -930,8 +1078,15 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
             CONNECTED: RETRIEVING LIVE UNIVERSITY CATALOG DATA...
           </span>
         ) : (
-          <span className="text-[10.5px] text-slate-405 font-mono font-bold uppercase tracking-widest">
-            {viewMode === 'explore' ? totalResults : filteredCourses.length} MATCHING PROGRAMS FOUND
+          <span className="text-[10.5px] text-slate-400 font-mono font-bold uppercase tracking-widest flex items-center gap-1.5">
+            {isFiltersEmpty && viewMode === 'explore' ? (
+              <>
+                <TrendingUp size={12} className="text-amber-500 shrink-0" />
+                <span>15 TRENDING PROGRAMS FOUND</span>
+              </>
+            ) : (
+              <span>{viewMode === 'explore' ? totalResults : filteredCourses.length} MATCHING PROGRAMS FOUND</span>
+            )}
           </span>
         )}
         {compareIds.length > 0 && (
@@ -1129,7 +1284,7 @@ export const UniversitiesTab: React.FC<UniversitiesTabProps> = ({
         </AnimatePresence>
 
         {/* PAGINATION CONTROLS */}
-        {viewMode === 'explore' && totalPages > 1 && (
+        {viewMode === 'explore' && !isFiltersEmpty && totalPages > 1 && (
           <div className="bg-gradient-to-r from-white/95 via-slate-50/98 to-white/95 backdrop-blur-lg rounded-[2rem] p-5 border border-slate-200/80 shadow-lg shadow-slate-200/35 flex flex-col lg:flex-row items-center justify-between gap-4 mt-8 w-full transition-all duration-300">
             <div className="text-xs sm:text-sm font-mono font-bold text-slate-500 flex items-center gap-2 whitespace-nowrap">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
