@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
     // Tree-shake barrel exports for faster compilation
     optimizePackageImports: ['lucide-react', 'motion'],
   },
+  async redirects() {
+    return [
+      {
+        source: '/sitemap',
+        destination: '/sitemap.xml',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/agent/', '/api/'],
     },
-    sitemap: 'https://ffoverseas.in/sitemap.xml',
+    sitemap: 'https://www.ffoverseas.in/sitemap.xml',
   };
 }

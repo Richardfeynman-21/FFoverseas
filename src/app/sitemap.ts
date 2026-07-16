@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 
 export const revalidate = 86400; // Cache sitemap for 24 hours route-level
 
-const BASE_URL = 'https://ffoverseas.in';
+const BASE_URL = 'https://www.ffoverseas.in';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
