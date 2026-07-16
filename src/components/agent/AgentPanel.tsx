@@ -19,7 +19,6 @@ import {
   StudentRecord,
   ApplicationRecord,
   DocumentRecord,
-  UniversityRecord,
   PipelineStage,
   ChatMessage
 } from './types';
@@ -29,7 +28,6 @@ import StudentsTab from './StudentsTab';
 import ChatTab from './ChatTab';
 import ApplicationsTab from './ApplicationsTab';
 import DocumentsTab from './DocumentsTab';
-import UniversitiesTab from './UniversitiesTab';
 
 const NAVY = '#001F3F';
 const RED = '#FF0000';
@@ -141,12 +139,7 @@ const DEFAULT_DOCUMENTS: DocumentRecord[] = [
   { id: 'doc-04', studentName: 'Aanya Sharma', documentType: 'LOR', fileName: 'lor_stanford_rec.pdf', status: 'Verified', uploadedAt: '2026-05-10' },
 ];
 
-const DEFAULT_UNIVERSITIES: UniversityRecord[] = [
-  { id: 'uni-01', name: 'Stanford University', country: 'USA', qsRanking: 'QS #5', tuitionRange: '$56k - $62k/yr', acceptanceRate: '3.7%' },
-  { id: 'uni-02', name: 'University of Oxford', country: 'UK', qsRanking: 'QS #3', tuitionRange: '£28k - £44k/yr', acceptanceRate: '15.3%' },
-  { id: 'uni-03', name: 'University of Toronto', country: 'Canada', qsRanking: 'QS #21', tuitionRange: 'CAD 45k - 62k/yr', acceptanceRate: '43.0%' },
-  { id: 'uni-04', name: 'Technical University of Munich', country: 'Germany', qsRanking: 'QS #37', tuitionRange: '€0 (Public)', acceptanceRate: '8.0%' },
-];
+
 
 const DEFAULT_STAGES: PipelineStage[] = [
   { id: 1, name: 'Profile Submitted', status: 'pending', date: '', description: 'Student personal and academic profile recorded.' },
@@ -167,7 +160,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
   const router = useRouter();
 
   // Active Main Tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'students' | 'chat' | 'applications' | 'documents' | 'universities'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'students' | 'chat' | 'applications' | 'documents'>('overview');
 
   // Database States loaded from localStorage
   // Database States
@@ -175,20 +168,6 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
   const [backendOffline, setBackendOffline] = useState(false);
   const [applications, setApplications] = useState<ApplicationRecord[]>([]);
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
-
-  const [universities, setUniversities] = useState<UniversityRecord[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ff_universities_db');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    return DEFAULT_UNIVERSITIES;
-  });
 
   // Chat Inbox States
   const [activeChatStudentId, setActiveChatStudentId] = useState<string>('demo-student-id');
@@ -219,10 +198,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
 
   const [notification, setNotification] = useState<{ text: string; isError: boolean } | null>(null);
 
-  // Sync universities to localStorage
-  useEffect(() => {
-    localStorage.setItem('ff_universities_db', JSON.stringify(universities));
-  }, [universities]);
+
 
   // Sync students to localStorage to enable cross-tab real-time updates
   useEffect(() => {
@@ -963,14 +939,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
           borderColor: 'border-teal-100',
           glow: 'shadow-teal-500/10'
         };
-      case 'universities':
-        return {
-          activeBg: 'bg-rose-50/60 text-rose-700 border-l-4 border-rose-600 rounded-l-none',
-          dotBg: 'bg-rose-500',
-          textColor: 'text-rose-600',
-          borderColor: 'border-rose-100',
-          glow: 'shadow-rose-500/10'
-        };
+
       case 'health':
         return {
           activeBg: 'bg-violet-50/60 text-violet-700 border-l-4 border-violet-600 rounded-l-none',
@@ -1077,8 +1046,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
               { key: 'students', label: 'Students Directory', icon: Users },
               { key: 'chat', label: 'Counselor Chat', icon: MessageSquare },
               { key: 'applications', label: 'Applications Hub', icon: TrendingUp },
-              { key: 'documents', label: 'Document Audits', icon: FileText },
-              { key: 'universities', label: 'Universities Manager', icon: Building2 }
+              { key: 'documents', label: 'Document Audits', icon: FileText }
             ].map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.key;
@@ -1188,14 +1156,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
           />
         )}
 
-        {/* ───── TAB 6: UNIVERSITIES MANAGER ───── */}
-        {activeTab === 'universities' && (
-          <UniversitiesTab
-            universities={universities}
-            setUniversities={setUniversities}
-            triggerNotification={triggerNotification}
-          />
-        )}
+
       </main>
     </div>
   );
