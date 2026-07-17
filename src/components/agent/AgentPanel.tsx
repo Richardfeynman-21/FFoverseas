@@ -962,7 +962,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
   const dynamicColors = getTabColorStyles(activeTab);
 
   return (
-    <div className="min-h-screen bg-white text-slate-700 font-sans selection:bg-[#001F3F]/5 selection:text-[#001F3F] pb-10 flex flex-col lg:flex-row w-full transition-colors duration-500 relative">
+    <div className="h-[100dvh] bg-white text-slate-700 font-sans selection:bg-[#001F3F]/5 selection:text-[#001F3F] flex flex-col lg:flex-row w-full transition-colors duration-500 relative overflow-hidden">
       {backendOffline && (
         <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white px-6 py-3 flex items-center justify-between text-xs font-bold font-mono tracking-wider shadow-lg animate-pulse">
           <div className="flex items-center gap-2">
@@ -999,7 +999,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
       </AnimatePresence>
 
       {/* SIDEBAR NAVIGATION */}
-      <aside className="w-full lg:w-72 bg-white border-b lg:border-b-0 lg:border-r border-slate-100 flex flex-col justify-between shrink-0 shadow-[2px_0_15px_rgba(0,0,0,0.003)]">
+      <aside className="w-full lg:w-72 lg:h-full bg-white border-b lg:border-b-0 lg:border-r border-slate-100 flex flex-col justify-between shrink-0 shadow-[2px_0_15px_rgba(0,0,0,0.003)]">
         <div className="flex flex-col w-full">
           {/* Top bar (brand + profile + logout on mobile) */}
           <div className="flex flex-row lg:flex-col items-center lg:items-stretch justify-between lg:justify-start border-b border-slate-100 w-full">
@@ -1082,7 +1082,7 @@ export default function AgentPanel({ agentProfile, onLogout }: AgentPanelProps) 
       </aside>
 
       {/* MAIN CONFIGURATION PANEL */}
-      <main className="flex-1 min-w-0 p-6 sm:p-10 space-y-6 overflow-y-auto bg-white">
+      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-10 space-y-4 sm:space-y-6 overflow-y-auto bg-white flex flex-col">
         {/* Global Dashboard Header & Breadcrumbs */}
         <div className="flex items-center justify-between border-b border-slate-100/80 pb-5 mb-2">
           <div className="flex items-center gap-2 text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">

@@ -60,9 +60,9 @@ export default function ChatTab({
   ];
 
   return (
-    <motion.div className="h-[750px] flex flex-col md:flex-row bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-[0_4px_25px_rgba(0,0,0,0.005)]" variants={staggerItem} initial="hidden" animate="visible">
+    <motion.div className="flex-1 min-h-0 flex flex-col md:flex-row bg-white border border-slate-100 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_4px_25px_rgba(0,0,0,0.005)]" variants={staggerItem} initial="hidden" animate="visible">
       {/* Left side conversations panel */}
-      <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-100 flex flex-col shrink-0 bg-slate-50/10">
+      <div className="w-full md:w-80 max-h-[35vh] md:max-h-none border-b md:border-b-0 md:border-r border-slate-100 flex flex-col shrink-0 bg-slate-50/10">
         <div className="p-4 border-b border-slate-100 space-y-3">
           <h3 className="font-extrabold text-xs text-[#001F3F] uppercase tracking-tight flex items-center gap-2">
             <MessageSquare className="text-indigo-600 w-4 h-4" />

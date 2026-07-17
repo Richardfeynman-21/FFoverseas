@@ -339,7 +339,7 @@ export default function Login() {
 
   return (
     <motion.div
-      className="relative min-h-screen flex bg-[#fdfdfd] selection:bg-[#FF0000]/10 selection:text-[#001F3F] overflow-hidden"
+      className="relative min-h-[100dvh] flex flex-col lg:flex-row bg-[#fdfdfd] selection:bg-[#FF0000]/10 selection:text-[#001F3F] overflow-y-auto"
       variants={pageVariants}
       initial="hidden"
       animate="visible"
@@ -496,7 +496,7 @@ export default function Login() {
           RIGHT LOGIN FORM PANEL
           ═══════════════════════════════════════════════════════════════════════ */}
       <motion.div
-        className="flex-1 flex flex-col justify-center items-center px-6 sm:px-10 lg:px-16 py-10 relative"
+        className="flex-1 flex flex-col justify-center items-center px-6 sm:px-10 lg:px-16 py-6 sm:py-10 relative overflow-y-auto"
         variants={formContainerVariants}
         initial="hidden"
         animate="visible"
@@ -517,7 +517,7 @@ export default function Login() {
           initial="hidden"
           animate="visible"
         >
-          <motion.div className="lg:hidden mb-10" variants={staggerItem}>
+          <motion.div className="lg:hidden mb-5 sm:mb-10" variants={staggerItem}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1.5 border border-slate-200 shadow-sm">
                 <img src="/logo.svg" className="w-full h-full object-contain" alt="Fly & Flourish Logo" />
@@ -534,7 +534,7 @@ export default function Login() {
           </motion.div>
 
           {/* Form heading */}
-          <motion.div className="space-y-2 mb-8" variants={staggerItem}>
+          <motion.div className="space-y-2 mb-4 sm:mb-8" variants={staggerItem}>
             <h1 className="text-2xl sm:text-3xl font-black text-[#001F3F] tracking-tight">
               Welcome Back
             </h1>
@@ -726,7 +726,7 @@ export default function Login() {
 
           {/* Divider */}
           <motion.div
-            className="flex items-center gap-4 my-7"
+            className="flex items-center gap-4 my-4 sm:my-7"
             variants={staggerItem}
           >
             <div className="flex-1 h-px bg-slate-200/60" />
@@ -760,7 +760,7 @@ export default function Login() {
 
           {/* Bottom security badge */}
           <motion.div
-            className="mt-10 flex items-center justify-center gap-2 text-[9px] font-mono text-gray-300 tracking-wider"
+            className="mt-5 sm:mt-10 flex items-center justify-center gap-2 text-[9px] font-mono text-gray-300 tracking-wider"
             variants={staggerItem}
           >
             <Shield className="w-3 h-3" />

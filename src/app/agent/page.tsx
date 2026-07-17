@@ -71,7 +71,7 @@ export default function AgentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-700 font-sans selection:bg-[#FF0000]/10 selection:text-[#001F3F] pb-10">
+    <div className="h-[100dvh] overflow-hidden bg-[#f8fafc] text-slate-700 font-sans selection:bg-[#FF0000]/10 selection:text-[#001F3F]">
       <AnimatePresence>
         {notification && (
           <motion.div
