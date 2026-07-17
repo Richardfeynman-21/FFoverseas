@@ -3,8 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  CheckCircle2, CheckSquare, Square, FileText, Image, FileSpreadsheet, FileCode, 
-  Trash2, Eye, UploadCloud, X, Download, AlertCircle, Check
+  CheckCircle2, Square, FileText, Image, FileSpreadsheet, FileCode, 
+  Trash2, Eye, UploadCloud, X, Download, AlertCircle, Check, Clock, XCircle
 } from 'lucide-react';
 import { UploadedFile } from './types';
 import { DOCUMENTS } from './constants';
@@ -293,58 +293,89 @@ export const VaultTab: React.FC<VaultTabProps> = ({
           <div>
             <h3 className="font-bold text-[#001F3F]">Document Checklist</h3>
             <p className="text-[11px] text-slate-400 font-mono">
-              {uploadedDocs} OF {DOCUMENTS.length} UPLOADED
+              {uploadedFiles.length} OF {DOCUMENTS.length} UPLOADED • {uploadedFiles.filter(f => f.status === 'verified' || f.status === 'approved' || f.status === 'Verified').length} APPROVED BY ADMIN
             </p>
           </div>
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
             style={{
-              background: `conic-gradient(#10b981 ${(uploadedDocs / DOCUMENTS.length) * 360}deg, #e2e8f0 0deg)`,
+              background: `conic-gradient(#10b981 ${(uploadedFiles.length / DOCUMENTS.length) * 360}deg, #e2e8f0 0deg)`,
             }}
           >
             <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[11px] font-bold font-mono text-emerald-600">
-              {uploadedDocs}/{DOCUMENTS.length}
+              {uploadedFiles.length}/{DOCUMENTS.length}
             </div>
           </div>
         </div>
+
         <div className="space-y-3">
           {DOCUMENTS.map((doc) => {
             const file = uploadedFiles.find((f) => f.documentId === doc.id);
-            const isUploaded = docChecks[doc.id];
+            const isUploaded = !!file || docChecks[doc.id];
+            const isVerified = file && (file.status === 'verified' || file.status === 'approved' || file.status === 'Verified');
+            const isRejected = file && (file.status === 'rejected' || file.status === 'Rejected');
+            const isPendingReview = isUploaded && !isVerified && !isRejected;
+
             return (
               <div
                 key={doc.id}
-                className="p-3 rounded-xl hover:bg-slate-50 transition-colors border border-slate-100 bg-white"
+                className="p-3.5 rounded-xl hover:bg-slate-50/80 transition-colors border border-slate-100 bg-white"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <button
-                    onClick={() => {
-                      setDocChecks((prev) => ({ ...prev, [doc.id]: !prev[doc.id] }));
-                    }}
-                    className="shrink-0 cursor-pointer text-slate-400 hover:text-[#001F3F] transition-colors"
-                  >
-                    {isUploaded ? (
-                      <CheckSquare size={20} className="text-emerald-500" />
+                  {/* Read-Only Status Icon (Students cannot click to self-verify) */}
+                  <div className="shrink-0">
+                    {isVerified ? (
+                      <CheckCircle2 size={20} className="text-emerald-500" />
+                    ) : isPendingReview ? (
+                      <Clock size={20} className="text-amber-500" />
+                    ) : isRejected ? (
+                      <XCircle size={20} className="text-red-500" />
                     ) : (
                       <Square size={20} className="text-slate-300" />
                     )}
-                  </button>
+                  </div>
+
                   <span
                     className={`text-sm font-semibold truncate min-w-0 flex-1 ${
-                      isUploaded ? 'text-slate-500 line-through font-normal' : 'text-[#001F3F]'
+                      isVerified
+                        ? 'text-[#001F3F] font-bold'
+                        : isPendingReview
+                        ? 'text-[#001F3F]'
+                        : isRejected
+                        ? 'text-red-700 font-semibold'
+                        : 'text-slate-500'
                     }`}
                   >
                     {doc.name}
                   </span>
                   
-                  {isUploaded ? (
-                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 ml-auto select-none shrink-0">
-                      UPLOADED
+                  {/* Status Badge */}
+                  {isVerified ? (
+                    <span className="text-[9px] font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/60 ml-auto select-none shrink-0 flex items-center gap-1">
+                      <Check size={10} className="stroke-[3]" /> APPROVED BY ADMIN
                     </span>
+                  ) : isPendingReview ? (
+                    <div className="flex items-center gap-2 ml-auto shrink-0">
+                      <span className="text-[9px] font-mono font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 select-none flex items-center gap-1">
+                        <Clock size={10} /> PENDING ADMIN APPROVAL
+                      </span>
+                    </div>
+                  ) : isRejected ? (
+                    <div className="flex items-center gap-2 ml-auto shrink-0">
+                      <span className="text-[9px] font-mono font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200/60 select-none flex items-center gap-1">
+                        <XCircle size={10} /> REJECTED BY ADMIN
+                      </span>
+                      <button
+                        onClick={() => triggerUploadFor(doc.id)}
+                        className="text-[10px] text-blue-600 font-bold hover:underline cursor-pointer"
+                      >
+                        Re-upload
+                      </button>
+                    </div>
                   ) : (
                     <div className="flex items-center gap-2 ml-auto shrink-0">
-                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 select-none">
-                        PENDING
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 select-none">
+                        NOT UPLOADED
                       </span>
                       <button
                         onClick={() => triggerUploadFor(doc.id)}
@@ -356,36 +387,45 @@ export const VaultTab: React.FC<VaultTabProps> = ({
                   )}
                 </div>
 
-                {isUploaded && (
-                  <div className="mt-2 ml-4 sm:ml-8 pl-3 border-l-2 border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 bg-slate-50/50 p-2 rounded-lg">
+                {/* Sub-bar with file info */}
+                {file && (
+                  <div className="mt-2.5 ml-4 sm:ml-8 pl-3 border-l-2 border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 bg-slate-50/70 p-2.5 rounded-lg">
                     <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
                       <div className="text-slate-400 shrink-0">
-                        {file ? getFileIcon(file.name, 14) : <CheckCircle2 size={14} className="text-emerald-500" />}
+                        {getFileIcon(file.name, 14)}
                       </div>
-                      <span className="text-xs text-slate-600 truncate font-medium flex-1 sm:flex-initial">
-                        {file ? file.name : 'Verified by Administrator'}
+                      <span className="text-xs text-slate-700 truncate font-medium flex-1 sm:flex-initial">
+                        {file.name}
                       </span>
-                      {file && (
-                        <span className="text-[10px] text-slate-400 font-mono shrink-0">({file.size})</span>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">({file.size})</span>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">• {file.uploadedAt}</span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                      <button
+                        onClick={() => handleViewFile(file)}
+                        className="text-[10px] font-semibold text-blue-600 hover:underline cursor-pointer px-1 py-0.5"
+                      >
+                        View
+                      </button>
+                      <span className="text-slate-300">|</span>
+                      <button
+                        onClick={() => handleDownloadFile(file)}
+                        className="text-[10px] font-semibold text-slate-600 hover:underline cursor-pointer px-1 py-0.5"
+                      >
+                        Download
+                      </button>
+                      {!isVerified && (
+                        <>
+                          <span className="text-slate-300">|</span>
+                          <button
+                            onClick={() => handleDeleteFile(file.id)}
+                            className="text-[10px] font-semibold text-red-500 hover:underline cursor-pointer px-1 py-0.5"
+                          >
+                            Remove
+                          </button>
+                        </>
                       )}
                     </div>
-                    {file && (
-                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                        <button
-                          onClick={() => handleViewFile(file)}
-                          className="text-[10px] font-semibold text-blue-600 hover:underline cursor-pointer px-1 py-0.5"
-                        >
-                          View
-                        </button>
-                        <span className="text-slate-300">|</span>
-                        <button
-                          onClick={() => handleDeleteFile(file.id)}
-                          className="text-[10px] font-semibold text-red-500 hover:underline cursor-pointer px-1 py-0.5"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
